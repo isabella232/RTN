@@ -27,6 +27,7 @@ SchemaName = "???"
 #pip install xlrd
 #pip3 install requests-html
 #pip install html5lib
+#Pip Install teradataml
 
 from IPython import get_ipython
 from covid19dh import covid19
