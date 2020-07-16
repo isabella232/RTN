@@ -12,6 +12,7 @@ This application consists of the following components:
   
 # Prerequisites:
   * Python Version 3.7 or Greater
+  * Teradata Connection through Python (teradataml)
   * Teradata DBS 16.20 FU or Greater
   * Tableau Version 2020.1
   * Tableau Reader Version 2020.1  (download at tableau.com)
