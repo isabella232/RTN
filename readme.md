@@ -4,11 +4,11 @@ Copyright (C) 2016-2020 by Teradata Corporation. All rights reserved.
 Covid19 Return to Business demo assets
 
 This application consists of the following components:
-  * Database Objects Installation - RTN_Install.ddl (ddl folder)
-  * Database Objects Uninstall - RTN_Uninstall.ddl (ddl folder)
-  * ETL Python Script - RTN_ETL.py (etl folder)
-  * Tableau Application Visualization (tableau folder)
+  * Database Objects Installation - (ddl folder)
+  * Database Objects Uninstall - (ddl folder)
+  * ETL Python Scripts - (etl folder)
   * Initial Manual Data Inserts (data folder)
+  * Tableau Application Visualization (tableau folder)
   
 # Prerequisites:
   * Python Version 3.7 or Greater
@@ -22,19 +22,21 @@ This application consists of the following components:
       * MyUser ='???'
       * TempDB ='???'
       * SchemaName = '???'
-  * Email Notification SMPT Server Info
-      * sender_email = '???'
-      * receivers = ['???','???',...]
-      * password = '???'
-  * Set Default Database in the DDL Installation File ddl/RTN.ddl
-      * Do a complete replacement of '?' to target database name'
+
+  * Set Default Database in the DDL Installation File ddl
+      * Do a complete replacement of '???' to target database name'
       
 # Installation Steps:
   * Initiate a Teradata session through SQL Assistant, Teradata Studio or BTEQ
-  * Run RTN_Install.ddl Install through successful completion
+  * Run CUST_RTN_Install.ddl Install through successful completion
   * Check the logs and database for additional Tables/Views/Stored Procedures
-  * Run Python Script RTN_ETL.py for initial static table load as well first initial load
-  * Schedule the Python Script Load to be run Daily or manually run for updates
+  * Run Python Script CUST_RTN_ETL_STATIC_DATA.py for initial static table load as well as first initial load
+  * Check the logs and database for record counts
+  * Run Python Script CUST_RTN_ETL_SRC_TO_STG.py for Source to Staging load
+  * Check the logs and database for record counts
+  * Run Python Script CUST_RTN_ETL_STG_TO_CORE.py for Source to Staging load
+  * Check the logs and database for record counts
+  * Schedule the Python Scripts to be run Daily or manually run for updates
   
 # Tableau Dashboard Refresh:
   * Tableau requires refresh process after initial load for each of the 11 data sources
@@ -48,6 +50,6 @@ This application consists of the following components:
   * Error Table ETL_Proc_Error_Logs, captures all stage to core stored procedure errors
   
 # To Uninstall:
-  * Set Default Database in the DDL Installation File ddl/RTN_Uninstall.ddl
-      * Do a complete replacement of '?' to target database name
-  * Run RTN_Uninstall.ddl which removes all Tables/Views/Stored Procedure from your database
+  * Set Default Database in the DDL Installation File ddl/CUST_RTN_Uninstall.ddl
+      * Do a complete replacement of '???' to target database name
+  * Run CUST_RTN_Uninstall.ddl which removes all Tables/Views/Stored Procedure from your database
