@@ -115,3 +115,31 @@ datetime.utcnow()
 dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
 timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
 print("Initial Static Tables Reloaded!  " + timestampStr)
+
+#############################################################
+# Printing the Load Summary Stats
+#############################################################
+
+pd.read_sql('DATABASE '+SchemaName,con)
+
+query = "SELECT 'Python' as Process_Name, 'Static' as Table_Type, 'DIM_GEO_LOCATION_T' as TableName, count(*) as Records_Processed, max(current_timestamp(0)) as Process_Dttm FROM DIM_GEO_LOCATION_T GROUP BY 1,2,3 \
+UNION \
+SELECT 'Python' as Process_Name, 'Static' as Table_Type, 'DIM_ZIP_COUNTY_MSA_MAP_RAW' as TableName, count(*) as Records_Processed, max(current_timestamp(0)) as Process_Dttm FROM DIM_ZIP_COUNTY_MSA_MAP_RAW GROUP BY 1,2,3 \
+UNION \
+SELECT 'Python' as Process_Name, 'Static' as Table_Type, 'DIM_People_location' as TableName, count(*) as Records_Processed, max(current_timestamp(0)) as Process_Dttm FROM DIM_People_location GROUP BY 1,2,3 \
+UNION \
+SELECT 'Python' as Process_Name, 'Static' as Table_Type, 'DIM_Site_addresses' as TableName, count(*) as Records_Processed, max(current_timestamp(0)) as Process_Dttm FROM DIM_Site_addresses GROUP BY 1,2,3 \
+UNION \
+SELECT 'Python' as Process_Name, 'Static' as Table_Type, 'STG_CO_EST2019' as TableName, count(*) as Records_Processed, max(current_timestamp(0)) as Process_Dttm FROM STG_CO_EST2019 GROUP BY 1,2,3 \
+UNION \
+SELECT 'Python' as Process_Name, 'Static' as Table_Type, 'Transaltion_Table' as TableName, count(*) as Records_Processed, max(current_timestamp(0)) as Process_Dttm FROM Transaltion_Table GROUP BY 1,2,3 \
+UNION \
+SELECT 'Python' as Process_Name, 'Static' as Table_Type, 'STG_BEA_PersonalConsumption_2_3_5' as TableName, count(*) as Records_Processed, max(current_timestamp(0)) as Process_Dttm FROM STG_BEA_PersonalConsumption_2_3_5 GROUP BY 1,2,3 \
+UNION \
+SELECT 'Python' as Process_Name, 'Static' as Table_Type, 'STG_Consumer_Sentiment_Index' as TableName, count(*) as Records_Processed, max(current_timestamp(0)) as Process_Dttm FROM STG_Consumer_Sentiment_Index GROUP BY 1,2,3"
+
+
+#Fetch the data from Teradata using Pandas Dataframe
+pda = pd.read_sql(query,con)
+copy_to_sql(df = pda, table_name = "ETL_Indicator_Proj_Audit", schema_name=SchemaName, if_exists = 'append')
+print(pda)

@@ -338,6 +338,7 @@ timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
 print("TSA Travel Finished!  " + timestampStr)
 
 
+
 #############################################################
 # Printing the Load Summary Stats
 #############################################################

@@ -56,6 +56,13 @@ def cur_execute (cur, sSQL, params=None):
 
 try:
     # Core Load Calls to Teradata
+    cur_execute (con, "CALL "+SchemaName+".ETL_LOOKUP_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
+    from datetime import datetime
+    datetime.utcnow()
+    dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
+    timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
+    print("ETL_LOOKUP_CORE Finished!  " + timestampStr)
+
     cur_execute (con, "CALL "+SchemaName+".ETL_COVID_CASES_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
     from datetime import datetime
     datetime.utcnow()
@@ -129,4 +136,20 @@ finally:
     dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
     timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
     print("ETL_POST_LOAD_CORE Finished!  " + timestampStr)
+
+#############################################################
+# Printing the Load Summary Stats
+#############################################################
+
+pd.read_sql('DATABASE '+SchemaName,con)
+
+query = "select Process_Name, Table_Type, TableName, Records_Processed, Process_Dttm \
+from ETL_Indicator_Proj_Audit \
+where table_type = 'Core' \
+QUALIFY 1=ROW_NUMBER() OVER (PARTITION BY Process_Name ORDER BY Process_Dttm DESC);"
+
+
+#Fetch the data from Teradata using Pandas Dataframe
+pda = pd.read_sql(query,con)
+print(pda)
 
