@@ -7630,3 +7630,108 @@ INSERT INTO ???.ETL_Indicator_Proj_Audit VALUES (v_ProcName,'Core',v_CoreTable,v
 
 	
 END;
+			  
+			  
+/*********************************************************************************************************/
+/* 
+Procedure Name    : ETL_LOOKUP_CORE                                              		
+Developed By      : Teradata Team                                                                            			  
+Created           : July 16, 2020 			                                                                           		     
+Description       : This Procecdure is used to Upcert FACT_LOOKUP_TABLES Table									 
+Procedure syntax  : CALL ETL_LOOKUP_CORE (v_MsgTxt,v_RowCnt,v_ResultSet) ;      
+
+1 - Represnts Failure
+Null - Represnts Success   
+                                                                                                                                  
+Date           	Ver#		Modified By(Name)       	Version Comments                   
+-----------   	-------     -------------------------	----------------------------                       
+07/16/2020      1.0         Teradata DW              	Initial
+/*																																									*/
+/*****************************************************************************************************/
+REPLACE PROCEDURE ???.ETL_LOOKUP_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
+SQL SECURITY INVOKER
+BEGIN
+
+ /* Local Variable Declaration */ 
+DECLARE v_CoreTable VARCHAR(100) DEFAULT 'FACT_LOOKUP_TABLES';
+DECLARE v_RecordsAffected INTEGER DEFAULT 0;
+DECLARE v_ProcName VARCHAR(100) DEFAULT 'ETL_LOOKUP_CORE';
+
+/* Exception Handling when when SQL Exception occurs */
+DECLARE   EXIT HANDLER FOR SQLEXCEPTION
+BEGIN  
+		INSERT INTO ???.ETL_Proc_Error_Logs
+		( Sql_Code
+		  ,Logged_Time
+		  ,Sql_State
+		  ,Error_Text
+		  ,Procedure_Name
+		)
+		SELECT
+		        :SQLCODE
+		        ,CURRENT_TIMESTAMP(0) 
+		        ,:SQLSTATE
+		        ,ErrorText || 'while executing proc' ||Procedure_Name
+		        ,v_ProcName AS Procedure_Name
+		FROM DBC.ERRORMSGS 
+		WHERE ERRORCODE= :SQLCODE;
+	SET v_ResultSet=1;
+	SET v_MsgTxt='Error,refer to ETL_Proc_Error_Logs';
+END;
+
+/******************************************************************/
+/*Put Your Transformation Logic Here
+/******************************************************************/
+
+INSERT INTO ???.DIM_ZIPCODE_COUNTY_MSA_LKUP
+SELECT 
+   ZIPCODE, 
+   STATE_NAME,
+   COUNTY_NAME,
+   MSA_NAME
+FROM
+   ???.DIM_ZIP_COUNTY_MSA_MAP_RAW T
+ WHERE ZIPCODE NOT IN (
+'51603',
+'54120',
+'57256',
+'59260',
+'62985',
+'98068')
+QUALIFY RANK() OVER (PARTITION BY ZIPCODE ORDER BY COUNTY_TOT_RATIO DESC) = 1;
+
+
+INSERT INTO ???.DIM_ZIPCODE_COUNTY_MSA_LKUP
+SELECT 
+   ZIPCODE, 
+   STATE_NAME,
+   COUNTY_NAME,
+   MSA_NAME
+FROM
+   ???.DIM_ZIP_COUNTY_MSA_MAP_RAW T
+ WHERE ZIPCODE  IN (
+'51603',
+'54120',
+'57256',
+'59260',
+'62985',
+'98068')
+QUALIFY RANK() OVER (PARTITION BY ZIPCODE ORDER BY COUNTY_TOT_RATIO DESC, MSA_NAME DESC, CBSA_NAME DESC, COUNTY_FIPS) = 1;
+	
+ 
+/******************************************************************/
+/*End of Transformation Logic
+/******************************************************************/	
+
+
+/*Getting Number of rows affected*/
+SET v_RecordsAffected = v_RecordsAffected + ACTIVITY_COUNT;
+SET v_RowCnt = v_RecordsAffected;
+
+
+/*Insert Into Core Job Log*/
+INSERT INTO ???.ETL_Indicator_Proj_Audit VALUES (v_ProcName,'Core',v_CoreTable,v_RecordsAffected,current_timestamp(0));
+	
+END;
+			  
+			  
