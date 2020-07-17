@@ -121,7 +121,7 @@ print("Initial Static Tables Reloaded!  " + timestampStr)
 # Printing the Load Summary Stats
 #############################################################
 
-pd.read_sql('DATABASE '+SchemaName,con)
+pda = pd.read_sql('DATABASE '+SchemaName,con)
 
 query = "SELECT 'Python' as Process_Name, 'Static' as Table_Type, 'DIM_GEO_LOCATION_T' as TableName, count(*) as Records_Processed, max(current_timestamp(0)) as Process_Dttm FROM DIM_GEO_LOCATION_T GROUP BY 1,2,3 \
 UNION \
