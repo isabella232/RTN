@@ -343,8 +343,7 @@ print("TSA Travel Finished!  " + timestampStr)
 # Printing the Load Summary Stats
 #############################################################
 
-
-pd.read_sql('DATABASE '+SchemaName,con)
+pda = pd.read_sql('DATABASE '+SchemaName,con)
 
 query = "SELECT 'Python' as Process_Name, 'Staging' as Table_Type, 'STG_Hospitalization_all_locs' as TableName, count(*) as Records_Processed, max(current_dttm) as Process_Dttm FROM STG_Hospitalization_all_locs GROUP BY 1,2,3 \
 UNION \
