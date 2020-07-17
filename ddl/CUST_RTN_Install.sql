@@ -4508,9 +4508,10 @@ Date           	Ver#		Modified By(Name)       	Version Comments
 -----------   	-------     -------------------------	----------------------------                       
 07/05/2020      1.0         Teradata DW              	Initial
 07/06/2020		2.0         Teradata DW              	Added LVL2 Code
+07/06/2020		3.0			Teradata DW					severe column was not being passed anymore set to null
 /*																																									*/
 /*****************************************************************************************************/
-REPLACE PROCEDURE ???.ETL_COVID19_DATAHUB_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
+REPLACE PROCEDURE ?.ETL_COVID19_DATAHUB_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 SQL SECURITY INVOKER
 BEGIN
 
@@ -4522,7 +4523,7 @@ DECLARE v_ProcName VARCHAR(100) DEFAULT 'ETL_COVID19_DATAHUB_CORE';
 /* Exception Handling when when SQL Exception occurs */
 DECLARE   EXIT HANDLER FOR SQLEXCEPTION
 BEGIN  
-		INSERT INTO ???.ETL_Proc_Error_Logs
+		INSERT INTO ?.ETL_Proc_Error_Logs
 		( Sql_Code
 		  ,Logged_Time
 		  ,Sql_State
@@ -4546,7 +4547,7 @@ END;
 /******************************************************************/
 
  
-MERGE INTO ???.FACT_COVID19_DATAHUB as target
+MERGE INTO ?.FACT_COVID19_DATAHUB as target
 USING    
  ( select x.PROCESS_TYPE,      	
    	x.date_key,
@@ -4643,8 +4644,10 @@ SELECT
     deaths deaths_CNT,
     hosp HOSPITALIZED_CNT,
     vent  ON_VENTILATOR_CNT,
-    icu IN_ICU_CNT, 
-    severe SEVERE_CASE_CNT, 
+    icu IN_ICU_CNT,
+	-- 07/17/20 Changes
+    0 SEVERE_CASE_CNT,
+	-- End of Changes
     l3.population  ,
     school_closing  ,
     workplace_closing  ,
@@ -4665,12 +4668,12 @@ SELECT
     key_alpha_2 ,
  	current_timestamp(0) REC_INS_TS
  	--select min(date_key)
-from ???.STG_COVID19_Datahub_LVL3 l3
-left outer join ???.DIM_GEO_LOCATION_V g
+from ?.STG_COVID19_Datahub_LVL3 l3
+left outer join ?.DIM_GEO_LOCATION_V g
 on l3.key_numeric  =  g.fips 
 where g.uid is not null ) a
  
-        LEFT OUTER JOIN ???.FACT_COVID19_DATAHUB_v b
+        LEFT OUTER JOIN ?.FACT_COVID19_DATAHUB_v b
            ON   a.DATE_KEY = b.DATE_KEY 
            and a.GEO_key = b.GEO_key 
        
@@ -4766,7 +4769,7 @@ SET v_RecordsAffected = v_RecordsAffected + ACTIVITY_COUNT;
 
 
 --LVL2 Changes
-MERGE INTO ???.FACT_COVID19_DATAHUB_STATE as target
+MERGE INTO ?.FACT_COVID19_DATAHUB_STATE as target
 USING    
  ( select x.PROCESS_TYPE,      	
    	x.date_key,
@@ -4864,7 +4867,9 @@ SELECT
     hosp HOSPITALIZED_CNT,
     vent  ON_VENTILATOR_CNT,
     icu IN_ICU_CNT, 
-    severe SEVERE_CASE_CNT, 
+	-- 07/17/20 Changes
+    0 SEVERE_CASE_CNT,
+	-- End of Changes 
     l2.population  ,
     school_closing  ,
     workplace_closing  ,
@@ -4885,13 +4890,13 @@ SELECT
     key_alpha_2 ,
  	current_timestamp(0) REC_INS_TS
  	--select min(date_key)
-from ???.STG_COVID19_Datahub_LVL2 l2 
-      left outer join ???.DIM_GEO_LOCATION_V g
+from ?.STG_COVID19_Datahub_LVL2 l2 
+      left outer join ?.DIM_GEO_LOCATION_V g
 		on l2.administrative_area_level_2   =  g.state_name  
 		where g.uid is not null 
 		and g.geo_granularity = 'State') a
  
-        LEFT OUTER JOIN ???.FACT_COVID19_DATAHUB_STATE_v b
+        LEFT OUTER JOIN ?.FACT_COVID19_DATAHUB_STATE_v b
            ON   a.DATE_KEY = b.DATE_KEY 
            and a.GEO_key = b.GEO_key 
        
@@ -4992,7 +4997,7 @@ SET v_RowCnt = v_RecordsAffected;
 
 
 /*Insert Into Core Job Log*/
-INSERT INTO ???.ETL_Indicator_Proj_Audit VALUES (v_ProcName,'Core',v_CoreTable,v_RecordsAffected,current_timestamp(0));
+INSERT INTO ?.ETL_Indicator_Proj_Audit VALUES (v_ProcName,'Core',v_CoreTable,v_RecordsAffected,current_timestamp(0));
 	
 END;
 --------------------------------------------------------------------------------
