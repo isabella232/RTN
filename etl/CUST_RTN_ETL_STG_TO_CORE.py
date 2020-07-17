@@ -142,7 +142,7 @@ finally:
 # Printing the Load Summary Stats
 #############################################################
 
-pd.read_sql('DATABASE '+SchemaName,con)
+pda = pd.read_sql('DATABASE '+SchemaName,con)
 
 query = "select Process_Name, Table_Type, TableName, Records_Processed, Process_Dttm \
 from ETL_Indicator_Proj_Audit \
