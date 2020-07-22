@@ -27,7 +27,6 @@ SchemaName = "???"
 #pip install xlrd
 #pip3 install requests-html
 #pip install html5lib
-#Pip Install teradataml
 
 from IPython import get_ipython
 from covid19dh import covid19
@@ -126,6 +125,13 @@ try:
     dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
     timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
     print("ETL_CONSUMER_SENTIMENT_CORE Finished!  " + timestampStr)
+
+    cur_execute (con, "CALL "+SchemaName+".ETL_TSA_TRAVEL_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
+    from datetime import datetime
+    datetime.utcnow()
+    dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
+    timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
+    print("ETL_TSA_TRAVEL_CORE Finished!  " + timestampStr)
     
 except:
     print("An exception occurred")
@@ -142,7 +148,7 @@ finally:
 # Printing the Load Summary Stats
 #############################################################
 
-pda = pd.read_sql('DATABASE '+SchemaName,con)
+pd.read_sql('DATABASE '+SchemaName,con)
 
 query = "select Process_Name, Table_Type, TableName, Records_Processed, Process_Dttm \
 from ETL_Indicator_Proj_Audit \

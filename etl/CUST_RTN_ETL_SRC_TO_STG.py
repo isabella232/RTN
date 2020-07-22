@@ -256,32 +256,39 @@ print("COVID Datahub Level 2 Finished!  " + timestampStr)
 #############################################################
 # 8)  Labor Stats Data
 #############################################################
+
 import json
 import requests
 import datetime
-
+#data = json.dumps({"seriesid": ['CUSR0000SA0','SUUR0000SA0'],"startyear":"2019", "endyear":"2020"})
 headers = {'Content-type': 'application/json'}
-data = json.dumps({"seriesid": ['LNS13000000','LNS14000000'],"startyear":"2018", "endyear":"2020"})
+data = json.dumps({"seriesid": ['CUSR0000SA0','LNS13000000','LNS14000000'],"startyear":"2018", "endyear":"2020"})
 p = requests.post('https://api.bls.gov/publicAPI/v2/timeseries/data/', data=data, headers=headers)
 json_data = json.loads(p.text)
 
 df0 = pd.DataFrame(json_data['Results']['series'][0]['data'])
 df0 = df0.drop(['footnotes'], axis=1)
-df0.loc[:,'footnotes']=""
-df0.loc[:,'series_id']="LNS13000000"
+df0.loc[:,'footnotes']="Consumer Price Index"
+df0.loc[:,'series_id']="CUSR0000SA0"
+df0['current_dttm'] = datetime.datetime.today()
+df0.rename(columns={'year': 'Year_Key', 'periodName': 'Period_Month', 'value': 'Metric_Val', 'period': 'Period_Key'}, inplace=True)
+copy_to_sql(df = df0, table_name = "STG_Labor_Stats_CUSR0000SA0", schema_name = SchemaName, index=False, if_exists="replace")
 
 df1 = pd.DataFrame(json_data['Results']['series'][1]['data'])
 df1 = df1.drop(['footnotes'], axis=1)
-df1.loc[:,'footnotes']=""
-df1.loc[:,'series_id']="LNS14000000"
+df1.loc[:,'footnotes']="Unemployment Level"
+df1.loc[:,'series_id']="LNS13000000"
+df1['current_dttm'] = datetime.datetime.today()
+df1.rename(columns={'year': 'Year_Key', 'periodName': 'Period_Month', 'value': 'Metric_Val', 'period': 'Period_Key'}, inplace=True)
+copy_to_sql(df = df1, table_name = "STG_Labor_Stats_LNS13000000", schema_name = SchemaName, index=False, if_exists="replace")
 
-df01 = df0.append(df1, ignore_index=True)
-
-df01.rename(columns={'year': 'Year_Key', 'periodName': 'Period_Month', 'value': 'Metric_Val', 'period': 'Period_Key'}, inplace=True)
-
-df01['current_dttm'] = datetime.datetime.today()
-
-copy_to_sql(df = df01, table_name = "STG_Labor_Stats", schema_name = SchemaName, index=False, if_exists="replace")
+df2 = pd.DataFrame(json_data['Results']['series'][2]['data'])
+df2 = df2.drop(['footnotes'], axis=1)
+df2.loc[:,'footnotes']="Unemployment Rate"
+df2.loc[:,'series_id']="LNS14000000"
+df2['current_dttm'] = datetime.datetime.today()
+df2.rename(columns={'year': 'Year_Key', 'periodName': 'Period_Month', 'value': 'Metric_Val', 'period': 'Period_Key'}, inplace=True)
+copy_to_sql(df = df2, table_name = "STG_Labor_Stats_LNS14000000", schema_name = SchemaName, index=False, if_exists="replace")
 
 from datetime import datetime
 datetime.utcnow()
@@ -343,7 +350,8 @@ print("TSA Travel Finished!  " + timestampStr)
 # Printing the Load Summary Stats
 #############################################################
 
-pda = pd.read_sql('DATABASE '+SchemaName,con)
+
+pd.read_sql('DATABASE '+SchemaName,con)
 
 query = "SELECT 'Python' as Process_Name, 'Staging' as Table_Type, 'STG_Hospitalization_all_locs' as TableName, count(*) as Records_Processed, max(current_dttm) as Process_Dttm FROM STG_Hospitalization_all_locs GROUP BY 1,2,3 \
 UNION \
