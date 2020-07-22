@@ -6528,7 +6528,7 @@ values (
  
 SET v_RecordsAffected = v_RecordsAffected + ACTIVITY_COUNT;
 
---delete from ???.FACT_Covid_Model_Data_UNPIVOT;
+delete from ???.FACT_Covid_Model_Data_UNPIVOT;
 insert into ???.FACT_Covid_Model_Data_UNPIVOT
 SELECT MODEL_KEY,
     DATE_KEY,
