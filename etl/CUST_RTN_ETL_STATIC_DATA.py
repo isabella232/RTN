@@ -109,6 +109,13 @@ copy_to_sql(df = df, table_name = "TEMP_STG_Consumer_Sentiment_Index", schema_na
 pd.read_sql('DELETE FROM STG_Consumer_Sentiment_Index ;',con)
 pd.read_sql('INSERT INTO STG_Consumer_Sentiment_Index SELECT * FROM TEMP_STG_Consumer_Sentiment_Index;',con)
 
+# STG_BEA_PersonalConsumption_2_4_5
+url = 'https://raw.githubusercontent.com/golestm/RTN/master/data/STG_BEA_PersonalConsumption_2_4_5.txt'
+df = pd.read_csv(url,sep="|", doublequote=True,  encoding='latin-1')
+copy_to_sql(df = df, table_name = "TEMP_STG_BEA_PersonalConsumption_2_4_5", schema_name = SchemaName, if_exists = 'replace')
+pd.read_sql('DELETE FROM STG_BEA_PersonalConsumption_2_4_5;',con)
+pd.read_sql('INSERT INTO STG_Consumer_Sentiment_Index SELECT * FROM TEMP_STG_BEA_PersonalConsumption_2_4_5;',con)
+print("STG_Consumer_Sentiment_Index Finished!")
 
 from datetime import datetime
 datetime.utcnow()
