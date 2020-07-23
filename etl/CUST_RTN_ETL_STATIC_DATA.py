@@ -143,7 +143,9 @@ SELECT 'Python' as Process_Name, 'Static' as Table_Type, 'Transaltion_Table' as 
 UNION \
 SELECT 'Python' as Process_Name, 'Static' as Table_Type, 'STG_BEA_PersonalConsumption_2_3_5' as TableName, count(*) as Records_Processed, max(current_timestamp(0)) as Process_Dttm FROM STG_BEA_PersonalConsumption_2_3_5 GROUP BY 1,2,3 \
 UNION \
-SELECT 'Python' as Process_Name, 'Static' as Table_Type, 'STG_Consumer_Sentiment_Index' as TableName, count(*) as Records_Processed, max(current_timestamp(0)) as Process_Dttm FROM STG_Consumer_Sentiment_Index GROUP BY 1,2,3"
+SELECT 'Python' as Process_Name, 'Static' as Table_Type, 'STG_Consumer_Sentiment_Index' as TableName, count(*) as Records_Processed, max(current_timestamp(0)) as Process_Dttm FROM STG_Consumer_Sentiment_Index GROUP BY 1,2,3 \
+UNION \
+SELECT 'Python' as Process_Name, 'Static' as Table_Type, 'STG_BEA_PersonalConsumption_2_4_5' as TableName, count(*) as Records_Processed, max(current_timestamp(0)) as Process_Dttm FROM STG_BEA_PersonalConsumption_2_4_5 GROUP BY 1,2,3"
 
 
 #Fetch the data from Teradata using Pandas Dataframe
