@@ -114,8 +114,8 @@ url = 'https://raw.githubusercontent.com/golestm/RTN/master/data/STG_BEA_Persona
 df = pd.read_csv(url,sep="|", doublequote=True,  encoding='latin-1')
 copy_to_sql(df = df, table_name = "TEMP_STG_BEA_PersonalConsumption_2_4_5", schema_name = SchemaName, if_exists = 'replace')
 pd.read_sql('DELETE FROM STG_BEA_PersonalConsumption_2_4_5;',con)
-pd.read_sql('INSERT INTO STG_Consumer_Sentiment_Index SELECT * FROM TEMP_STG_BEA_PersonalConsumption_2_4_5;',con)
-print("STG_Consumer_Sentiment_Index Finished!")
+pd.read_sql('INSERT INTO STG_BEA_PersonalConsumption_2_4_5 SELECT * FROM TEMP_STG_BEA_PersonalConsumption_2_4_5;',con)
+print("STG_BEA_PersonalConsumption_2_4_5 Finished!")
 
 from datetime import datetime
 datetime.utcnow()
