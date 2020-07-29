@@ -40,6 +40,7 @@ from datetime import date
 from datetime import datetime, timedelta
 from datetime import datetime
 from teradataml.context.context import *
+from teradatasqlalchemy.types import *
 import params
 con = create_context(host=params.MyHost, username=params.MyUser, password=params.Password,temp_database_name=params.SchemaName,logmech=params.LogMech)
 
@@ -60,7 +61,7 @@ print("DIM_GEO_LOCATION_T Finished!")
             
 # DIM_ZIP_COUNTY_MSA_MAP_RAW
 url = 'https://raw.githubusercontent.com/golestm/RTN/master/data/DIM_ZIP_COUNTY_MSA_MAP_RAW.txt'
-df = pd.read_csv(url,sep="|", doublequote=True,  encoding='latin-1')
+df = pd.read_csv(url,sep="|", doublequote=True,  encoding='latin-1', dtype = {'ZIPCODE':str})
 copy_to_sql(df = df, table_name = "TEMP_DIM_ZIP_COUNTY_MSA_MAP_RAW", schema_name=params.SchemaName, if_exists = 'replace')
 pd.read_sql('DELETE FROM DIM_ZIP_COUNTY_MSA_MAP_RAW;',con)
 pd.read_sql('INSERT INTO DIM_ZIP_COUNTY_MSA_MAP_RAW SELECT CAST(ZIPCODE as VARCHAR(10)), CAST(COUNTY_FIPS as VARCHAR(10)), COUNTY_RES_RATIO, COUNTY_BUS_RATIO, COUNTY_OTH_RATIO, COUNTY_TOT_RATIO, TOP_ZIP_FLAG, SPLIT_COUNTY_CNT, TOP_COUNTY_FLAG, COUNTY_NAME, CBSA_CODE, CBSA_NAME, MSA_NAME, STATE_NAME FROM TEMP_DIM_ZIP_COUNTY_MSA_MAP_RAW;',con)
@@ -68,7 +69,7 @@ print("DIM_ZIP_COUNTY_MSA_MAP_RAW Finished!")
 
 # DIM_People_location
 url = 'https://raw.githubusercontent.com/golestm/RTN/master/data/DIM_People_location.txt'
-df = pd.read_csv(url,sep="|", doublequote=True,  encoding='latin-1')
+df = pd.read_csv(url,sep="|", doublequote=True,  encoding='latin-1', dtype = {'Zipcode':str})
 copy_to_sql(df = df, table_name = "TEMP_DIM_People_location", schema_name=params.SchemaName, if_exists = 'replace')
 pd.read_sql('DELETE FROM DIM_People_location;',con)
 pd.read_sql('INSERT INTO DIM_People_location SELECT CLient_nbr, Client_name, Site_Id, Site_Type, Address, City, State, CAST(Zipcode as VARCHAR(10)), Region, Country_cd, Nbr_at_location, People_type FROM TEMP_DIM_People_location;',con)
@@ -76,11 +77,12 @@ print("DIM_People_location Finished!")
 
 # DIM_Site_addresses
 url = 'https://raw.githubusercontent.com/golestm/RTN/master/data/DIM_Site_addresses.txt'
-df = pd.read_csv(url,sep="|", doublequote=True,  encoding='latin-1')
+df = pd.read_csv(url,sep="|", doublequote=True,  encoding='latin-1', dtype = {'Zipcode':str})
 copy_to_sql(df = df, table_name = "TEMP_DIM_Site_addresses", schema_name=params.SchemaName, if_exists = 'replace')
 pd.read_sql('DELETE FROM DIM_Site_addresses;',con)
 pd.read_sql('INSERT INTO DIM_Site_addresses SELECT * FROM TEMP_DIM_Site_addresses;',con)
 print("DIM_Site_addresses Finished!")
+
 
 # STG_CO_EST2019
 url = 'https://raw.githubusercontent.com/golestm/RTN/master/data/STG_CO_EST2019.txt'
