@@ -13,9 +13,7 @@
 #############################################################
 MyHost ='???'
 MyUser ='???'
-TempDB ='???'
 SchemaName = '???'
-Password = '???'
 
 #############################################################
 # Libraries
@@ -28,7 +26,7 @@ from teradataml.options.display import display
 from teradataml.dataframe.fastload import fastload
 from teradataml.context.context import *
 import pandas as pd
-con = create_context(host=MyHost, username=MyUser, password=Password, temp_database_name=TempDB, logmech='LDAP')
+con = create_context(host=MyHost, username=MyUser, password=getpass.getpass(), temp_database_name=SchemaName, logmech='LDAP')
 
 #############################################################
 # Teradata Query Test

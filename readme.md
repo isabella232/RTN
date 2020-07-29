@@ -13,21 +13,23 @@ This application consists of the following components:
 # Prerequisites:
   * Python Version 3.7 or Greater
   * Teradata Connection through Python (teradataml)
+  * Test the Teradata-Python connectivity through the connection testing file TD_Connection_Test.py
   * Teradata DBS 16.20 FU or Greater
   * Tableau Version 2020.1
   * Tableau Reader Version 2020.1  (download at tableau.com)
   
 # Configuation Steps:
-  * Set Database Credential Information in the file RTN_ETL.py
+  * Set Database Credential Information in the file params.py
       * MyHost ='???'
-      * MyUser ='???'
-      * TempDB ='???'
+      * MyUser ='???''
       * SchemaName = '???'
+      * LogMech = '???' -- TD2, LDAP and etc.
 
   * Set Default Database in the DDL Installation File ddl
-      * Do a complete replacement of '???' to target database name'
+      * Do a complete replacement of '???' to target database name
       
 # Installation Steps:
+  * Create a seperate database instance (15-20 Gigs of Perm Space) 
   * Initiate a Teradata session through SQL Assistant, Teradata Studio or BTEQ
   * Run CUST_RTN_Install.ddl Install through successful completion
   * Check the logs and database for additional Tables/Views/Stored Procedures
