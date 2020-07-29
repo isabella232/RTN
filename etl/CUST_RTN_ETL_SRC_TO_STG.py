@@ -382,8 +382,9 @@ df.columns = ('Month','Year','CustomerSentimentIndex')
 
 df['current_dttm'] = datetime.datetime.today()
 
-copy_to_sql(df = df, table_name = "STG_Consumer_Sentiment_Index", schema_name=params.SchemaName, if_exists = 'replace')
-
+copy_to_sql(df = df, table_name = "TEMP_STG_Consumer_Sentiment_Index", schema_name=params.SchemaName, if_exists = 'replace')
+pd.read_sql('DELETE FROM STG_Consumer_Sentiment_Index;',con)
+pd.read_sql('INSERT INTO STG_Consumer_Sentiment_Index SELECT * FROM TEMP_STG_Consumer_Sentiment_Index;',con)
 
 from datetime import datetime
 datetime.utcnow()
