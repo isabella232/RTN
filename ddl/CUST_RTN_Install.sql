@@ -4584,6 +4584,7 @@ Date           	Ver#		Modified By(Name)       	Version Comments
 06/26/2020      1.0         Teradata DW              	Initial
 07/11/2020		2.0			Teradata DW					Added the insert to FACT_Covid_Model_Data_SUM as target
 07/25/2020		3.0			Teradata DW					Modified the STG_Summary_stats_all_locs to not be based on path date
+07/29/2020		4.0			Teradata DW					Modified the State join to be US only
 /*																																									*/
 /*****************************************************************************************************/
 REPLACE PROCEDURE ???.ETL_COVID_MODEL_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
@@ -4802,7 +4803,8 @@ IF v_Date_Key_Val <> '9999-12-31'(DATE) THEN
 				from ???.STG_Hospitalization_all_locs a
 				left outer join ???.DIM_GEO_LOCATION_V l 
 			        	on (a.location_name = l.state_name
-			        	and l.geo_granularity = 'State')
+						-- 07.29.20 Changes
+			        	and l.geo_granularity = 'State' and location_id  between 500 and 599) -- handle Georgia
 			        	or (a.location_name = l.country_name
 			        	and l.geo_granularity = 'country')
 				 
@@ -5121,7 +5123,8 @@ IF v_Date_Key_Val <> '9999-12-31'(DATE) THEN
 	    from ???.STG_Summary_stats_all_locs a
 	    left outer join ???.DIM_GEO_LOCATION_V l 
 	      	on (a.location_name = l.state_name
-	       	and l.geo_granularity = 'State')
+			-- 07.29.20 Changes
+	       	and l.geo_granularity = 'State' and location_id  between 500 and 599) -- handle Georgia
 	       	or (a.location_name = l.country_name
 	       	and l.geo_granularity = 'country')
 	    --where date_key >= coalesce((select max(date_key) from ???.FACT_Covid_Model_Data_SUM),date_key)
@@ -7466,6 +7469,7 @@ Date           	Ver#		Modified By(Name)       	Version Comments
 07/21/2020      2.0         Teradata DW              	Added Moving Average Physical Tables & Stats Collection
 07/22/2020		3.0			Teradata DW					Replaced the entire code to be incremental
 07/26/2020		4.0			Teradata DW					Added the historical one time load step which is only run for new installations
+07/29/2020		5.0			Teradata DW					Modified the the merge
 /*																																									*/
 /*****************************************************************************************************/
 REPLACE PROCEDURE ???.ETL_COVID_CASES_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
@@ -7512,7 +7516,7 @@ SELECT COUNT(*) INTO v_BaseData
 FROM ???.FACT_INDICATOR_DASHBOARD_T2_P
 WHERE DOMAIN_NAME = 'Covid19 NYT';
 
-IF v_BaseData = 0 THEN
+IF v_BaseData = 0 THEN -- One time Historical Load
 	--
 	MERGE INTO ???.FACT_INDICATOR_DASHBOARD_T2_P AS TGT
 	USING  
@@ -7683,50 +7687,16 @@ IF v_BaseData = 0 THEN
 	UPDATE SET 
 	    METRIC_VALUE  = STG.METRIC_VALUE,
 	    METRIC_INDEX  = STG.METRIC_INDEX,
-	    REC_UPD_TS    = STG.REC_UPD_TS;
-	--
+	    REC_UPD_TS    = STG.REC_UPD_TS ;
+		--
 END IF;
 	
 -----------------------------------------------------------
 SET v_RecordsAffected = v_RecordsAffected + ACTIVITY_COUNT;
 -----------------------------------------------------------
-	
-UPDATE ???.FACT_INDICATOR_DASHBOARD_T2_P
-FROM (
-SELECT
-   F.INDICATOR_KEY,
-   F.DATE_KEY,
-   F.GEO_KEY,
-   G.POPULATION,
-   G.STATE_CODE,
-   F.DOMAIN_NAME,
-   F.METRIC_NAME,
-   F.METRIC_VALUE,
-   SUM(F.METRIC_VALUE) OVER (PARTITION BY F.DATE_KEY, F.DOMAIN_NAME, F.METRIC_NAME,G.STATE_CODE) AS TOT_METRIC_VALUE,
-   SUM(G.POPULATION) OVER (PARTITION BY F.DATE_KEY, F.DOMAIN_NAME, F.METRIC_NAME, G.STATE_CODE) AS TOT_POPULATION,
-   (SUM(F.METRIC_VALUE) OVER (PARTITION BY F.DATE_KEY, F.DOMAIN_NAME, F.METRIC_NAME,G.STATE_CODE) * 
-    CAST(G.POPULATION AS DECIMAL(38,6))/SUM(G.POPULATION) OVER (PARTITION BY F.DATE_KEY, F.DOMAIN_NAME, F.METRIC_NAME,G.STATE_CODE)) AS NEW_METRIC_VALUE
-FROM
-   ???.FACT_INDICATOR_DASHBOARD_V F
-   JOIN ???.DIM_GEO_LOCATION_V G ON
-   F.GEO_KEY = G.UID
-WHERE
-   F.DOMAIN_NAME = 'Covid19 NYT' AND
-   F.GEO_KEY IN (84070003,84029037,84029047,84029095,84029165,84036061,84036005,84036047,84036081,84036085) AND
-   F.DATE_KEY BETWEEN CURRENT_DATE -30 AND CURRENT_DATE
-) AS SRC
-SET METRIC_VALUE = SRC.NEW_METRIC_VALUE,
-    REC_UPD_TS      = CURRENT_TIMESTAMP(0)
-WHERE 
-   FACT_INDICATOR_DASHBOARD_T2_P2.INDICATOR_KEY = SRC.INDICATOR_KEY;
-   
-
------------------------------------------------------------
-SET v_RecordsAffected = v_RecordsAffected + ACTIVITY_COUNT;
------------------------------------------------------------	
    
 -- Incremental Load
--- 07.22.20 Changes
+-- 07.29.20 Changes
 MERGE INTO ???.FACT_INDICATOR_DASHBOARD_T2_P AS TGT
 USING  
   ( 
@@ -7931,7 +7901,7 @@ WHERE
 SET METRIC_VALUE = SRC.NEW_METRIC_VALUE,
     REC_UPD_TS      = CURRENT_TIMESTAMP(0)
 WHERE 
-   FACT_INDICATOR_DASHBOARD_T2_P2.INDICATOR_KEY = SRC.INDICATOR_KEY;
+   FACT_INDICATOR_DASHBOARD_T2_P.INDICATOR_KEY = SRC.INDICATOR_KEY;
    
    
  
