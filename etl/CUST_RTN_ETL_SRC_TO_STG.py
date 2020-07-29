@@ -375,17 +375,14 @@ print("Census Data Finished!  " + timestampStr)
 
 import datetime
 url = 'http://www.sca.isr.umich.edu/files/tbcics.csv'
-df = pd.read_csv(url,skiprows=[0,1,2,3])
+df = pd.read_csv(url,skiprows=[0,1,2,3],dtype = {'Unnamed: 1':str})
 df = df[['Unnamed: 0','Unnamed: 1','Unnamed: 4']]
 df = df.dropna()
 df.columns = ('Month','Year','CustomerSentimentIndex')
 
 df['current_dttm'] = datetime.datetime.today()
 
-copy_to_sql(df = df, table_name = "TEMP_STG_Consumer_Sentiment_Index", schema_name=params.SchemaName, if_exists = 'replace')
-pd.read_sql('DELETE FROM STG_Consumer_Sentiment_Index;',con)
-pd.read_sql('INSERT INTO STG_Consumer_Sentiment_Index SELECT * FROM TEMP_STG_Consumer_Sentiment_Index;',con)
-
+copy_to_sql(df = df, table_name = "STG_Consumer_Sentiment_Index", schema_name=params.SchemaName, if_exists = 'replace')
 from datetime import datetime
 datetime.utcnow()
 dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
