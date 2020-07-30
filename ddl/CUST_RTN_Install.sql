@@ -3249,6 +3249,80 @@ LOCKING ROW FOR ACCESS
             PL.MSA_NAME,
             PL.COUNTY_NAME,
             PL.STATE_NAME;
+			
+			
+REPLACE VIEW ???.F_IND_DASHBOARD_MOBILITY_GEO_WEEKLY_V AS
+LOCKING ROW FOR ACCESS
+SELECT
+  SNAPSHOT_DATE,
+  SNAPSHOT_WEEK,
+  CURR_PREV_FLAG,
+  DENSE_RANK() OVER (PARTITION BY GEO_KEY, CURR_PREV_FLAG ORDER BY DATE_KEY ASC) CAL_DAY_OF_WEEK,
+  GEO_KEY,
+  GEO_GRANULARITY,
+  COUNTY,
+  STATE_CODE,
+  STATE_NAME,
+  COUNTRY_NAME,
+  POPULATION,
+  DATE_KEY,
+  METRIC_NAME,
+  METRIC_INDEX
+ FROM
+  (
+    SELECT 
+          DT.SNAPSHOT_DATE,
+          DT.SNAPSHOT_WEEK,
+          CASE WHEN F.DATE_KEY BETWEEN DT.WEEK_START_DATE AND DT.WEEK_END_DATE
+               THEN DT.CURR_PREV_FLAG
+          END AS CURR_PREV_FLAG,
+          F.GEO_KEY,
+          UPPER(F.GEO_GRANULARITY) GEO_GRANULARITY,
+          G.COUNTY, 
+          G.STATE_CODE,
+          G.STATE_NAME,
+          G.COUNTRY_NAME,
+          G.POPULATION,
+          F.DATE_KEY,
+          METRIC_NAME,
+          METRIC_INDEX
+    FROM 
+      ???.FACT_INDICATOR_DASHBOARD_V F 
+      JOIN ???.DIM_GEO_LOCATION_V G ON
+      F.GEO_KEY = G.UID
+      JOIN (SELECT 
+       		MAX(WEEK_END_DATE) OVER () AS SNAPSHOT_DATE,
+       		MAX(CAL_WEEK_YEAR) OVER () AS SNAPSHOT_WEEK,
+       		MIN(WEEK_START_DATE) OVER () AS FIL_START_DATE_KEY,
+       		MAX(WEEK_END_DATE) OVER () FIL_END_DATE_KEY,
+       		CASE WHEN RNK =1 THEN 'CURR'
+            	 WHEN RNK =2 THEN 'PREV'
+            	 WHEN RNK =3 THEN 'PREV-1'
+            	 WHEN RNK =4 THEN 'PREV-2'
+				 WHEN RNK =5 THEN 'PREV-3'
+            	 ELSE 'PREV-4'
+       		END CURR_PREV_FLAG,
+       		RANK() OVER (ORDER BY WEEK_END_DATE DESC) RNK,
+       		DT.*
+    	   FROM 
+            ???.DIM_CALENDAR_V DT
+			LEFT JOIN (
+                       SELECT MAX(DATE_KEY) MAX_DT
+                       FROM ???.FACT_INDICATOR_DASHBOARD_V F  
+                       JOIN ???.DIM_GEO_LOCATION_V G ON
+                            F.GEO_KEY = G.UID
+                       WHERE F.DATA_SOURCE_NAME = 'Google Mobility Report'
+                      ) MAXDT ON 1=1
+           WHERE CAL_DATE_KEY IN (MAX_DT,MAX_DT-7,MAX_DT-14,MAX_DT-21,MAX_DT-28, MAX_DT-35)
+          ) DT ON
+       F.DATE_KEY BETWEEN DT.FIL_START_DATE_KEY AND DT.FIL_END_DATE_KEY
+    WHERE 
+      F.DATA_SOURCE_NAME = 'Google Mobility Report' AND
+      CASE WHEN F.DATE_KEY BETWEEN DT.WEEK_START_DATE AND DT.WEEK_END_DATE
+           THEN DT.CURR_PREV_FLAG
+      END IN ('CURR','PREV','PREV-1','PREV-2','PREV-3')
+   ) T;
+
 
 REPLACE PROCEDURE ???.ETL_BEA_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 /*********************************************************************************************************/
