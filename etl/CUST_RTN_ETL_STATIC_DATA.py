@@ -61,7 +61,7 @@ print("DIM_GEO_LOCATION_T Finished!")
             
 # DIM_ZIP_COUNTY_MSA_MAP_RAW
 url = 'https://raw.githubusercontent.com/golestm/RTN/master/data/DIM_ZIP_COUNTY_MSA_MAP_RAW.txt'
-df = pd.read_csv(url,sep="|", doublequote=True,  encoding='latin-1', dtype = {'ZIPCODE':str})
+df = pd.read_csv(url,sep="|", doublequote=True,  encoding='latin-1', dtype = {'ZIPCODE':str,'CBSA_CODE':str})
 copy_to_sql(df = df, table_name = "TEMP_DIM_ZIP_COUNTY_MSA_MAP_RAW", schema_name=params.SchemaName, if_exists = 'replace')
 pd.read_sql('DELETE FROM DIM_ZIP_COUNTY_MSA_MAP_RAW;',con)
 pd.read_sql('INSERT INTO DIM_ZIP_COUNTY_MSA_MAP_RAW SELECT CAST(ZIPCODE as VARCHAR(10)), CAST(COUNTY_FIPS as VARCHAR(10)), COUNTY_RES_RATIO, COUNTY_BUS_RATIO, COUNTY_OTH_RATIO, COUNTY_TOT_RATIO, TOP_ZIP_FLAG, SPLIT_COUNTY_CNT, TOP_COUNTY_FLAG, COUNTY_NAME, CBSA_CODE, CBSA_NAME, MSA_NAME, STATE_NAME FROM TEMP_DIM_ZIP_COUNTY_MSA_MAP_RAW;',con)
