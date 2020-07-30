@@ -3816,22 +3816,17 @@ END;
 
 MERGE INTO ???.FACT_INDICATOR_DASHBOARD_T2_P as target
 USING  
-  ( select          x.PROCESS_TYPE,     
-    CASE
-             WHEN x.PROCESS_TYPE = 'I'
-         THEN y.MAX_ID + ROW_NUMBER() OVER(
-         ORDER BY x.METRIC_NAME,
-           x.DATE_KEY ,
-           x.GEO_GRANULARITY ,
-           x.DATE_KEY ,
-           x.DOMAIN_NAME ,
-           x.SUBDOMAIN_1_NAME,
-           x.SUBDOMAIN_2_NAME,
-           x.SUBDOMAIN_3_NAME 
-             )
-
-         ELSE x.INDICATOR_KEY
-         END AS INDICATOR_KEY,  	
+  ( select x.PROCESS_TYPE,     
+    CASE WHEN x.PROCESS_TYPE = 'I' THEN y.MAX_ID + ROW_NUMBER() OVER(ORDER BY	x.METRIC_NAME,
+																	       		x.DATE_KEY ,
+																		     	x.GEO_GRANULARITY ,
+																		        x.DATE_KEY ,
+																		        x.DOMAIN_NAME ,
+																		        x.SUBDOMAIN_1_NAME,
+																		        x.SUBDOMAIN_2_NAME,
+																		        x.SUBDOMAIN_3_NAME)
+																				ELSE x.INDICATOR_KEY
+																				END AS INDICATOR_KEY,  	
    	x.Date_key,
     x.DATE_GRANULARITY,
     x.GEO_KEY, 
@@ -3847,122 +3842,91 @@ USING
     x.DATA_SOURCE_DESC,
     x.REC_INS_TS,
     x.REC_UPD_TS
-   --select *  
-from ( 
-SELECT 
-	PROCESS_TYPE,
--- a. contains the source data
--- b. contains the target data that matches the nkey of the source data
-	a.INDICATOR_KEY,  	
-   	a.Date_key,
-    a.DATE_GRANULARITY,
-    a.GEO_KEY, 
-    a.GEO_GRANULARITY,
-    a.DOMAIN_NAME,
-    a.SUBDOMAIN_1_NAME,
-    a.SUBDOMAIN_2_NAME,
-    a.SUBDOMAIN_3_NAME,
-    a.METRIC_NAME,
-    a.METRIC_VALUE,
-    a.METRIC_INDEX,
-    a.DATA_SOURCE_NAME,
-    a.DATA_SOURCE_DESC,
-    a.REC_INS_TS,
-    a.REC_upd_TS
-     
--- if b. is null that means there was no match so set the process type to insert
--- if b. is not null then compare source to target data of updatable columns to determin if there should be an update       
-     
-      
-      FROM
-  
-  (
-  select b.INDICATOR_KEY,
-     	aa.Date_key,
-    aa.DATE_GRANULARITY,
-    aa.GEO_KEY, 
-    aa.GEO_GRANULARITY,
-    aa.DOMAIN_NAME,
-    aa.SUBDOMAIN_1_NAME,
-    aa.SUBDOMAIN_2_NAME,
-    aa.SUBDOMAIN_3_NAME,
-    aa.METRIC_NAME,
-    aa.METRIC_VALUE,
-    aa.METRIC_INDEX,
-    aa.DATA_SOURCE_NAME,
-    aa.DATA_SOURCE_DESC,
-    aa.REC_INS_TS,
-    aa.REC_UPD_TS,
-     CASE
-          WHEN b.INDICATOR_KEY IS NULL
-                 THEN 'I'
-          WHEN b.INDICATOR_KEY is not null  
-          and (aa.METRIC_VALUE <> b.METRIC_VALUE or
-               aa. METRIC_INDEX <> b.METRIC_INDEX) -- put weird logic here
-                 THEN 'U'
-          ELSE NULL
-                     END AS PROCESS_TYPE
-        from  ( 
-      
-        SELECT  
-     
-                       CASE "month"
-            WHEN 'January' THEN '01'
-            WHEN 'February' THEN '02'
-            WHEN 'March' THEN '03'
-            WHEN 'April' THEN '04'
-            WHEN 'May' THEN '05'
-            WHEN 'June' THEN '06'
-            WHEN 'July' THEN '07'
-            WHEN 'August' THEN '08'
-            WHEN 'September' THEN '09'
-            WHEN 'October' THEN '10'
-            WHEN 'November' THEN '11'
-            WHEN 'December' THEN '12'
-        END mth,
-        cast("year" || '/' || MTH || '/01' as date format 'yyyy/mm/dd') DATE_KEY,
- 'Monthly' DATE_GRANULARITY , 
-    '840' GEO_KEY  ,
-     'Country' GEO_GRANULARITY,  
-      'Consumer Sentiment Index'  DOMAIN_NAME ,  
-     ' ' SUBDOMAIN_1_NAME	,
-	 ' ' SUBDOMAIN_2_NAME	,
-	 ' ' SUBDOMAIN_3_NAME	,
-	  'Consumer Sentiment Index' METRIC_NAME,
-	  0  METRIC_VALUE	 ,
-	    CAST( Consumer_Sentiment_Index AS DECIMAL(15,2))   METRIC_index ,
-	  'Consumer Sentiment Index' DATA_SOURCE_NAME ,
-	 'Consumer Sentiment Index' DATA_SOURCE_DESC ,
-	 	 current_timestamp(0) REC_INS_TS, 	 
-	 current_timestamp(0) REC_UPD_TS 
-        
-
-          --select *
-        FROM ???.STG_Consumer_Sentiment_Index 
-        
-
-        
-        
-        ) aa     
-        LEFT OUTER JOIN ???.FACT_INDICATOR_DASHBOARD_v b
-           ON  aa.METRIC_NAME = b.METRIC_NAME
-           and aa.DATE_KEY = b.DATE_KEY
-           and aa.GEO_GRANULARITY = b.GEO_GRANULARITY
-           and aa.geo_KEY = b.geo_KEY
-           and aa.DOMAIN_NAME = b.DOMAIN_NAME
-           and aa.SUBDOMAIN_1_NAME = b.SUBDOMAIN_1_NAME
-           and aa.SUBDOMAIN_2_NAME = b.SUBDOMAIN_2_NAME
-           and aa.SUBDOMAIN_3_NAME = b.SUBDOMAIN_3_NAME
-           )  a
-                ) AS x
-
-        
+	from ( SELECT PROCESS_TYPE,
+				-- a. contains the source data
+				-- b. contains the target data that matches the nkey of the source data
+				a.INDICATOR_KEY,  	
+			   	a.Date_key,
+			    a.DATE_GRANULARITY,
+			    a.GEO_KEY, 
+			    a.GEO_GRANULARITY,
+			    a.DOMAIN_NAME,
+			    a.SUBDOMAIN_1_NAME,
+			    a.SUBDOMAIN_2_NAME,
+			    a.SUBDOMAIN_3_NAME,
+			    a.METRIC_NAME,
+			    a.METRIC_VALUE,
+			    a.METRIC_INDEX,
+			    a.DATA_SOURCE_NAME,
+			    a.DATA_SOURCE_DESC,
+			    a.REC_INS_TS,
+			    a.REC_upd_TS
+				-- if b. is null that means there was no match so set the process type to insert
+				-- if b. is not null then compare source to target data of updatable columns to determin if there should be an update       
+			FROM ( select 	b.INDICATOR_KEY,
+						    aa.Date_key,
+						    aa.DATE_GRANULARITY,
+						    aa.GEO_KEY, 
+						    aa.GEO_GRANULARITY,
+						    aa.DOMAIN_NAME,
+						    aa.SUBDOMAIN_1_NAME,
+						    aa.SUBDOMAIN_2_NAME,
+						    aa.SUBDOMAIN_3_NAME,
+						    aa.METRIC_NAME,
+						    aa.METRIC_VALUE,
+						    aa.METRIC_INDEX,
+						    aa.DATA_SOURCE_NAME,
+						    aa.DATA_SOURCE_DESC,
+						    aa.REC_INS_TS,
+						    aa.REC_UPD_TS,
+						    CASE WHEN b.INDICATOR_KEY IS NULL THEN 'I'
+						        WHEN b.INDICATOR_KEY is not null and (aa.METRIC_VALUE <> b.METRIC_VALUE or aa. METRIC_INDEX <> b.METRIC_INDEX) -- put weird logic here
+								THEN 'U'
+						        ELSE NULL END AS PROCESS_TYPE
+					from  ( SELECT  CASE "month"
+						            WHEN 'January' THEN '01'
+						            WHEN 'February' THEN '02'
+						            WHEN 'March' THEN '03'
+						            WHEN 'April' THEN '04'
+						            WHEN 'May' THEN '05'
+						            WHEN 'June' THEN '06'
+						            WHEN 'July' THEN '07'
+						            WHEN 'August' THEN '08'
+						            WHEN 'September' THEN '09'
+						            WHEN 'October' THEN '10'
+						            WHEN 'November' THEN '11'
+						            WHEN 'December' THEN '12'END mth,
+        							cast("year" || '/' || MTH || '/01' as date format 'yyyy/mm/dd') DATE_KEY,
+									'Monthly' DATE_GRANULARITY , 
+									'840' GEO_KEY  ,
+									'Country' GEO_GRANULARITY,  
+									'Consumer Sentiment Index'  DOMAIN_NAME ,  
+									' ' SUBDOMAIN_1_NAME	,
+									' ' SUBDOMAIN_2_NAME	,
+									' ' SUBDOMAIN_3_NAME	,
+									'Consumer Sentiment Index' METRIC_NAME,
+									0  METRIC_VALUE	 ,
+									CAST( Consumer_Sentiment_Index AS DECIMAL(15,2))   METRIC_index ,
+									'Consumer Sentiment Index' DATA_SOURCE_NAME ,
+									'Consumer Sentiment Index' DATA_SOURCE_DESC ,
+									 current_timestamp(0) REC_INS_TS, 	 
+									current_timestamp(0) REC_UPD_TS
+        					FROM ???.STG_Consumer_Sentiment_Index ) aa     
+			        LEFT OUTER JOIN ???.FACT_INDICATOR_DASHBOARD_v b
+			           ON  aa.METRIC_NAME = b.METRIC_NAME
+			           and aa.DATE_KEY = b.DATE_KEY
+			           and aa.GEO_GRANULARITY = b.GEO_GRANULARITY
+			           and aa.geo_KEY = b.geo_KEY
+			           and aa.DOMAIN_NAME = b.DOMAIN_NAME
+			           and aa.SUBDOMAIN_1_NAME = b.SUBDOMAIN_1_NAME
+			           and aa.SUBDOMAIN_2_NAME = b.SUBDOMAIN_2_NAME
+			           and aa.SUBDOMAIN_3_NAME = b.SUBDOMAIN_3_NAME
+			           )  a
+					   ) AS x
+					   --
           CROSS JOIN
-                (SELECT
-                                ZEROIFNULL(MAX(INDICATOR_KEY)) AS MAX_ID
-                                --select *
-                 FROM
-                                ???.FACT_INDICATOR_DASHBOARD_v   
+                (SELECT ZEROIFNULL(MAX(INDICATOR_KEY)) AS MAX_ID
+                 FROM ???.FACT_INDICATOR_DASHBOARD_v   
                 ) AS y  
            WHERE x.PROCESS_TYPE IS NOT NULL 
             
