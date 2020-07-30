@@ -378,7 +378,7 @@ url = 'http://www.sca.isr.umich.edu/files/tbcics.csv'
 df = pd.read_csv(url,skiprows=[0,1,2,3],dtype = {'Unnamed: 1':str})
 df = df[['Unnamed: 0','Unnamed: 1','Unnamed: 4']]
 df = df.dropna()
-df.columns = ('Month','Year','CustomerSentimentIndex')
+df.columns = ('Month','Year','Consumer_Sentiment_Index')
 
 df['current_dttm'] = datetime.datetime.today()
 
