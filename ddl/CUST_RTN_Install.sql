@@ -3250,6 +3250,7 @@ LOCKING ROW FOR ACCESS
             PL.COUNTY_NAME,
             PL.STATE_NAME;
 
+REPLACE PROCEDURE ???.ETL_BEA_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 /*********************************************************************************************************/
 /* 
 Procedure Name    : ETL_BEA_CORE                                              		
@@ -3265,9 +3266,8 @@ Date           	Ver#		Modified By(Name)       	Version Comments
 -----------   	-------     -------------------------	----------------------------                       
 07/02/2020      1.0         Teradata DW              	Initial
 07/14/2020		2.0			Teradata DW					Multiplied metric by million to get true count
-/*																																									*/
+*/
 /*****************************************************************************************************/
-REPLACE PROCEDURE ???.ETL_BEA_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 SQL SECURITY INVOKER
 BEGIN
 
@@ -3299,7 +3299,7 @@ BEGIN
 END;
 
 /******************************************************************/
-/*Put Your Transformation Logic Here
+--Put Your Transformation Logic Here
 /******************************************************************/
 
 --Bureau of Economic Analysis - NIPA Monthly Report T2.4.5U
@@ -3478,7 +3478,7 @@ values (
 	
  
 /******************************************************************/
-/*End of Transformation Logic
+--End of Transformation Logic
 /******************************************************************/	
 
 
@@ -3493,6 +3493,7 @@ INSERT INTO ???.ETL_Indicator_Proj_Audit VALUES (v_ProcName,'Core',v_CoreTable,v
 END;
 
 
+REPLACE PROCEDURE ???.ETL_CENSUS_DATA_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 /*********************************************************************************************************/
 /* 
 Procedure Name    : ETL_CENSUS_DATA_CORE                                              		
@@ -3507,9 +3508,8 @@ Null - Represnts Success
 Date           	Ver#		Modified By(Name)       	Version Comments                   
 -----------   	-------     -------------------------	----------------------------                       
 07/19/2020      1.0         Teradata DW              	Initial
-/*																																									*/
+*/
 /*****************************************************************************************************/
-REPLACE PROCEDURE ???.ETL_CENSUS_DATA_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 SQL SECURITY INVOKER
 BEGIN
 
@@ -3541,7 +3541,7 @@ BEGIN
 END;
 
 /******************************************************************/
-/*Put Your Transformation Logic Here
+--Put Your Transformation Logic Here
 /******************************************************************/
 
 MERGE INTO ???.FACT_INDICATOR_DASHBOARD_T2_p as target
@@ -3750,7 +3750,7 @@ values (
  
  
 /******************************************************************/
-/*End of Transformation Logic
+--End of Transformation Logic
 /******************************************************************/	
 
 
@@ -3765,6 +3765,7 @@ INSERT INTO ???.ETL_Indicator_Proj_Audit VALUES (v_ProcName,'Core',v_CoreTable,v
 END;
 
 
+REPLACE PROCEDURE ???.ETL_CONSUMER_SENTIMENT_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 /*********************************************************************************************************/
 /* 
 Procedure Name    : ETL_CONSUMER_SENTIMENT_CORE                                              		
@@ -3779,9 +3780,8 @@ Null - Represnts Success
 Date           	Ver#		Modified By(Name)       	Version Comments                   
 -----------   	-------     -------------------------	----------------------------                       
 07/15/2020      1.0         Teradata DW              	Initial                                         					
-/*																																									*/
+*/
 /*****************************************************************************************************/
-REPLACE PROCEDURE ???.ETL_CONSUMER_SENTIMENT_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 SQL SECURITY INVOKER
 BEGIN
 
@@ -3813,7 +3813,7 @@ BEGIN
 END;
 
 /******************************************************************/
-/*Put Your Transformation Logic Here
+--Put Your Transformation Logic Here
 /******************************************************************/
 
 MERGE INTO ???.FACT_INDICATOR_DASHBOARD_T2_P as target
@@ -3982,7 +3982,7 @@ values (
 	
  
 /******************************************************************/
-/*End of Transformation Logic
+--End of Transformation Logic
 /******************************************************************/	
 
 
@@ -3997,6 +3997,8 @@ INSERT INTO ???.ETL_Indicator_Proj_Audit VALUES (v_ProcName,'Core',v_CoreTable,v
 END;
 
 
+
+REPLACE PROCEDURE ???.ETL_COVID19_DATAHUB_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 /*********************************************************************************************************/
 /* 
 Procedure Name    : ETL_COVID19_DATAHUB_CORE                                              		
@@ -4013,9 +4015,8 @@ Date           	Ver#		Modified By(Name)       	Version Comments
 07/05/2020      1.0         Teradata DW              	Initial
 07/06/2020		2.0         Teradata DW              	Added LVL2 Code
 07/06/2020		3.0			Teradata DW					severe column was not being passed anymore set to null
-/*																																									*/
+*/
 /*****************************************************************************************************/
-REPLACE PROCEDURE ???.ETL_COVID19_DATAHUB_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 SQL SECURITY INVOKER
 BEGIN
 
@@ -4047,7 +4048,7 @@ BEGIN
 END;
 
 /******************************************************************/
-/*Put Your Transformation Logic Here
+--Put Your Transformation Logic Here
 /******************************************************************/
 
  
@@ -4491,7 +4492,7 @@ values (
      	,SEVERE_CASE_CNT  = source.SEVERE_CASE_CNT;
  
 /******************************************************************/
-/*End of Transformation Logic
+--End of Transformation Logic
 /******************************************************************/	
 
 
@@ -4506,6 +4507,7 @@ INSERT INTO ???.ETL_Indicator_Proj_Audit VALUES (v_ProcName,'Core',v_CoreTable,v
 END;
 
 
+REPLACE PROCEDURE ???.ETL_COVID_MODEL_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 /*********************************************************************************************************/
 /* 
 Procedure Name    : ETL_COVID_MODEL_CORE                                              		
@@ -4523,9 +4525,8 @@ Date           	Ver#		Modified By(Name)       	Version Comments
 07/11/2020		2.0			Teradata DW					Added the insert to FACT_Covid_Model_Data_SUM as target
 07/25/2020		3.0			Teradata DW					Modified the STG_Summary_stats_all_locs to not be based on path date
 07/29/2020		4.0			Teradata DW					Modified the State join to be US only
-/*																																									*/
+*/
 /*****************************************************************************************************/
-REPLACE PROCEDURE ???.ETL_COVID_MODEL_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 SQL SECURITY INVOKER
 BEGIN
 
@@ -4558,7 +4559,7 @@ BEGIN
 END;
 
 /******************************************************************/
-/*Put Your Transformation Logic Here
+--Put Your Transformation Logic Here
 /******************************************************************/
 
 -- 07.25.20 Changes
@@ -5153,7 +5154,7 @@ IF v_Date_Key_Val <> '9999-12-31'(DATE) THEN
 END IF;
  
 /******************************************************************/
-/*End of Transformation Logic
+--End of Transformation Logic
 /******************************************************************/	
 
 
@@ -5168,6 +5169,7 @@ INSERT INTO ???.ETL_Indicator_Proj_Audit VALUES (v_ProcName,'Core',v_CoreTable,v
 END;
 
 
+REPLACE PROCEDURE ???.ETL_COVID_MODEL_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 /*********************************************************************************************************/
 /* 
 Procedure Name    : ETL_COVID_MODEL_CORE                                              		
@@ -5184,9 +5186,8 @@ Date           	Ver#		Modified By(Name)       	Version Comments
 06/26/2020      1.0         Teradata DW              	Initial
 07/11/2020		2.0			Teradata DW					Added the insert to FACT_Covid_Model_Data_SUM as target
 07/25/2020		3.0			Teradata DW					Modified the STG_Summary_stats_all_locs to not be based on path date
-/*																																									*/
+*/
 /*****************************************************************************************************/
-REPLACE PROCEDURE ???.ETL_COVID_MODEL_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 SQL SECURITY INVOKER
 BEGIN
 
@@ -5219,7 +5220,7 @@ BEGIN
 END;
 
 /******************************************************************/
-/*Put Your Transformation Logic Here
+--Put Your Transformation Logic Here
 /******************************************************************/
 
 -- 07.25.20 Changes
@@ -5813,7 +5814,7 @@ IF v_Date_Key_Val <> '9999-12-31'(DATE) THEN
 END IF;
  
 /******************************************************************/
-/*End of Transformation Logic
+--End of Transformation Logic
 /******************************************************************/	
 
 
@@ -5828,6 +5829,7 @@ INSERT INTO ???.ETL_Indicator_Proj_Audit VALUES (v_ProcName,'Core',v_CoreTable,v
 END;
 
 
+REPLACE PROCEDURE ???.ETL_FUEL_PROD_CORE(OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 /*********************************************************************************************************/
 /* 
 Procedure Name    : ETL_FUEL_PROD_CORE                                              		
@@ -5843,9 +5845,8 @@ Date           	Ver#		Modified By(Name)       	Version Comments
 -----------   	-------     -------------------------	----------------------------                       
 07/06/2020      1.0         Teradata DW              	Initial
 07/15/2020		2.0			Teradata DW					Adding 1000 to the metric value to get real number
-/*																																									*/
+*/
 /*****************************************************************************************************/
-REPLACE PROCEDURE ???.ETL_FUEL_PROD_CORE(OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 SQL SECURITY INVOKER
 BEGIN
 
@@ -5877,7 +5878,7 @@ BEGIN
 END;
 
 /******************************************************************/
-/*Put Your Transformation Logic Here
+--Put Your Transformation Logic Here
 /******************************************************************/
 
 MERGE INTO ???.FACT_INDICATOR_DASHBOARD_T2_p as target
@@ -6057,7 +6058,7 @@ values (
      
 
 /******************************************************************/
-/*End of Transformation Logic
+--End of Transformation Logic
 /******************************************************************/	
 
 
@@ -6072,6 +6073,7 @@ INSERT INTO ???.ETL_Indicator_Proj_Audit VALUES (v_ProcName,'Core',v_CoreTable,v
 END;
 
 
+REPLACE PROCEDURE ???.ETL_GOOGLE_MOBILITY_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 /*********************************************************************************************************/
 /* 
 Procedure Name    : ETL_GOOGLE_MOBILITY_CORE                                              		
@@ -6088,9 +6090,8 @@ Date           	Ver#		Modified By(Name)       	Version Comments
 06/26/2020      1.0         Teradata DW              	Initial
 07/08/2020		2.0			Teradata DW              	Translation table to swap values from the input files
 07/09/2020		3.0			Teradata DW					Code Changed to address Null value insert
-/*																																									*/
+*/
 /*****************************************************************************************************/
-REPLACE PROCEDURE ???.ETL_GOOGLE_MOBILITY_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 SQL SECURITY INVOKER
 BEGIN
 
@@ -6122,7 +6123,7 @@ BEGIN
 END;
 
 /******************************************************************/
-/*Put Your Transformation Logic Here
+--Put Your Transformation Logic Here
 /******************************************************************/
 
 delete from ???.gm_step1;
@@ -6442,7 +6443,7 @@ values (
     ;
  
 /******************************************************************/
-/*End of Transformation Logic
+--End of Transformation Logic
 /******************************************************************/	
 
 
@@ -6457,6 +6458,7 @@ INSERT INTO ???.ETL_Indicator_Proj_Audit VALUES (v_ProcName,'Core',v_CoreTable,v
 END;
 
 
+REPLACE PROCEDURE ???.ETL_GOOGLE_TREND_CORE(OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 /*********************************************************************************************************/
 /* 
 Procedure Name    : ETL_GOOGLE_TREND_CORE                                              		
@@ -6471,9 +6473,8 @@ Null - Represnts Success
 Date           	Ver#		Modified By(Name)       	Version Comments                   
 -----------   	-------     -------------------------	----------------------------                       
 07/05/2020      1.0         Teradata DW              	Initial                                         					
-/*																																									*/
+*/
 /*****************************************************************************************************/
-REPLACE PROCEDURE ???.ETL_GOOGLE_TREND_CORE(OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 SQL SECURITY INVOKER
 BEGIN
 
@@ -6505,7 +6506,7 @@ BEGIN
 END;
 
 /******************************************************************/
-/*Put Your Transformation Logic Here
+--Put Your Transformation Logic Here
 /******************************************************************/
 
 DELETE FROM ???.F_IND_DASH_GOOGLE_TRENDS;
@@ -6551,7 +6552,7 @@ SELECT substring(cast("date" as varchar(30)) from 1 for 10) DATE_KEY,
      
 
 /******************************************************************/
-/*End of Transformation Logic
+--End of Transformation Logic
 /******************************************************************/	
 
 
@@ -6566,6 +6567,7 @@ INSERT INTO ???.ETL_Indicator_Proj_Audit VALUES (v_ProcName,'Core',v_CoreTable,v
 END;
 
 
+REPLACE PROCEDURE ???.ETL_LABOR_STATS_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 /*********************************************************************************************************/
 /* 
 Procedure Name    : ETL_LABOR_STATS_CORE                                              		
@@ -6581,9 +6583,8 @@ Date           	Ver#		Modified By(Name)       	Version Comments
 -----------   	-------     -------------------------	----------------------------                       
 06/26/2020      1.0         Teradata DW              	Initial
 07/19/2020		2.0			Teradata DW              	Code was changed to include CPI data
-/*																																									*/
+*/
 /*****************************************************************************************************/
-REPLACE PROCEDURE ???.ETL_LABOR_STATS_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 SQL SECURITY INVOKER
 BEGIN
 
@@ -6615,7 +6616,7 @@ BEGIN
 END;
 
 /******************************************************************/
-/*Put Your Transformation Logic Here
+--Put Your Transformation Logic Here
 /******************************************************************/
 
 MERGE INTO ???.FACT_INDICATOR_DASHBOARD_T2_p as target
@@ -6826,7 +6827,7 @@ values (
 	
  
 /******************************************************************/
-/*End of Transformation Logic
+--End of Transformation Logic
 /******************************************************************/	
 
 
@@ -6841,6 +6842,7 @@ INSERT INTO ???.ETL_Indicator_Proj_Audit VALUES (v_ProcName,'Core',v_CoreTable,v
 END;
 
 
+REPLACE PROCEDURE ???.ETL_LOOKUP_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 /*********************************************************************************************************/
 /* 
 Procedure Name    : ETL_LOOKUP_CORE                                              		
@@ -6856,9 +6858,8 @@ Date           	Ver#		Modified By(Name)       	Version Comments
 -----------   	-------     -------------------------	----------------------------                       
 07/16/2020      1.0         Teradata DW              	Initial
 07/29/2020		2.0			Teradata DW              	Modififed per additional COUNTY_FIPS addition
-/*																																									*/
+*/
 /*****************************************************************************************************/
-REPLACE PROCEDURE ???.ETL_LOOKUP_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 SQL SECURITY INVOKER
 BEGIN
 
@@ -6890,7 +6891,7 @@ BEGIN
 END;
 
 /******************************************************************/
-/*Put Your Transformation Logic Here
+--Put Your Transformation Logic Here
 /******************************************************************/
 DELETE FROM ???.DIM_ZIPCODE_COUNTY_MSA_LKUP;
 INSERT INTO ???.DIM_ZIPCODE_COUNTY_MSA_LKUP
@@ -6960,7 +6961,7 @@ WHERE
 	
  
 /******************************************************************/
-/*End of Transformation Logic
+--End of Transformation Logic
 /******************************************************************/	
 
 
@@ -6974,6 +6975,8 @@ INSERT INTO ???.ETL_Indicator_Proj_Audit VALUES (v_ProcName,'Core',v_CoreTable,v
 	
 END;
 
+
+REPLACE PROCEDURE ???.ETL_POST_LOAD_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 /*********************************************************************************************************/
 /* 
 Procedure Name    : ETL_POST_LOAD_CORE                                              		
@@ -6987,9 +6990,8 @@ Null - Represnts Success
 Date           	Ver#		Modified By(Name)       	Version Comments                   
 -----------   	-------     -------------------------	----------------------------                       
 07/09/2020      1.0         Teradata DW              	Initial                                         					
-/*																																									*/
+*/
 /*****************************************************************************************************/
-REPLACE PROCEDURE ???.ETL_POST_LOAD_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 
 BEGIN
 
@@ -7023,7 +7025,7 @@ BEGIN
 END;
 
 /******************************************************************/
-/*Put Your Transformation Logic Here
+--Put Your Transformation Logic Here
 /******************************************************************/
 
 COLLECT STATISTICS ON ???.DIM_People_location COLUMN (Zipcode);
@@ -7066,7 +7068,7 @@ COLLECT STATISTICS ON ???.FACT_INDICATOR_DASHBOARD_T2_P COLUMN (DATA_SOURCE_NAME
 COLLECT STATISTICS ON ???.FACT_INDICATOR_DASHBOARD_T2_P COLUMN (DOMAIN_NAME);
 
 /******************************************************************/
-/*End of Transformation Logic
+--End of Transformation Logic
 /******************************************************************/	
 
 
@@ -7081,6 +7083,7 @@ INSERT INTO ???.ETL_Indicator_Proj_Audit VALUES (v_ProcName,'Core',v_CoreTable,v
 END;
 
 
+REPLACE PROCEDURE ???.ETL_TSA_TRAVEL_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 /*********************************************************************************************************/
 /* 
 Procedure Name    : ETL_TSA_TRAVEL_CORE                                              		
@@ -7096,9 +7099,8 @@ Date           	Ver#		Modified By(Name)       	Version Comments
 -----------   	-------     -------------------------	----------------------------                       
 07/19/2020      1.0         Teradata DW              	Initial
 07/22/2020		2.0			Teradata DW              	Changed the date format due to error from Disney
-/*																																									*/
+*/
 /*****************************************************************************************************/
-REPLACE PROCEDURE ???.ETL_TSA_TRAVEL_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 SQL SECURITY INVOKER
 BEGIN
 
@@ -7130,7 +7132,7 @@ BEGIN
 END;
 
 /******************************************************************/
-/*Put Your Transformation Logic Here
+--Put Your Transformation Logic Here
 /******************************************************************/
 
 --travel tsa
@@ -7337,7 +7339,7 @@ values (
     source.REC_UPD_TS   );
  
 /******************************************************************/
-/*End of Transformation Logic
+--End of Transformation Logic
 /******************************************************************/	
 
 
@@ -7351,6 +7353,9 @@ INSERT INTO ???.ETL_Indicator_Proj_Audit VALUES (v_ProcName,'Core',v_CoreTable,v
 	
 END;
 
+
+
+REPLACE PROCEDURE ???.ETL_CUST_DATA_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 /*********************************************************************************************************/
 /* 
 Procedure Name    : ETL_CUST_DATA_CORE                                              		
@@ -7365,9 +7370,8 @@ Null - Represnts Success
 Date           	Ver#		Modified By(Name)       	Version Comments                   
 -----------   	-------     -------------------------	----------------------------                       
 07/27/2020      1.0         Teradata DW              	Initial
-/*																																									*/
+*/
 /*****************************************************************************************************/
-REPLACE PROCEDURE ???.ETL_CUST_DATA_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 SQL SECURITY INVOKER
 BEGIN
 
@@ -7399,13 +7403,13 @@ BEGIN
 END;
 
 /******************************************************************/
-/*Put Your Transformation Logic Here
+--Put Your Transformation Logic Here
 /******************************************************************/
 
 
  
 /******************************************************************/
-/*End of Transformation Logic
+--End of Transformation Logic
 /******************************************************************/	
 
 
@@ -7420,6 +7424,7 @@ INSERT INTO ???.ETL_Indicator_Proj_Audit VALUES (v_ProcName,'Core',v_CoreTable,v
 END;
 
 
+REPLACE PROCEDURE ???.ETL_COVID_CASES_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 /*********************************************************************************************************/
 /* 
 Procedure Name    : ETL_COVID_CASES_CORE                                                 		
@@ -7438,9 +7443,8 @@ Date           	Ver#		Modified By(Name)       	Version Comments
 07/22/2020		3.0			Teradata DW					Replaced the entire code to be incremental
 07/26/2020		4.0			Teradata DW					Added the historical one time load step which is only run for new installations
 07/29/2020		5.0			Teradata DW					Modified the the merge
-/*																																									*/
+*/
 /*****************************************************************************************************/
-REPLACE PROCEDURE ???.ETL_COVID_CASES_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 SQL SECURITY INVOKER
 BEGIN
 
@@ -7474,7 +7478,7 @@ END;
 
 
 /******************************************************************/
-/*Put Your Transformation Logic Here
+--Put Your Transformation Logic Here
 /******************************************************************/
 
 -- New York Times covid case cases
@@ -8002,7 +8006,7 @@ SELECT
    ) T;
  
 /******************************************************************/
-/*End of Transformation Logic
+--End of Transformation Logic
 /******************************************************************/	
 
 
