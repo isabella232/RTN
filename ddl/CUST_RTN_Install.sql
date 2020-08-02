@@ -7557,214 +7557,216 @@ END;
 
 -- New York Times covid case cases
 -- Historical Load
--- 07.26.20 Changes
+-- 07.29.20 Changes
 SELECT COUNT(*) INTO v_BaseData
 FROM ???.FACT_INDICATOR_DASHBOARD_T2_P
 WHERE DOMAIN_NAME = 'Covid19 NYT';
 
 IF v_BaseData = 0 THEN -- One time Historical Load
-	--
-	MERGE INTO ???.FACT_INDICATOR_DASHBOARD_T2_P AS TGT
-	USING  
-	  ( 
-	    SELECT 
-			  COALESCE(F.INDICATOR_KEY, MAXKEY.MAX_ID + ROW_NUMBER() OVER (ORDER BY T2.DATE_KEY, T2.GEO_KEY, T2.DOMAIN_NAME, T2.SUBDOMAIN_1_NAME, T2.SUBDOMAIN_2_NAME, T2.SUBDOMAIN_3_NAME, T2.METRIC_NAME)) AS INDICATOR_KEY,
-			  T2.DATE_KEY,
-			  T2.DATE_GRANULARITY,
-			  T2.GEO_KEY,
-			  T2.GEO_GRANULARITY,
-			  T2.DOMAIN_NAME,
-			  T2.SUBDOMAIN_1_NAME,
-			  T2.SUBDOMAIN_2_NAME,
-			  T2.SUBDOMAIN_3_NAME,
-			  T2.METRIC_NAME,
-			  T2.METRIC_VALUE,
-			  0 AS METRIC_INDEX,
-			  T2.DATA_SOURCE_NAME,
-			  T2.DATA_SOURCE_DESC,
-			  CURRENT_TIMESTAMP(0) AS REC_INS_TS,
-			  CURRENT_TIMESTAMP(0) AS REC_UPD_TS,
-			  CASE WHEN F.INDICATOR_KEY IS NULL
-			       THEN 'I'
-		    	   WHEN F.INDICATOR_KEY IS NOT NULL AND F.METRIC_VALUE <> T2.METRIC_VALUE
-				   THEN 'U'
-			       ELSE 'P'
-			  END AS INS_UPD_FLAG
-		FROM
-	                    ( SELECT 
-			                  T1.DATE_KEY,
-	                          'Day'  AS DATE_GRANULARITY,
-	                          GK.UID AS GEO_KEY,
-	                          T1.GEO_GRANULARITY,
-	                          'Covid19 NYT'  DOMAIN_NAME,
-	                          ' ' SUBDOMAIN_1_NAME,
-	                          ' ' SUBDOMAIN_2_NAME,
-	                          ' ' SUBDOMAIN_3_NAME,
-	                          T1.CASES,
-							  T1.DAILY_NEW_CASES,
-			                  T1.DEATHS,
-							  T1.DAILY_NEW_DEATHS,
-	                          'New York Times Covid cases/deaths reporting' AS DATA_SOURCE_NAME,
-	                          'New York Times Covid cases/deaths reporting' AS DATA_SOURCE_DESC  
-	                      FROM
-	                            (
-	                               SELECT 
-	                                     COALESCE(M.CAL_DATE_KEY,CAST(S.DATE_KEY AS DATE FORMAT 'YYYY-MM-DD')) AS DATE_KEY,
-	                                     CASE WHEN COALESCE(M.COUNTY,S.COUNTY) = 'Unknown'
-	                                          THEN 'STATE'
-	                                          ELSE COALESCE(M.GEO_GRANULARITY,'COUNTY')
-	                                     END AS GEO_GRANULARITY,
-	                                     COALESCE(M.COUNTY,S.COUNTY) AS COUNTY,
-	                                     MIN(COALESCE(M.STATE_CODE,'ZZ')) OVER (PARTITION BY COALESCE(M.STATE_NAME,S.STATE) ORDER BY M.STATE_CODE) AS STATE_CODE,
-	                                     COALESCE(M.STATE_NAME,S.STATE) AS STATE_NAME,
-					                     COALESCE(S.CASES,0) AS CASES,
-										 COALESCE(S.CASES - LAG(S.CASES,1) OVER (PARTITION BY COALESCE(M.COUNTY,S.COUNTY),COALESCE(M.STATE_NAME,S.STATE) 
-										                                         ORDER BY COALESCE(M.CAL_DATE_KEY,CAST(S.DATE_KEY AS DATE FORMAT 'YYYY-MM-DD'))),S.CASES -1) AS DAILY_NEW_CASES,
-	                                     COALESCE(S.DEATHS,0) AS DEATHS,
-										 COALESCE(S.DEATHS - LAG(S.DEATHS,1) OVER (PARTITION BY COALESCE(M.COUNTY,S.COUNTY),COALESCE(M.STATE_NAME,S.STATE) 
-										                                           ORDER BY COALESCE(M.CAL_DATE_KEY,CAST(S.DATE_KEY AS DATE FORMAT 'YYYY-MM-DD'))),S.DEATHS-1) AS DAILY_NEW_DEATHS
-	                               FROM
-	                                (
-	                                  SELECT 
-	                                     DT.CAL_DATE_KEY,
-	                                     GC.UID AS GEO_KEY,
-	                                     GC.GEO_GRANULARITY,
-	                                     GC.COUNTY, 
-	                                     GC.COUNTY_LONG,
-	                                     GC.STATE_CODE,
-	                                     GC.STATE_NAME 
-	                                  FROM 
-	                                     ???.DIM_GEO_LOCATION_V GC
-	                                     JOIN ???.DIM_CALENDAR_V DT ON
-	                                     DT.CAL_DATE_KEY BETWEEN (SELECT MIN(DATE_KEY) FROM ???.STG_COVID19_STATS) AND (SELECT MAX(DATE_KEY) FROM ???.STG_COVID19_STATS) AND
-	                                     GC.GEO_GRANULARITY = 'COUNTY' AND 
-	                                     GC.COUNTRY_CODE    = 'US'
-	                                ) M
-	                                FULL OUTER JOIN
-	                                (
-	                                   SELECT 
-	                                      DATE_KEY,
-	                                      CASE WHEN COUNTY = 'New York City'
-						                       THEN 'New York'
-							                   ELSE COUNTY
-					                      END AS COUNTY,             -- New York City is a combination of 5 counties - it will be loaded to NY County and corrected later
-	                                      STATE,
-	                                      CASES,
-	                                      DEATHS
-	                                   FROM 
-	                                     ???.STG_COVID19_STATS
-	                                   WHERE 
-	                                     DATE_KEY BETWEEN (SELECT MIN(DATE_KEY) FROM ???.STG_COVID19_STATS) AND (SELECT MAX(DATE_KEY) FROM ???.STG_COVID19_STATS)
-	                                 ) S ON 
-	                                 S.DATE_KEY = M.CAL_DATE_KEY AND
-	                                 S.COUNTY IN (M.COUNTY, M.COUNTY_LONG) AND
-	                                 S.STATE    = M.STATE_NAME
-	                            ) T1     
-	                            JOIN ???.DIM_GEO_LOCATION_V GK ON
-	                            T1.GEO_GRANULARITY = GK.GEO_GRANULARITY AND
-	                            T1.STATE_NAME      = GK.STATE_NAME AND 
-	                            T1.COUNTY          = COALESCE(GK.COUNTY,'Unknown')	
-								--WHERE T1.DATE_KEY >= CURRENT_DATE -29  -- for incremental loads, need to filter first date because the daily new cases/deaths calculation is incorrect
-	                    )  NYT 
-	             UNPIVOT ((METRIC_VALUE)  FOR  METRIC_NAME 
-	                                      IN ((CASES)  AS 'Cases to-date', 
-										      (DAILY_NEW_CASES) AS 'New Daily Cases',
-	                                          (DEATHS) AS 'Deaths to-date',
-											  (DAILY_NEW_DEATHS) AS 'New Daily Deaths'
-											 )
-			             )  T2
-			 LEFT OUTER JOIN ???.FACT_INDICATOR_DASHBOARD_V F ON
-			         T2.DATE_KEY         = F.DATE_KEY             AND
-			         T2.DATE_GRANULARITY = F.DATE_GRANULARITY     AND
-			         T2.GEO_KEY          = F.GEO_KEY              AND
-			         T2.GEO_GRANULARITY  = F.GEO_GRANULARITY      AND
-			         T2.DOMAIN_NAME      = F.DOMAIN_NAME          AND
-	                 T2.SUBDOMAIN_1_NAME = F.SUBDOMAIN_1_NAME     AND
-	                 T2.SUBDOMAIN_2_NAME = F.SUBDOMAIN_2_NAME     AND
-	                 T2.SUBDOMAIN_3_NAME = F.SUBDOMAIN_3_NAME     AND
-			         T2.METRIC_NAME      = F.METRIC_NAME
-			 LEFT OUTER JOIN (SELECT ZEROIFNULL(MAX(INDICATOR_KEY)) AS MAX_ID
-			                  FROM ???.FACT_INDICATOR_DASHBOARD_V) MAXKEY ON 
-			          1=1
-	 	     WHERE
-	            INS_UPD_FLAG IN ('I','U')	
-	  )  STG ON  
-	STG.INDICATOR_KEY = TGT.INDICATOR_KEY AND
-	STG.DATE_KEY      = TGT.DATE_KEY
-	WHEN NOT MATCHED THEN 
-	INSERT
-	  (       
-	    INDICATOR_KEY,     
-	    DATE_KEY,
-	    DATE_GRANULARITY,
-	    GEO_KEY, 
-	    GEO_GRANULARITY,
-	    DOMAIN_NAME,
-	    SUBDOMAIN_1_NAME,
-	    SUBDOMAIN_2_NAME,
-	    SUBDOMAIN_3_NAME,
-	    METRIC_NAME,
-	    METRIC_VALUE,
-	    METRIC_INDEX,
-	    DATA_SOURCE_NAME,
-	    DATA_SOURCE_DESC,
-	    REC_INS_TS,
-	    REC_UPD_TS  
-	   )  VALUES 
-	   (    
-	    STG.INDICATOR_KEY,      
-	    STG.DATE_KEY,
-	    STG.DATE_GRANULARITY,
-	    STG.GEO_KEY, 
-	    STG.GEO_GRANULARITY,
-	    STG.DOMAIN_NAME,
-	    STG.SUBDOMAIN_1_NAME,
-	    STG.SUBDOMAIN_2_NAME,
-	    STG.SUBDOMAIN_3_NAME,
-	    STG.METRIC_NAME,
-	    STG.METRIC_VALUE,
-	    STG.METRIC_INDEX,
-	    STG.DATA_SOURCE_NAME,
-	    STG.DATA_SOURCE_DESC,
-	    STG.REC_INS_TS,
-	    STG.REC_UPD_TS   
-	  )
-	WHEN MATCHED THEN
-	UPDATE SET 
-	    METRIC_VALUE  = STG.METRIC_VALUE,
-	    METRIC_INDEX  = STG.METRIC_INDEX,
-	    REC_UPD_TS    = STG.REC_UPD_TS ;
-		--
-		
-	UPDATE ???.FACT_INDICATOR_DASHBOARD_T2_P
-	FROM (
-	SELECT
-	   F.INDICATOR_KEY,
-	   F.DATE_KEY,
-	   F.GEO_KEY,
-	   G.POPULATION,
-	   G.STATE_CODE,
-	   F.DOMAIN_NAME,
-	   F.METRIC_NAME,
-	   F.METRIC_VALUE,
-	   SUM(F.METRIC_VALUE) OVER (PARTITION BY F.DATE_KEY, F.DOMAIN_NAME, F.METRIC_NAME,G.STATE_CODE) AS TOT_METRIC_VALUE,
-	   SUM(G.POPULATION) OVER (PARTITION BY F.DATE_KEY, F.DOMAIN_NAME, F.METRIC_NAME, G.STATE_CODE) AS TOT_POPULATION,
-	   (SUM(F.METRIC_VALUE) OVER (PARTITION BY F.DATE_KEY, F.DOMAIN_NAME, F.METRIC_NAME,G.STATE_CODE) * 
-	    CAST(G.POPULATION AS DECIMAL(38,6))/SUM(G.POPULATION) OVER (PARTITION BY F.DATE_KEY, F.DOMAIN_NAME, F.METRIC_NAME,G.STATE_CODE)) AS NEW_METRIC_VALUE
+--
+MERGE INTO ???.FACT_INDICATOR_DASHBOARD_T2_P AS TGT
+USING  
+  ( 
+    SELECT 
+		  COALESCE(F.INDICATOR_KEY, MAXKEY.MAX_ID + ROW_NUMBER() OVER (ORDER BY T2.DATE_KEY, T2.GEO_KEY, T2.DOMAIN_NAME, T2.SUBDOMAIN_1_NAME, T2.SUBDOMAIN_2_NAME, T2.SUBDOMAIN_3_NAME, T2.METRIC_NAME)) AS INDICATOR_KEY,
+		  T2.DATE_KEY,
+		  T2.DATE_GRANULARITY,
+		  T2.GEO_KEY,
+		  T2.GEO_GRANULARITY,
+		  T2.DOMAIN_NAME,
+		  T2.SUBDOMAIN_1_NAME,
+		  T2.SUBDOMAIN_2_NAME,
+		  T2.SUBDOMAIN_3_NAME,
+		  T2.METRIC_NAME,
+		  T2.METRIC_VALUE,
+		  0 AS METRIC_INDEX,
+		  T2.DATA_SOURCE_NAME,
+		  T2.DATA_SOURCE_DESC,
+		  CURRENT_TIMESTAMP(0) AS REC_INS_TS,
+		  CURRENT_TIMESTAMP(0) AS REC_UPD_TS,
+		  CASE WHEN F.INDICATOR_KEY IS NULL
+		       THEN 'I'
+	    	   WHEN F.INDICATOR_KEY IS NOT NULL AND F.METRIC_VALUE <> T2.METRIC_VALUE
+			   THEN 'U'
+		       ELSE 'P'
+		  END AS INS_UPD_FLAG
 	FROM
-	   ???.FACT_INDICATOR_DASHBOARD_V F
-	   JOIN ???.DIM_GEO_LOCATION_V G ON
-	   F.GEO_KEY = G.UID
-	WHERE
-	   F.DOMAIN_NAME = 'Covid19 NYT' AND
-	   F.GEO_KEY IN (84070003,84029037,84029047,84029095,84029165,84036061,84036005,84036047,84036081,84036085) AND
-	   F.DATE_KEY BETWEEN CURRENT_DATE -30 AND CURRENT_DATE
-	) AS SRC
-	SET METRIC_VALUE = SRC.NEW_METRIC_VALUE,
-	    REC_UPD_TS      = CURRENT_TIMESTAMP(0)
-	WHERE 
-	   FACT_INDICATOR_DASHBOARD_T2_P.INDICATOR_KEY = SRC.INDICATOR_KEY;
-   
+                    ( SELECT 
+		                  T1.DATE_KEY,
+                          'Day'  AS DATE_GRANULARITY,
+                          GK.UID AS GEO_KEY,
+                          T1.GEO_GRANULARITY,
+                          'Covid19 NYT'  DOMAIN_NAME,
+                          ' ' SUBDOMAIN_1_NAME,
+                          ' ' SUBDOMAIN_2_NAME,
+                          ' ' SUBDOMAIN_3_NAME,
+                          T1.CASES,
+						  T1.DAILY_NEW_CASES,
+		                  T1.DEATHS,
+						  T1.DAILY_NEW_DEATHS,
+                          'New York Times Covid cases/deaths reporting' AS DATA_SOURCE_NAME,
+                          'New York Times Covid cases/deaths reporting' AS DATA_SOURCE_DESC  
+                      FROM
+                            (
+                               SELECT 
+                                     COALESCE(M.CAL_DATE_KEY,CAST(S.DATE_KEY AS DATE FORMAT 'YYYY-MM-DD')) AS DATE_KEY,
+                                     CASE WHEN COALESCE(M.COUNTY,S.COUNTY) = 'Unknown'
+                                          THEN 'STATE'
+                                          ELSE COALESCE(M.GEO_GRANULARITY,'COUNTY')
+                                     END AS GEO_GRANULARITY,
+                                     COALESCE(M.COUNTY,S.COUNTY) AS COUNTY,
+                                     MIN(COALESCE(M.STATE_CODE,'ZZ')) OVER (PARTITION BY COALESCE(M.STATE_NAME,S.STATE) ORDER BY M.STATE_CODE) AS STATE_CODE,
+                                     COALESCE(M.STATE_NAME,S.STATE) AS STATE_NAME,
+				                     COALESCE(S.CASES,0) AS CASES,
+									 COALESCE(COALESCE(S.CASES - LAG(S.CASES,1) OVER (PARTITION BY COALESCE(M.COUNTY,S.COUNTY),COALESCE(M.STATE_NAME,S.STATE) 
+									                                                  ORDER BY COALESCE(M.CAL_DATE_KEY,CAST(S.DATE_KEY AS DATE FORMAT 'YYYY-MM-DD'))),S.CASES -1),0) AS DAILY_NEW_CASES,
+                                     COALESCE(S.DEATHS,0) AS DEATHS,
+									 COALESCE(COALESCE(S.DEATHS - LAG(S.DEATHS,1) OVER (PARTITION BY COALESCE(M.COUNTY,S.COUNTY),COALESCE(M.STATE_NAME,S.STATE) 
+									                                                    ORDER BY COALESCE(M.CAL_DATE_KEY,CAST(S.DATE_KEY AS DATE FORMAT 'YYYY-MM-DD'))),S.DEATHS-1),0) AS DAILY_NEW_DEATHS
+                               FROM
+                                (
+                                  SELECT 
+                                     DT.CAL_DATE_KEY,
+                                     GC.UID AS GEO_KEY,
+                                     GC.GEO_GRANULARITY,
+                                     GC.COUNTY, 
+                                     GC.COUNTY_LONG,
+                                     GC.STATE_CODE,
+                                     GC.STATE_NAME 
+                                  FROM 
+                                     ???.DIM_GEO_LOCATION_V GC
+                                     JOIN ???.DIM_CALENDAR_V DT ON
+                                     DT.CAL_DATE_KEY BETWEEN (SELECT MIN(DATE_KEY) FROM ???.STG_COVID19_STATS) AND (SELECT MAX(DATE_KEY) FROM ???.STG_COVID19_STATS) AND
+                                     GC.GEO_GRANULARITY = 'COUNTY' AND 
+                                     GC.COUNTRY_CODE    = 'US'
+                                ) M
+                                FULL OUTER JOIN
+                                (
+                                   SELECT 
+                                      DATE_KEY,
+                                      CASE WHEN COUNTY = 'New York City'
+					                       THEN 'New York'
+						                   ELSE COUNTY
+				                      END AS COUNTY,             -- New York City is a combination of 5 counties - it will be loaded to NY County and corrected later
+                                      STATE,
+                                      CASES,
+                                      DEATHS
+                                   FROM 
+                                     ???.STG_COVID19_STATS
+                                   WHERE 
+                                     DATE_KEY BETWEEN (SELECT MIN(DATE_KEY) FROM ???.STG_COVID19_STATS) AND (SELECT MAX(DATE_KEY) FROM ???.STG_COVID19_STATS)
+                                 ) S ON 
+                                 S.DATE_KEY = M.CAL_DATE_KEY AND
+                                 S.COUNTY IN (M.COUNTY, M.COUNTY_LONG) AND
+                                 S.STATE    = M.STATE_NAME
+                            ) T1     
+                            JOIN ???.DIM_GEO_LOCATION_V GK ON
+                            T1.GEO_GRANULARITY = GK.GEO_GRANULARITY AND
+                            T1.STATE_NAME      = GK.STATE_NAME AND 
+                            T1.COUNTY          = COALESCE(GK.COUNTY,'Unknown')	
+							--WHERE T1.DATE_KEY >= CURRENT_DATE -29  -- for incremental loads, need to filter first date because the daily new cases/deaths calculation is incorrect
+                    )  NYT 
+             UNPIVOT ((METRIC_VALUE)  FOR  METRIC_NAME 
+                                      IN ((CASES)  AS 'Cases to-date', 
+									      (DAILY_NEW_CASES) AS 'New Daily Cases',
+                                          (DEATHS) AS 'Deaths to-date',
+										  (DAILY_NEW_DEATHS) AS 'New Daily Deaths'
+										 )
+		             )  T2
+		 LEFT OUTER JOIN ???.FACT_INDICATOR_DASHBOARD_V F ON
+		         T2.DATE_KEY         = F.DATE_KEY             AND
+		         T2.DATE_GRANULARITY = F.DATE_GRANULARITY     AND
+		         T2.GEO_KEY          = F.GEO_KEY              AND
+		         T2.GEO_GRANULARITY  = F.GEO_GRANULARITY      AND
+		         T2.DOMAIN_NAME      = F.DOMAIN_NAME          AND
+                 T2.SUBDOMAIN_1_NAME = F.SUBDOMAIN_1_NAME     AND
+                 T2.SUBDOMAIN_2_NAME = F.SUBDOMAIN_2_NAME     AND
+                 T2.SUBDOMAIN_3_NAME = F.SUBDOMAIN_3_NAME     AND
+		         T2.METRIC_NAME      = F.METRIC_NAME
+		 LEFT OUTER JOIN (SELECT ZEROIFNULL(MAX(INDICATOR_KEY)) AS MAX_ID
+		                  FROM ???.FACT_INDICATOR_DASHBOARD_V) MAXKEY ON 
+		          1=1
+ 	     WHERE
+            INS_UPD_FLAG IN ('I','U')	
+  )  STG ON  
+STG.INDICATOR_KEY = TGT.INDICATOR_KEY AND
+STG.DATE_KEY      = TGT.DATE_KEY
+WHEN NOT MATCHED THEN 
+INSERT
+  (       
+    INDICATOR_KEY,     
+    DATE_KEY,
+    DATE_GRANULARITY,
+    GEO_KEY, 
+    GEO_GRANULARITY,
+    DOMAIN_NAME,
+    SUBDOMAIN_1_NAME,
+    SUBDOMAIN_2_NAME,
+    SUBDOMAIN_3_NAME,
+    METRIC_NAME,
+    METRIC_VALUE,
+    METRIC_INDEX,
+    DATA_SOURCE_NAME,
+    DATA_SOURCE_DESC,
+    REC_INS_TS,
+    REC_UPD_TS  
+   )  VALUES 
+   (    
+    STG.INDICATOR_KEY,      
+    STG.DATE_KEY,
+    STG.DATE_GRANULARITY,
+    STG.GEO_KEY, 
+    STG.GEO_GRANULARITY,
+    STG.DOMAIN_NAME,
+    STG.SUBDOMAIN_1_NAME,
+    STG.SUBDOMAIN_2_NAME,
+    STG.SUBDOMAIN_3_NAME,
+    STG.METRIC_NAME,
+    STG.METRIC_VALUE,
+    STG.METRIC_INDEX,
+    STG.DATA_SOURCE_NAME,
+    STG.DATA_SOURCE_DESC,
+    STG.REC_INS_TS,
+    STG.REC_UPD_TS   
+  )
+WHEN MATCHED THEN
+UPDATE SET 
+    METRIC_VALUE  = STG.METRIC_VALUE,
+    METRIC_INDEX  = STG.METRIC_INDEX,
+    REC_UPD_TS    = STG.REC_UPD_TS ;
+	
+	
+	
+	
+UPDATE ???.FACT_INDICATOR_DASHBOARD_T2_P
+FROM (
+SELECT
+   F.INDICATOR_KEY,
+   F.DATE_KEY,
+   F.GEO_KEY,
+   G.POPULATION,
+   G.STATE_CODE,
+   F.DOMAIN_NAME,
+   F.METRIC_NAME,
+   F.METRIC_VALUE,
+   SUM(F.METRIC_VALUE) OVER (PARTITION BY F.DATE_KEY, F.DOMAIN_NAME, F.METRIC_NAME,G.STATE_CODE) AS TOT_METRIC_VALUE,
+   SUM(G.POPULATION) OVER (PARTITION BY F.DATE_KEY, F.DOMAIN_NAME, F.METRIC_NAME, G.STATE_CODE) AS TOT_POPULATION,
+   (SUM(F.METRIC_VALUE) OVER (PARTITION BY F.DATE_KEY, F.DOMAIN_NAME, F.METRIC_NAME,G.STATE_CODE) * 
+    CAST(G.POPULATION AS DECIMAL(38,6))/SUM(G.POPULATION) OVER (PARTITION BY F.DATE_KEY, F.DOMAIN_NAME, F.METRIC_NAME,G.STATE_CODE)) AS NEW_METRIC_VALUE
+FROM
+   ???.FACT_INDICATOR_DASHBOARD_V F
+   JOIN ???.DIM_GEO_LOCATION_V G ON
+   F.GEO_KEY = G.UID
+WHERE
+   F.DOMAIN_NAME = 'Covid19 NYT' AND
+   F.GEO_KEY IN (84070003,84029037,84029047,84029095,84029165,84036061,84036005,84036047,84036081,84036085) AND
+   F.DATE_KEY BETWEEN CURRENT_DATE -30 AND CURRENT_DATE
+) AS SRC
+SET METRIC_VALUE = SRC.NEW_METRIC_VALUE,
+    REC_UPD_TS      = CURRENT_TIMESTAMP(0)
+WHERE 
+   FACT_INDICATOR_DASHBOARD_T2_P.INDICATOR_KEY = SRC.INDICATOR_KEY;
+      
 END IF;
 	
 -----------------------------------------------------------
@@ -7827,11 +7829,11 @@ USING
                                      MIN(COALESCE(M.STATE_CODE,'ZZ')) OVER (PARTITION BY COALESCE(M.STATE_NAME,S.STATE) ORDER BY M.STATE_CODE) AS STATE_CODE,
                                      COALESCE(M.STATE_NAME,S.STATE) AS STATE_NAME,
 				                     COALESCE(S.CASES,0) AS CASES,
-									 COALESCE(S.CASES - LAG(S.CASES,1) OVER (PARTITION BY COALESCE(M.COUNTY,S.COUNTY),COALESCE(M.STATE_NAME,S.STATE) 
-									                                         ORDER BY COALESCE(M.CAL_DATE_KEY,CAST(S.DATE_KEY AS DATE FORMAT 'YYYY-MM-DD'))),S.CASES -1) AS DAILY_NEW_CASES,
+									 COALESCE(COALESCE(S.CASES - LAG(S.CASES,1) OVER (PARTITION BY COALESCE(M.COUNTY,S.COUNTY),COALESCE(M.STATE_NAME,S.STATE) 
+									                                                  ORDER BY COALESCE(M.CAL_DATE_KEY,CAST(S.DATE_KEY AS DATE FORMAT 'YYYY-MM-DD'))),S.CASES -1),0) AS DAILY_NEW_CASES,
                                      COALESCE(S.DEATHS,0) AS DEATHS,
-									 COALESCE(S.DEATHS - LAG(S.DEATHS,1) OVER (PARTITION BY COALESCE(M.COUNTY,S.COUNTY),COALESCE(M.STATE_NAME,S.STATE) 
-									                                           ORDER BY COALESCE(M.CAL_DATE_KEY,CAST(S.DATE_KEY AS DATE FORMAT 'YYYY-MM-DD'))),S.DEATHS-1) AS DAILY_NEW_DEATHS
+									 COALESCE(COALESCE(S.DEATHS - LAG(S.DEATHS,1) OVER (PARTITION BY COALESCE(M.COUNTY,S.COUNTY),COALESCE(M.STATE_NAME,S.STATE) 
+									                                                    ORDER BY COALESCE(M.CAL_DATE_KEY,CAST(S.DATE_KEY AS DATE FORMAT 'YYYY-MM-DD'))),S.DEATHS-1),0) AS DAILY_NEW_DEATHS
                                FROM
                                 (
                                   SELECT 
