@@ -9,14 +9,6 @@
 
 
 #############################################################
-# Credentials
-#############################################################
-MyHost ='???'
-MyUser ='???'
-TempDB ='???'
-SchemaName = "???"
-
-#############################################################
 # Libraries
 #############################################################
 #pip install ipython
@@ -27,11 +19,13 @@ SchemaName = "???"
 #pip install xlrd
 #pip3 install requests-html
 #pip install html5lib
+#pip install teradataml
+#pip install pytrends
 
 from IPython import get_ipython
 from covid19dh import covid19
 import pytz
-import tweepy as tw
+#import tweepy as tw
 import pandas as pd
 import numpy as np
 from teradataml.dataframe.dataframe import DataFrame, in_schema
@@ -46,7 +40,8 @@ from datetime import date
 from datetime import datetime, timedelta
 from datetime import datetime
 from teradataml.context.context import *
-con = create_context(host=MyHost, username=MyUser, password=getpass.getpass(), temp_database_name=TempDB, logmech='LDAP')
+import params
+con = create_context(host=params.MyHost, username=params.MyUser, password=params.Password,temp_database_name=params.SchemaName,logmech=params.LogMech)
 
 #############################################################
 # Stage to Core Loads
@@ -56,99 +51,114 @@ def cur_execute (cur, sSQL, params=None):
 
 try:
     # Core Load Calls to Teradata
-    cur_execute (con, "CALL "+SchemaName+".ETL_LOOKUP_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
+    cur_execute (con, "CALL "+params.SchemaName+".ETL_CUST_DATA_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
+    from datetime import datetime
+    datetime.utcnow()
+    dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
+    timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
+    print("ETL_CUST_DATA_CORE Finished!  " + timestampStr)
+
+    cur_execute (con, "CALL "+params.SchemaName+".ETL_LOOKUP_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
     from datetime import datetime
     datetime.utcnow()
     dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
     timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
     print("ETL_LOOKUP_CORE Finished!  " + timestampStr)
 
-    cur_execute (con, "CALL "+SchemaName+".ETL_COVID_CASES_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
+    cur_execute (con, "CALL "+params.SchemaName+".ETL_COVID_CASES_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
     from datetime import datetime
     datetime.utcnow()
     dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
     timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
     print("ETL_COVID_CASES_CORE Finished!  " + timestampStr)
 
-    cur_execute (con, "CALL "+SchemaName+".ETL_LABOR_STATS_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
+    cur_execute (con, "CALL "+params.SchemaName+".ETL_LABOR_STATS_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
     from datetime import datetime
     datetime.utcnow()
     dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
     timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
     print("ETL_LABOR_STATS_CORE Finished!  " + timestampStr)
 
-    cur_execute (con, "CALL "+SchemaName+".ETL_COVID_MODEL_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
+    cur_execute (con, "CALL "+params.SchemaName+".ETL_COVID_MODEL_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
     from datetime import datetime
     datetime.utcnow()
     dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
     timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
     print("ETL_COVID_MODEL_CORE Finished!  " + timestampStr)
 
-    cur_execute (con, "CALL "+SchemaName+".ETL_GOOGLE_MOBILITY_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
+    cur_execute (con, "CALL "+params.SchemaName+".ETL_GOOGLE_MOBILITY_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
     from datetime import datetime
     datetime.utcnow()
     dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
     timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
     print("ETL_GOOGLE_MOBILITY_CORE Finished!  " + timestampStr)
 
-    cur_execute (con, "CALL "+SchemaName+".ETL_BEA_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
+    cur_execute (con, "CALL "+params.SchemaName+".ETL_BEA_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
     from datetime import datetime
     datetime.utcnow()
     dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
     timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
     print("ETL_BEA_CORE Finished!  " + timestampStr)
 
-    cur_execute (con, "CALL "+SchemaName+".ETL_GOOGLE_TREND_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
+    cur_execute (con, "CALL "+params.SchemaName+".ETL_GOOGLE_TREND_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
     from datetime import datetime
     datetime.utcnow()
     dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
     timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
     print("ETL_GOOGLE_TREND_CORE Finished!  " + timestampStr)
 
-    cur_execute (con, "CALL "+SchemaName+".ETL_COVID19_DATAHUB_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
+    cur_execute (con, "CALL "+params.SchemaName+".ETL_COVID19_DATAHUB_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
     from datetime import datetime
     datetime.utcnow()
     dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
     timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
     print("ETL_COVID19_DATAHUB_CORE Finished!  " + timestampStr)
 
-    cur_execute (con, "CALL "+SchemaName+".ETL_FUEL_PROD_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
+    cur_execute (con, "CALL "+params.SchemaName+".ETL_FUEL_PROD_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
     from datetime import datetime
     datetime.utcnow()
     dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
     timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
     print("ETL_FUEL_PROD_CORE Finished!  " + timestampStr)
 
-    cur_execute (con, "CALL "+SchemaName+".ETL_CONSUMER_SENTIMENT_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
+    cur_execute (con, "CALL "+params.SchemaName+".ETL_CONSUMER_SENTIMENT_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
     from datetime import datetime
     datetime.utcnow()
     dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
     timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
     print("ETL_CONSUMER_SENTIMENT_CORE Finished!  " + timestampStr)
 
-    cur_execute (con, "CALL "+SchemaName+".ETL_TSA_TRAVEL_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
+    cur_execute (con, "CALL "+params.SchemaName+".ETL_TSA_TRAVEL_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
     from datetime import datetime
     datetime.utcnow()
     dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
     timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
     print("ETL_TSA_TRAVEL_CORE Finished!  " + timestampStr)
+
+    cur_execute (con, "CALL "+params.SchemaName+".ETL_CENSUS_DATA_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
+    from datetime import datetime
+    datetime.utcnow()
+    dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
+    timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
+    print("ETL_CENSUS_DATA_CORE Finished!  " + timestampStr)
     
-except:
-    print("An exception occurred")
+except BaseException as ex:
+    print(str(ex))
     
 finally:
-    cur_execute (con, "CALL "+SchemaName+".ETL_POST_LOAD_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
+    cur_execute (con, "CALL "+params.SchemaName+".ETL_POST_LOAD_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
     from datetime import datetime
     datetime.utcnow()
     dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
     timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
     print("ETL_POST_LOAD_CORE Finished!  " + timestampStr)
 
+
 #############################################################
 # Printing the Load Summary Stats
 #############################################################
 
-pd.read_sql('DATABASE '+SchemaName,con)
+pda = pd.read_sql('DATABASE '+params.SchemaName,con)
 
 query = "select Process_Name, Table_Type, TableName, Records_Processed, Process_Dttm \
 from ETL_Indicator_Proj_Audit \

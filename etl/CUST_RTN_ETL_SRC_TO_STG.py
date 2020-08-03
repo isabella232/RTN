@@ -9,14 +9,6 @@
 
 
 #############################################################
-# Credentials
-#############################################################
-MyHost ='???'
-MyUser ='???'
-TempDB ='???'
-SchemaName = "???"
-
-#############################################################
 # Libraries
 #############################################################
 #pip install ipython
@@ -27,11 +19,13 @@ SchemaName = "???"
 #pip install xlrd
 #pip3 install requests-html
 #pip install html5lib
+#pip install teradataml
+#pip install pytrends
 
 from IPython import get_ipython
 from covid19dh import covid19
 import pytz
-import tweepy as tw
+#import tweepy as tw
 import pandas as pd
 import numpy as np
 from teradataml.dataframe.dataframe import DataFrame, in_schema
@@ -46,33 +40,34 @@ from datetime import date
 from datetime import datetime, timedelta
 from datetime import datetime
 from teradataml.context.context import *
-con = create_context(host=MyHost, username=MyUser, password=getpass.getpass(), temp_database_name=TempDB, logmech='LDAP')
+import params
+con = create_context(host=params.MyHost, username=params.MyUser, password=params.Password,temp_database_name=params.SchemaName,logmech=params.LogMech)
 
 #############################################################
 # 1) Apple Mobility
 #############################################################
-import datetime
+#import datetime
 
-url = 'https://covid19-static.cdn-apple.com/covid19-mobility-data/2010HotfixDev23/v3/en-us/applemobilitytrends-2020-06-18.csv'
-df = pd.read_csv(url)
-
-
-df['MergedColumn'] = df[df.columns[0:]].apply(
-    lambda x: '|'.join(x.dropna().astype(str)),
-    axis=1
-)
+#url = 'https://covid19-static.cdn-apple.com/covid19-mobility-data/2010HotfixDev23/v3/en-us/applemobilitytrends-2020-06-18.csv'
+#df = pd.read_csv(url)
 
 
-df.drop(df.columns.difference(['MergedColumn']), 1, inplace=True)
-df['current_dttm'] = datetime.datetime.today()
+#df['MergedColumn'] = df[df.columns[0:]].apply(
+#    lambda x: '|'.join(x.dropna().astype(str)),
+#    axis=1
+#)
 
-fastload(df = df, table_name = "STG_Apple_Mobility", schema_name=SchemaName, if_exists = 'replace')
 
-from datetime import datetime
-datetime.utcnow()
-dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
-timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
-print("Apple Mobility Finished!  " + timestampStr)
+#df.drop(df.columns.difference(['MergedColumn']), 1, inplace=True)
+#df['current_dttm'] = datetime.datetime.today()
+
+#fastload(df = df, table_name = "STG_Apple_Mobility", schema_name=params.SchemaName, if_exists = 'replace')
+
+#from datetime import datetime
+#datetime.utcnow()
+#dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
+#timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
+#print("Apple Mobility Finished!  " + timestampStr)
 
 #############################################################
 # 2) Covid Cases
@@ -87,7 +82,7 @@ df['current_dttm'] = datetime.datetime.today()
 df = df.rename(columns={'date': 'date_key'})
 
 
-copy_to_sql(df = df, table_name = "STG_covid19_stats", schema_name=SchemaName , primary_index = ['date_key'], if_exists = 'replace')
+copy_to_sql(df = df, table_name = "STG_covid19_stats", schema_name=params.SchemaName , primary_index = ['date_key'], if_exists = 'replace')
 
 from datetime import datetime
 datetime.utcnow()
@@ -119,14 +114,14 @@ for i in cleaned_list:
     z = urlopen(url)
     myzip = ZipFile(BytesIO(z.read())).extract(i)
     df = pd.read_csv(myzip)
-    df['current_dttm'] = datetime.datetime.today()
     p = Path(i)
     df['Path_Update_Dt'] = p.parts[0]
+    df['current_dttm'] = datetime.datetime.today()
     
     if 'Reference_hospitalization_all_locs' in i:
-        copy_to_sql(df = df, table_name = 'STG_Hospitalization_all_locs', schema_name=SchemaName, index=False, if_exists="replace")
+        copy_to_sql(df = df, table_name = 'STG_Hospitalization_all_locs', schema_name=params.SchemaName, index=False, if_exists="replace")
     if 'Summary_stats_all_locs' in i:
-        copy_to_sql(df = df, table_name = 'STG_Summary_stats_all_locs', schema_name=SchemaName, index=False, if_exists="replace")
+        copy_to_sql(df = df, table_name = 'STG_Summary_stats_all_locs', schema_name=params.SchemaName, index=False, if_exists="replace")
 
         
 from datetime import datetime        
@@ -162,7 +157,7 @@ iot['current_dttm'] = datetime.datetime.today()
 iot['Keyword_List'] =a
 iot['Cat_CD']=cat
 iot['Type'] ='Interest over time'
-copy_to_sql(df = iot, table_name = "STG_Google_Search_IOT", schema_name=SchemaName, index=True, if_exists="replace") 
+copy_to_sql(df = iot, table_name = "STG_Google_Search_IOT", schema_name=params.SchemaName, index=True, if_exists="replace") 
 
 a=''
 cat='1085'
@@ -176,7 +171,7 @@ iot['current_dttm'] = datetime.datetime.today()
 iot['Keyword_List'] =a
 iot['Cat_CD']=cat
 iot['Type'] ='Interest over time'
-copy_to_sql(df = iot, table_name = "STG_Google_Search_IOT", schema_name=SchemaName, index=True, if_exists="append") 
+copy_to_sql(df = iot, table_name = "STG_Google_Search_IOT", schema_name=params.SchemaName, index=True, if_exists="append") 
 
 a=''
 cat='208'
@@ -190,7 +185,7 @@ iot['current_dttm'] = datetime.datetime.today()
 iot['Keyword_List'] =a
 iot['Cat_CD']=cat
 iot['Type'] ='Interest over time'
-copy_to_sql(df = iot, table_name = "STG_Google_Search_IOT", schema_name=SchemaName, index=True, if_exists="append") 
+copy_to_sql(df = iot, table_name = "STG_Google_Search_IOT", schema_name=params.SchemaName, index=True, if_exists="append") 
 
 
 from datetime import datetime
@@ -210,7 +205,7 @@ df = pd.read_csv(url, dtype='unicode')
 df['current_dttm'] = datetime.datetime.today()
 df = df.rename(columns={'date': 'date_key'})
 
-copy_to_sql(df = df, table_name = "STG_Google_Mobility", schema_name=SchemaName, primary_index = ['date_key'], if_exists = 'replace')
+copy_to_sql(df = df, table_name = "STG_Google_Mobility", schema_name=params.SchemaName, primary_index = ['date_key'], if_exists = 'replace')
 
 from datetime import datetime
 datetime.utcnow()
@@ -227,7 +222,7 @@ df = covid19("USA", level = 3, start = date(2020,1,1), verbose = False)
 df['current_dttm'] = datetime.datetime.today()
 df = df.rename(columns={'date': 'date_key'})
 
-copy_to_sql(df = df, table_name = "STG_COVID19_Datahub_LVL3", schema_name=SchemaName, primary_index = ['date_key'], if_exists = 'replace')
+copy_to_sql(df = df, table_name = "STG_COVID19_Datahub_LVL3", schema_name=params.SchemaName, primary_index = ['date_key'], if_exists = 'replace')
 
 from datetime import datetime
 datetime.utcnow()
@@ -244,7 +239,7 @@ df = covid19("USA", level = 2, start = date(2020,1,1), verbose = False)
 df['current_dttm'] = datetime.datetime.today()
 df = df.rename(columns={'date': 'date_key'})
 
-copy_to_sql(df = df, table_name = "STG_COVID19_Datahub_LVL2", schema_name=SchemaName, primary_index = ['date_key'], if_exists = 'replace')
+copy_to_sql(df = df, table_name = "STG_COVID19_Datahub_LVL2", schema_name=params.SchemaName, primary_index = ['date_key'], if_exists = 'replace')
 
 from datetime import datetime
 datetime.utcnow()
@@ -256,7 +251,6 @@ print("COVID Datahub Level 2 Finished!  " + timestampStr)
 #############################################################
 # 8)  Labor Stats Data
 #############################################################
-
 import json
 import requests
 import datetime
@@ -272,7 +266,7 @@ df0.loc[:,'footnotes']="Consumer Price Index"
 df0.loc[:,'series_id']="CUSR0000SA0"
 df0['current_dttm'] = datetime.datetime.today()
 df0.rename(columns={'year': 'Year_Key', 'periodName': 'Period_Month', 'value': 'Metric_Val', 'period': 'Period_Key'}, inplace=True)
-copy_to_sql(df = df0, table_name = "STG_Labor_Stats_CUSR0000SA0", schema_name = SchemaName, index=False, if_exists="replace")
+copy_to_sql(df = df0, table_name = "STG_Labor_Stats_CUSR0000SA0", schema_name = params.SchemaName, index=False, if_exists="replace")
 
 df1 = pd.DataFrame(json_data['Results']['series'][1]['data'])
 df1 = df1.drop(['footnotes'], axis=1)
@@ -280,7 +274,7 @@ df1.loc[:,'footnotes']="Unemployment Level"
 df1.loc[:,'series_id']="LNS13000000"
 df1['current_dttm'] = datetime.datetime.today()
 df1.rename(columns={'year': 'Year_Key', 'periodName': 'Period_Month', 'value': 'Metric_Val', 'period': 'Period_Key'}, inplace=True)
-copy_to_sql(df = df1, table_name = "STG_Labor_Stats_LNS13000000", schema_name = SchemaName, index=False, if_exists="replace")
+copy_to_sql(df = df1, table_name = "STG_Labor_Stats_LNS13000000", schema_name = params.SchemaName, index=False, if_exists="replace")
 
 df2 = pd.DataFrame(json_data['Results']['series'][2]['data'])
 df2 = df2.drop(['footnotes'], axis=1)
@@ -288,7 +282,7 @@ df2.loc[:,'footnotes']="Unemployment Rate"
 df2.loc[:,'series_id']="LNS14000000"
 df2['current_dttm'] = datetime.datetime.today()
 df2.rename(columns={'year': 'Year_Key', 'periodName': 'Period_Month', 'value': 'Metric_Val', 'period': 'Period_Key'}, inplace=True)
-copy_to_sql(df = df2, table_name = "STG_Labor_Stats_LNS14000000", schema_name = SchemaName, index=False, if_exists="replace")
+copy_to_sql(df = df2, table_name = "STG_Labor_Stats_LNS14000000", schema_name = params.SchemaName, index=False, if_exists="replace")
 
 from datetime import datetime
 datetime.utcnow()
@@ -307,7 +301,7 @@ df = pd.read_excel(url, sheet_name = "Data 1", skiprows=[0,1])
 df['current_dttm'] = datetime.datetime.today()
 df = df.rename(columns={'Date': 'date_key'})
 
-copy_to_sql(df = df, table_name = "STG_Fuel_Production", schema_name = SchemaName, if_exists = 'replace')
+copy_to_sql(df = df, table_name = "STG_Fuel_Production", schema_name = params.SchemaName, if_exists = 'replace')
 
 from datetime import datetime
 datetime.utcnow()
@@ -322,6 +316,7 @@ print("Fuel Production Finished!  " + timestampStr)
 import requests
 from bs4 import BeautifulSoup
 from requests_html import HTMLSession
+import datetime
 
 session = HTMLSession()
 url = 'https://www.tsa.gov/coronavirus/passenger-throughput'
@@ -335,8 +330,9 @@ df.columns = ('Travel_Date',
               'TravelThroughPut', 
               'TravelThroughPutLastYear')
 
+df['current_dttm'] = datetime.datetime.today()
         
-copy_to_sql(df = df, table_name = "STG_TSA_TRAVEL", schema_name = SchemaName, if_exists = 'replace')
+copy_to_sql(df = df, table_name = "STG_TSA_TRAVEL", schema_name = params.SchemaName, if_exists = 'replace')
 
 from datetime import datetime
 datetime.utcnow()
@@ -345,19 +341,66 @@ timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
 print("TSA Travel Finished!  " + timestampStr)
 
 
+#############################################################
+# 11) CENSUS Data
+#############################################################
+
+import datetime
+url = 'https://www.census.gov/econ/currentdata/export/csv?programCode=RESCONST&timeSlotType=12&startYear=2018&endYear=2020&categoryCode=APERMITS&dataTypeCode=TOTAL&geoLevelCode=US&adjusted=yes&errorData=no&internal=false'
+hd = pd.read_csv(url, sep='~',  header=None, nrows=6, keep_default_na=False)
+desc=''
+for (idx, row) in hd.iterrows():
+	desc=desc+row.loc[0]+'\n' 
+
+df = pd.read_csv(url, skiprows=6, keep_default_na=False, dtype={'Value': str})
+df['Metric_name']='Housing Starts in 1000s'
+df['Data_source_desc']=desc
+df['current_dttm'] = datetime.datetime.today()
+
+##df = df.rename(columns={'date': 'date_key'})
+
+copy_to_sql(df = df, table_name = "STG_US_CENSUS_SURVEY", schema_name=params.SchemaName, primary_index = ['Period'], if_exists = 'replace')
+
+
+from datetime import datetime
+datetime.utcnow()
+dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
+timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
+print("Census Data Finished!  " + timestampStr)
+
+
+#############################################################
+# 11) Consumer Sentiment Index
+#############################################################
+
+import datetime
+url = 'http://www.sca.isr.umich.edu/files/tbcics.csv'
+df = pd.read_csv(url,skiprows=[0,1,2,3],dtype = {'Unnamed: 1':str})
+df = df[['Unnamed: 0','Unnamed: 1','Unnamed: 4']]
+df = df.dropna()
+df.columns = ('Month','Year','Consumer_Sentiment_Index')
+
+df['current_dttm'] = datetime.datetime.today()
+
+copy_to_sql(df = df, table_name = "STG_Consumer_Sentiment_Index", schema_name=params.SchemaName, if_exists = 'replace')
+from datetime import datetime
+datetime.utcnow()
+dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
+timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
+print("Consumer Sentiment Index!  " + timestampStr)
+
 
 #############################################################
 # Printing the Load Summary Stats
 #############################################################
+remove_context()
+con = create_context(host=params.MyHost, username=params.MyUser, password=params.Password,temp_database_name=params.SchemaName,logmech=params.LogMech)
 
-
-pd.read_sql('DATABASE '+SchemaName,con)
+pda = pd.read_sql('DATABASE '+params.SchemaName,con)
 
 query = "SELECT 'Python' as Process_Name, 'Staging' as Table_Type, 'STG_Hospitalization_all_locs' as TableName, count(*) as Records_Processed, max(current_dttm) as Process_Dttm FROM STG_Hospitalization_all_locs GROUP BY 1,2,3 \
 UNION \
 SELECT 'Python' as Process_Name, 'Staging' as Table_Type, 'STG_Summary_stats_all_locs' as TableName, count(*) as Records_Processed, max(current_dttm) as Process_Dttm FROM STG_Summary_stats_all_locs GROUP BY 1,2,3 \
-UNION \
-SELECT 'Python' as Process_Name, 'Staging' as Table_Type, 'STG_appleMobility' as TableName, count(*) as Records_Processed, max(current_dttm) as Process_Dttm FROM STG_appleMobility GROUP BY 1,2,3 \
 UNION \
 SELECT 'Python' as Process_Name, 'Staging' as Table_Type, 'STG_covid19_stats' as TableName, count(*) as Records_Processed, max(current_dttm) as Process_Dttm FROM STG_covid19_stats GROUP BY 1,2,3 \
 UNION \
@@ -365,17 +408,24 @@ SELECT 'Python' as Process_Name, 'Staging' as Table_Type, 'STG_Google_Search_IOT
 UNION \
 SELECT 'Python' as Process_Name, 'Staging' as Table_Type, 'STG_Google_Mobility' as TableName, count(*) as Records_Processed, max(current_dttm) as Process_Dttm FROM STG_Google_Mobility GROUP BY 1,2,3 \
 UNION \
-SELECT 'Python' as Process_Name, 'Staging' as Table_Type, 'STG_Labor_Stats' as TableName, count(*) as Records_Processed, max(current_dttm) as Process_Dttm FROM STG_Labor_Stats GROUP BY 1,2,3 \
+SELECT 'Python' as Process_Name, 'Staging' as Table_Type, 'STG_Labor_Stats_LNS13000000' as TableName, count(*) as Records_Processed, max(current_dttm) as Process_Dttm FROM STG_Labor_Stats_LNS13000000 GROUP BY 1,2,3 \
+UNION \
+SELECT 'Python' as Process_Name, 'Staging' as Table_Type, 'STG_Labor_Stats_LNS14000000' as TableName, count(*) as Records_Processed, max(current_dttm) as Process_Dttm FROM STG_Labor_Stats_LNS14000000 GROUP BY 1,2,3 \
+UNION \
+SELECT 'Python' as Process_Name, 'Staging' as Table_Type, 'STG_Labor_Stats_CUSR0000SA0' as TableName, count(*) as Records_Processed, max(current_dttm) as Process_Dttm FROM STG_Labor_Stats_CUSR0000SA0 GROUP BY 1,2,3 \
 UNION \
 SELECT 'Python' as Process_Name, 'Staging' as Table_Type, 'STG_COVID19_Datahub_LVL2' as TableName, count(*) as Records_Processed, max(current_dttm) as Process_Dttm FROM STG_COVID19_Datahub_LVL2 GROUP BY 1,2,3 \
 UNION \
 SELECT 'Python' as Process_Name, 'Staging' as Table_Type, 'STG_COVID19_Datahub_LVL3' as TableName, count(*) as Records_Processed, max(current_dttm) as Process_Dttm FROM STG_COVID19_Datahub_LVL3 GROUP BY 1,2,3 \
 UNION \
-SELECT 'Python' as Process_Name, 'Staging' as Table_Type, 'STG_Fuel_Production' as TableName, count(*) as Records_Processed, max(current_dttm) as Process_Dttm FROM STG_Fuel_Production GROUP BY 1,2,3;"
-
+SELECT 'Python' as Process_Name, 'Staging' as Table_Type, 'STG_Fuel_Production' as TableName, count(*) as Records_Processed, max(current_dttm) as Process_Dttm FROM STG_Fuel_Production GROUP BY 1,2,3 \
+UNION \
+SELECT 'Python' as Process_Name, 'Staging' as Table_Type, 'STG_TSA_TRAVEL' as TableName, count(*) as Records_Processed, max(current_dttm) as Process_Dttm FROM STG_TSA_TRAVEL GROUP BY 1,2,3 \
+UNION \
+SELECT 'Python' as Process_Name, 'Staging' as Table_Type, 'STG_Consumer_Sentiment_Index' as TableName, count(*) as Records_Processed, max(current_dttm) as Process_Dttm FROM STG_Consumer_Sentiment_Index GROUP BY 1,2,3;"
 
 
 #Fetch the data from Teradata using Pandas Dataframe
 pda = pd.read_sql(query,con)
-copy_to_sql(df = pda, table_name = "ETL_Indicator_Proj_Audit", schema_name=SchemaName, if_exists = 'append')
+copy_to_sql(df = pda, table_name = "ETL_Indicator_Proj_Audit", schema_name=params.SchemaName, if_exists = 'append')
 print(pda)
