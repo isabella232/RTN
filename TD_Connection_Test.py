@@ -124,5 +124,5 @@ df = pd.read_csv(url,skiprows=[0,1,2,3],dtype = {'Unnamed: 1':str})
 print("Consumer Sentiment Index connection successful!")
 
 
-print("URL data access test successful")
+print("URL data access test successful!")
 
