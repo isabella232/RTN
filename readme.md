@@ -17,6 +17,7 @@ This application consists of the following components:
   * Teradata DBS 16.20 FU or Greater
   * Tableau Version 2020.1
   * Tableau Reader Version 2020.1  (download at tableau.com)
+  * Stored Procedure Creation Granted to the user
   
 # Configuation Steps:
   * Set Database Credential Information in the file params.py
