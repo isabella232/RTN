@@ -13,8 +13,8 @@ This application consists of the following components:
 # Prerequisites:
   * Python Version 3.7 or Greater
   * Teradata Connection through Python (teradataml)
-  * Test the Teradata-Python connectivity through the connection testing file TD_Connection_Test.py
-  * Teradata DBS 16.20 FU or Greater
+  * Test the Teradata-Python connectivity and interfaces through the connection testing file TD_Connection_Test.py
+  * Teradata DBS 16.20
   * Tableau Version 2020.1
   * Tableau Reader Version 2020.1  (download at tableau.com)
   * Stored Procedure Creation Granted to the user
