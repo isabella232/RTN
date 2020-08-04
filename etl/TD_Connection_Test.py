@@ -7,18 +7,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-
-#############################################################
-# Credentials
-#############################################################
-MyHost ='???'
-MyUser ='???'
-SchemaName = '???'
-
 #############################################################
 # Libraries
 #############################################################
-#pip install teradataml
+pip install ipython
+pip install --upgrade covid19dh
+pip install numpy --upgrade
+pip install requests
+pip3 install tabulate
+pip install xlrd
+pip3 install requests-html
+pip install html5lib
+pip install teradataml
+pip install pytrends
 from teradataml.dataframe.dataframe import DataFrame, in_schema
 from teradataml.dataframe.copy_to import copy_to_sql
 from teradataml.context.context import create_context, remove_context, get_connection, get_context
@@ -37,7 +38,8 @@ import getpass
 from covid19dh import covid19
 import json
 from requests_html import HTMLSession
-con = create_context(host=MyHost, username=MyUser, password=getpass.getpass(), temp_database_name=SchemaName, logmech='LDAP')
+import params
+con = create_context(host=params.MyHost, username=params.MyUser, password=params.Password,temp_database_name=params.SchemaName,logmech=params.LogMech)
 
 #############################################################
 # Teradata Query Test
