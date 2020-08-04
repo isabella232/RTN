@@ -574,7 +574,7 @@ CREATE MULTISET TABLE ???.STG_Consumer_Sentiment_Index ,FALLBACK ,
      (
       "Month" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       "Year" VARCHAR(10) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      Customer_Sentiment_Index FLOAT,
+      Consumer_Sentiment_Index FLOAT,
       current_dttm TIMESTAMP(6))
 NO PRIMARY INDEX ;
 
