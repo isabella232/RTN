@@ -3396,7 +3396,7 @@ SELECT
 REPLACE VIEW ???.DIM_SOURCE_DATA_UPDATES  AS
 LOCKING ROW FOR ACCESS
 
-SELECT COALESCE(t1.Category,'NON') AS Category,StagingTable,COALESCE(t1.DataSource,'NO STAGING SOURCE DEFINED') AS DataSource,COALESCE(t2.Metric_Name,'NOT USED IN THE REPORTS') AS MetricName,CoreTable,COALESCE(t2.MaxAvailableDate,t1.MaxAvailableDate) as MaxAvailableDate
+SELECT COALESCE(t1.Category,'NON') AS Category,COALESCE(StagingTable,'NON') AS StagingTable,COALESCE(t1.DataSource,'NO STAGING SOURCE DEFINED') AS DataSource,COALESCE(t2.Metric_Name,'NOT USED IN THE REPORTS') AS MetricName,COALESCE(CoreTable,'NOT USED IN THE REPORTS') as CoreTable, COALESCE(t2.MaxAvailableDate,t1.MaxAvailableDate) as MaxAvailableDate
 FROM (
 	SELECT 'BEA - Personal Consumption 2-3-5' as Category,'STG_BEA_PersonalConsumption_2_3_5' as StagingTable,'Manual                                                                               ' as DataSource, MAX(CAST("PERIOD_MMM-YYYY" AS DATE FORMAT 'MMM-YYYY')) as MaxAvailableDate from ???.STG_BEA_PersonalConsumption_2_3_5
 	UNION
