@@ -2430,12 +2430,16 @@ REPLACE VIEW ???.F_IND_DASH_MOBILITY_GEO_WEEKLY_V AS
 
 
 REPLACE VIEW ???.F_IND_DASH_Timeline_to_safety_V AS
-                                                        
+-- Date           	Ver#		Modified By(Name)       	Version Comments                   
+-----------   	-------     -------------------------	----------------------------                       
+--08/05/2020       2.0         Teradata DW              	Changed avg(mobility_composite) to a max()                                                                     
     LOCKING ROW FOR ACCESS --    
-                    --     --    SELECT *  FROM ???.f_ind_dash_timeline_to_safety;
+        -- prev query is used to compare the previouly loaded projections against the latest projections
+        -- this will show if the modeling is indicating things are getting better or worst.
+        -- The query should be indentical to the bottom query excpet it uses the view ???.F_IND_DASH_Covid_Projections_prev_V
     WITH prev AS (
     SELECT   
-       geo_key,
+        geo_key,
         STATE_NAME,
         STATE_CODE,
         Population,
@@ -2474,39 +2478,44 @@ REPLACE VIEW ???.F_IND_DASH_Timeline_to_safety_V AS
                 
                 FROM ???.F_IND_DASH_Covid_Projections_prev_V a
                 JOIN ???.DIM_GEO_LOCATION_V g ON g.uid = a.geo_key) states  
-                                                                                         
+                                                                                                                                         
             JOIN (
             SELECT DISTINCT
                 geo_key,
                 state_name,
                 safe_flag,
                 1 bucket,
-                MIN(Est_Date_start)  OVER(PARTITION BY geo_key)  Est_Date_start,
-                AVG(mobility_composite) OVER(PARTITION BY geo_key)  mobility_composite
+                MIN(Est_Date_start)  OVER(PARTITION BY geo_key) + 14 Est_Date_start,
+                max(mobility_composite) OVER(PARTITION BY geo_key)  mobility_composite
                 FROM (
                 SELECT geo_key,
                     state_name,
                     infections_per100k,
                     mobility_composite,
                     safe_day,
+                    Last_confirmed_infections,
                     
                     CASE
                         WHEN  
                     SUM(safe_day) OVER (PARTITION BY geo_key
                     ORDER BY modeled_date 
-                    ROWS   13 PRECEDING  ) >= 14 THEN 1 ELSE 0
+                    ROWS  BETWEEN  CURRENT ROW AND 13 FOLLOWING  ) >= 14 THEN 'Y' ELSE 'N'
                     END safe_flag,
                         
                     CASE
-                        WHEN safe_flag = 1 THEN modeled_date ELSE NULL
+                        WHEN safe_flag = 'Y' THEN modeled_date ELSE NULL
                     END Est_Date_start
                     FROM (
                     SELECT   geo_key,
                         state_name,
                         f.mobility_composite,
                         f.modeled_date,
-                        CAST(  est_infections_mean*(CAST(100000 AS DECIMAL(15,4)) /population) AS DECIMAL(15,4)) infections_per100k,
-                        
+                        MAX(
+                        CASE
+                            WHEN f.confirmed_infections IS NOT NULL THEN f.modeled_date
+                        END ) OVER(PARTITION BY geo_key) Last_confirmed_infections,
+                            CAST(  est_infections_mean*(CAST(100000 AS DECIMAL(15,4)) /population) AS DECIMAL(15,4)) infections_per100k,
+                            
                         CASE
                             WHEN infections_per100k <4  THEN 1 ELSE 0
                         END safe_day,
@@ -2522,9 +2531,9 @@ REPLACE VIEW ???.F_IND_DASH_Timeline_to_safety_V AS
                         F.GEO_KEY = G.UID
                          --where f.geo_key = 84000001
                         )  a   ) final
-                WHERE safe_flag = 1
-                    AND  COALESCE(est_date_start,CURRENT_DATE - 7) > CURRENT_DATE - 7
-                                                                                     
+                WHERE safe_flag = 'Y'
+                    AND  COALESCE(est_date_start,Last_confirmed_infections - 13)  >= Last_confirmed_infections  - 13
+                                                                                                                                     
             ) safe
             ON states.geo_key = safe.geo_key 
         UNION ALL
@@ -2551,32 +2560,37 @@ REPLACE VIEW ???.F_IND_DASH_Timeline_to_safety_V AS
                 state_name,
                 safe_flag,
                 2 bucket,
-                MIN(Est_Date_start)   OVER(PARTITION BY geo_key)  Est_Date_start,
-                AVG(mobility_composite)  OVER(PARTITION BY geo_key) mobility_composite
+                MIN(Est_Date_start)   OVER(PARTITION BY geo_key) + 14 Est_Date_start,
+                max(mobility_composite)  OVER(PARTITION BY geo_key) mobility_composite
                 FROM (
                 SELECT geo_key,
                     state_name,
                     infections_per100k,
                     mobility_composite,
                     safe_day,
+                    Last_confirmed_infections,
                     
                     CASE
                         WHEN  
                     SUM(safe_day) OVER (PARTITION BY geo_key
                     ORDER BY modeled_date 
-                    ROWS   13 PRECEDING  ) >= 14 THEN 0 ELSE 1
+                    ROWS   BETWEEN  CURRENT ROW AND 13 FOLLOWING ) >= 14 THEN 'Y' ELSE 'N'
                     END safe_flag,
                         
                     CASE
-                        WHEN safe_flag = 1 THEN modeled_date ELSE NULL
+                        WHEN safe_flag = 'Y' THEN modeled_date ELSE NULL
                     END Est_Date_start
                     FROM (
                     SELECT   geo_key,
                         state_name,
                         f.mobility_composite,
                         f.modeled_date,
-                        CAST(  est_infections_mean*(CAST(100000 AS DECIMAL(15,4)) /population) AS DECIMAL(15,4)) infections_per100k,
-                        
+                        MAX(
+                        CASE
+                            WHEN f.confirmed_infections IS NOT NULL THEN f.modeled_date
+                        END ) OVER(PARTITION BY geo_key) Last_confirmed_infections,
+                            CAST(  est_infections_mean*(CAST(100000 AS DECIMAL(15,4)) /population) AS DECIMAL(15,4)) infections_per100k,
+                            
                         CASE
                             WHEN infections_per100k <4  THEN 1 ELSE 0
                         END safe_day,
@@ -2592,9 +2606,9 @@ REPLACE VIEW ???.F_IND_DASH_Timeline_to_safety_V AS
                         F.GEO_KEY = G.UID
                          --where f.geo_key = 84000001
                         )  a   ) final
-                WHERE safe_flag  = 1
-                    AND  COALESCE(est_date_start,CURRENT_DATE - 7) > CURRENT_DATE - 7
-                                                                                    
+                WHERE safe_flag  = 'N'
+                    AND  COALESCE(est_date_start,Last_confirmed_infections -13)  >= Last_confirmed_infections  - 13
+                                                                                                                                    
             ) Not_safe
             ON states.geo_key = not_safe.geo_key 
         UNION ALL
@@ -2615,7 +2629,7 @@ REPLACE VIEW ???.F_IND_DASH_Timeline_to_safety_V AS
                 FROM ???.F_IND_DASH_Covid_Projections_prev_V a
                 JOIN ???.DIM_GEO_LOCATION_V g ON g.uid = a.geo_key) states  
             JOIN 
-                                                                                 
+                                                                                                                                 
             (
             SELECT DISTINCT
                 geo_key,
@@ -2623,31 +2637,37 @@ REPLACE VIEW ???.F_IND_DASH_Timeline_to_safety_V AS
                 bad_flag,
                 3 bucket,
                 MIN(Est_Date_start) OVER(PARTITION BY geo_key)  Est_Date_start,
-                AVG(mobility_composite) OVER(PARTITION BY geo_key) mobility_composite
+                max(mobility_composite) OVER(PARTITION BY geo_key) mobility_composite
                 FROM (
                 SELECT geo_key,
                     state_name,
                     infections_per100k,
                     mobility_composite,
                     bad_day,
+                    Last_confirmed_infections,
                     
-                   CASE WHEN infections_per100k >=4
-                        and  
+                    CASE
+                        WHEN infections_per100k >=4
+                    AND  
                     SUM(bad_day) OVER (PARTITION BY geo_key
                     ORDER BY modeled_date 
-                    ROWS   13 PRECEDING      ) >= 14 THEN 1 ELSE 0
+                    ROWS  BETWEEN  CURRENT ROW AND 13 FOLLOWING     ) >= 14 THEN 'Y' ELSE 'N'
                     END bad_flag,
                         
                     CASE
-                        WHEN bad_flag = 1 THEN modeled_date ELSE NULL
+                        WHEN bad_flag = 'Y' THEN modeled_date ELSE NULL
                     END Est_Date_start
                     FROM (
                     SELECT   geo_key,
                         state_name,
                         f.mobility_composite,
                         f.modeled_date,
-                        CAST(  est_infections_mean*(CAST(100000 AS DECIMAL(15,4)) /population) AS DECIMAL(15,4)) infections_per100k,
-                        
+                        MAX(
+                        CASE
+                            WHEN f.confirmed_infections IS NOT NULL THEN f.modeled_date
+                        END ) OVER(PARTITION BY geo_key) Last_confirmed_infections,
+                            CAST(  est_infections_mean*(CAST(100000 AS DECIMAL(15,4)) /population) AS DECIMAL(15,4)) infections_per100k,
+                            
                         CASE
                             WHEN infections_per100k <4  THEN 1 ELSE 0
                         END safe_day,
@@ -2662,19 +2682,19 @@ REPLACE VIEW ???.F_IND_DASH_Timeline_to_safety_V AS
                         F.GEO_KEY = G.UID
                          --where f.geo_key = 84000001
                         )  a   ) final
-                WHERE bad_flag = 1
-                    AND  COALESCE(est_date_start,CURRENT_DATE - 1) > CURRENT_DATE - 1
-                                                                                    
+                WHERE bad_flag = 'Y'
+                    AND  COALESCE(est_date_start,Last_confirmed_infections - 14)  >= Last_confirmed_infections - 14 
+                                                                                                                                    
             ) bad 
-                                                                                            
+                                                                                                                                            
             ON states.geo_key = bad.geo_key 
-                                                      
-                                                      
-                                                           
-                                                      
+                                                                                      
+                                                                                      
+                                                                                           
+                                                                                      
         ) for_view 
-                                        
-                                                      --      
+                                                                        
+                                                                                      --      
         LEFT OUTER JOIN 
         (
         SELECT 
@@ -2697,103 +2717,36 @@ REPLACE VIEW ???.F_IND_DASH_Timeline_to_safety_V AS
                 FROM ???.F_IND_DASH_Covid_Projections_prev_V  F                  
             ) MAXDT ON 1=1
             WHERE CAL_DATE_KEY IN (MAX_DT-7)
-                                                
+                                                                                
         ) dt
         ON   1=1
-          -- prevent rows in bucket 2 that are in bucket 1 (mutuall exclusive      
---        QUALIFY
---        CASE
---            WHEN (bucket = 2 AND LAG(bucket, 1, 0) RESPECT NULLS 
---        OVER (PARTITION BY for_view.geo_key
---        ORDER BY bucket) <> 1) OR bucket IN (1,3)  THEN 1 ELSE 0
---        END = 1
-          
+         -- prevent rows in bucket 2 that are in bucket 1 (mutuall exclusive      
+         --        QUALIFY
+         --        CASE
+         --            WHEN (bucket = 2 AND LAG(bucket, 1, 0) RESPECT NULLS 
+         --        OVER (PARTITION BY for_view.geo_key
+         --        ORDER BY bucket) <> 1) OR bucket IN (1,3)  THEN 1 ELSE 0
+         --        END = 1
         ) -- 
-    --    select * from prev where geo_key = 84000038
-     --==================================================================    
-    select  prev_bucket,
-    prev_est_start,
-    prev_est_date_end,
-    prev_snapshot_date,
-    mobility_composite_curr,
-    NEW_ENTRY,
-    GEO_KEY,
-    STATE_NAME,
-    STATE_CODE,
-    Population,
-    mobility_composite,
-    Est_Date_start,
-    Est_Date_end,
-    bucket,
-    seq_week_nbr,
-    SNAPSHOT_DATE,
-    SNAPSHOT_WEEK,
-    CAL_WEEK_YEAR,
-    WEEK_START_DATE,
-    WEEK_END_DATE,
-    cal_day_sat,
-    day_of_year,
-    day_of_cal_1900,
-    DATE_OF_PROJECTIONS,
-    PROJECTIONS_UP_UNTIL
-    from (
-    SELECT   
-       (select prev.Est_Date_start from prev where for_view.geo_key = prev.geo_key and bucket = 3)  prev_3_strt_dt, 
-       (select prev.Est_Date_start from prev where for_view.geo_key = prev.geo_key and bucket = 2)  prev_2_strt_dt, 
-       (select prev.Est_Date_start from prev where for_view.geo_key = prev.geo_key and bucket = 1)  prev_1_strt_dt, 
-       (select prev.Est_Date_end from prev where for_view.geo_key = prev.geo_key and bucket = 3)  prev_3_end_dt, 
-       (select prev.Est_Date_end from prev where for_view.geo_key = prev.geo_key and bucket = 2)  prev_2_end_dt, 
-       (select prev.Est_Date_end from prev where for_view.geo_key = prev.geo_key and bucket = 1)  prev_1_end_dt, 
-    case 
-		when bucket = 1   then
-			case 
-			when prev_1_strt_dt is not null and Est_Date_start <> prev_1_strt_dt then 1
-			end
-		when bucket = 2   then
-			case 
-			when prev_2_strt_dt is not null and Est_Date_start <> prev_2_strt_dt then 2
-			when prev_1_strt_dt is not null then 1
-			end
-		when bucket = 3   then
-			case 
-			when prev_3_strt_dt is not null and Est_Date_start <> prev_3_strt_dt then 3
-			when prev_1_strt_dt is not null then 1
-			end
- 	END  prev_bucket,       
-      
- 	case 
-       when prev_bucket = 1 then  prev_1_strt_dt
-       when prev_bucket = 2 then  prev_2_strt_dt
-       when prev_bucket = 3 then  prev_3_strt_dt
-       else null end prev_est_start,
-            
-    	case 
-       when prev_bucket = 1 then  prev_1_end_dt
-       when prev_bucket = 2 then  prev_2_end_dt
-       when prev_bucket = 3 then  prev_3_end_dt
-       else null end prev_est_date_end,
-
-        (select prev.snapshot_date from prev where for_view.geo_key = prev.geo_key and bucket = prev_bucket) prev_snapshot_date,
-       
-
-      
-       mobility_composite  mobility_composite_curr,
-            
-            
-        NULL   NEW_ENTRY,
-        geo_key,
+     --    select * from prev where geo_key = 84000038
+     --================ main sql ================================================== 
+    
+    SELECT  prev_bucket,
+        prev_est_start,
+        prev_est_date_end,
+        prev_snapshot_date,
+        mobility_composite_curr,
+        NEW_ENTRY,
+        GEO_KEY,
         STATE_NAME,
         STATE_CODE,
         Population,
         mobility_composite,
-         --date_delta,
+        Last_confirmed_infections,
         Est_Date_start,
-        NULL Est_Date_end,
-        Bucket,
-        (
-        SELECT dt2.week_of_year
-            FROM ???.DIM_CALENDAR_V dt2
-            WHERE cal_date_key = Est_Date_start)   - dt.week_of_year seq_week_nbr,
+        Est_Date_end,
+        bucket,
+        seq_week_nbr,
         SNAPSHOT_DATE,
         SNAPSHOT_WEEK,
         CAL_WEEK_YEAR,
@@ -2802,264 +2755,379 @@ REPLACE VIEW ???.F_IND_DASH_Timeline_to_safety_V AS
         cal_day_sat,
         day_of_year,
         day_of_cal_1900,
-        (
-        SELECT MAX(date_key) DATE_OF_PROJECTIONS
-            FROM ???.F_IND_DASH_Covid_Projections_Curr_V) DATE_OF_PROJECTIONS,
-        (
-        SELECT MAX(modeled_date)
-            FROM ???.F_IND_DASH_Covid_Projections_Curr_V)  PROJECTIONS_UP_UNTIL --select *
-        
+        DATE_OF_PROJECTIONS,
+        PROJECTIONS_UP_UNTIL
         FROM (
-        SELECT states.geo_key,
-            states.state_name,
-            states.state_code,
-            states.population,
-            mobility_composite,
-            Est_Date_start,
-            bucket
-            FROM (
-            SELECT DISTINCT date_key,
-                geo_key,
-                g.state_name,
-                g.state_code,
-                g.Population --,  MODELED_DATE,  est_infections_mean
-                
-                FROM ???.F_IND_DASH_Covid_Projections_curr_V a
-                JOIN ???.DIM_GEO_LOCATION_V g ON g.uid = a.geo_key) states  
-                                                                                         
-            JOIN (
-            SELECT DISTINCT
-                geo_key,
-                state_name,
-                safe_flag,
-                1 bucket,
-                MIN(Est_Date_start)  OVER(PARTITION BY geo_key)  Est_Date_start,
-                AVG(mobility_composite) OVER(PARTITION BY geo_key)  mobility_composite
-                FROM (
-                SELECT geo_key,
-                    state_name,
-                    infections_per100k,
-                    mobility_composite,
-                    safe_day,
-                    
-                    CASE
-                        WHEN  
-                    SUM(safe_day) OVER (PARTITION BY geo_key
-                    ORDER BY modeled_date 
-                    ROWS   13 PRECEDING  ) >= 14 THEN 1 ELSE 0
-                    END safe_flag,
-                        
-                    CASE
-                        WHEN safe_flag = 1 THEN modeled_date ELSE NULL
-                    END Est_Date_start
-                    FROM (
-                    SELECT   geo_key,
-                        state_name,
-                        f.mobility_composite,
-                        f.modeled_date,
-                        CAST(  est_infections_mean*(CAST(100000 AS DECIMAL(15,4)) /population) AS DECIMAL(15,4)) infections_per100k,
-                        
-                        CASE
-                            WHEN infections_per100k <4  THEN 1 ELSE 0
-                        END safe_day,
-                            
-                        CASE
-                            WHEN   infections_per100k > LAG(infections_per100k,1) OVER(PARTITION BY uid
-                        ORDER BY modeled_date)
-                        THEN 1 ELSE 0
-                        END bad_day
-                        FROM ???.F_IND_DASH_Covid_Projections_curr_V F 
-                        JOIN ???.DIM_GEO_LOCATION_V G ON
-                        F.GEO_KEY = G.UID
-                         --where f.geo_key = 84000001
-                        )  a   ) final
-                WHERE safe_flag = 1
-                    AND  COALESCE(est_date_start,CURRENT_DATE - 7) > CURRENT_DATE - 7
-                                                                                     
-            ) safe
-            ON states.geo_key = safe.geo_key 
-        UNION ALL
-        SELECT states.geo_key,
-            states.state_name,
-            states.state_code,
-            states.population,
-            mobility_composite,
-            Est_Date_start,
-            bucket
-            FROM (
-            SELECT DISTINCT date_key,
-                geo_key,
-                g.state_name,
-                g.state_code,
-                g.Population --,  MODELED_DATE,  est_infections_mean
-                
-                FROM ???.F_IND_DASH_Covid_Projections_curr_V a
-                JOIN ???.DIM_GEO_LOCATION_V g ON g.uid = a.geo_key) states  
-            JOIN 
+        SELECT   
             (
-            SELECT DISTINCT
-                geo_key,
-                state_name,
-                safe_flag,
-                2 bucket,
-                MIN(Est_Date_start)   OVER(PARTITION BY geo_key)  Est_Date_start,
-                AVG(mobility_composite)  OVER(PARTITION BY geo_key) mobility_composite
-                FROM (
-                SELECT geo_key,
-                    state_name,
-                    infections_per100k,
-                    mobility_composite,
-                    safe_day,
-                    
-                    CASE
-                        WHEN  
-                    SUM(safe_day) OVER (PARTITION BY geo_key
-                    ORDER BY modeled_date 
-                    ROWS   13 PRECEDING  ) >= 14 THEN 0 ELSE 1
-                    END safe_flag,
-                        
-                    CASE
-                        WHEN safe_flag = 1 THEN modeled_date ELSE NULL
-                    END Est_Date_start
-                    FROM (
-                    SELECT   geo_key,
-                        state_name,
-                        f.mobility_composite,
-                        f.modeled_date,
-                        CAST(  est_infections_mean*(CAST(100000 AS DECIMAL(15,4)) /population) AS DECIMAL(15,4)) infections_per100k,
-                        
-                        CASE
-                            WHEN infections_per100k <4  THEN 1 ELSE 0
-                        END safe_day,
-                            
-                        CASE
-                            WHEN   infections_per100k > LAG(infections_per100k,1) OVER(PARTITION BY uid
-                        ORDER BY modeled_date)
-                        THEN 1 ELSE 0
-                        END bad_day
-                        FROM ???.F_IND_DASH_Covid_Projections_curr_V F 
-                        JOIN ???.DIM_GEO_LOCATION_V G ON
-                        F.GEO_KEY = G.UID
-                         --where f.geo_key = 84000001
-                        )  a   ) final
-                WHERE safe_flag  = 1
-                    AND  COALESCE(est_date_start,CURRENT_DATE - 7) > CURRENT_DATE - 7
-                                                                                    
-            ) Not_safe
-            ON states.geo_key = not_safe.geo_key 
-        UNION ALL
-        SELECT states.geo_key,
-            states.state_name,
-            states.state_code,
-            states.population,
-            mobility_composite,
-            bad.Est_Date_start,
-            bucket
-            FROM (
-            SELECT DISTINCT date_key,
-                geo_key,
-                g.state_name,
-                g.state_code,
-                g.Population --,  MODELED_DATE,  est_infections_mean
-                
-                FROM ???.F_IND_DASH_Covid_Projections_curr_V a
-                JOIN ???.DIM_GEO_LOCATION_V g ON g.uid = a.geo_key) states  
-            JOIN 
-                                                                                 
+            SELECT prev.Est_Date_start
+                FROM prev
+                WHERE for_view.geo_key = prev.geo_key
+                    AND  bucket = 3)  prev_3_strt_dt,
             (
-            SELECT DISTINCT
-                geo_key,
-                state_name,
-                bad_flag,
-                3 bucket,
-                MIN(Est_Date_start) OVER(PARTITION BY geo_key)  Est_Date_start,
-                AVG(mobility_composite) OVER(PARTITION BY geo_key) mobility_composite
-                FROM (
-                SELECT geo_key,
-                    state_name,
-                    infections_per100k,
-                    mobility_composite,
-                    bad_day,
-                    
-                   CASE WHEN infections_per100k >=4
-                        and  
-                    SUM(bad_day) OVER (PARTITION BY geo_key
-                    ORDER BY modeled_date 
-                    ROWS   13 PRECEDING      ) >= 14 THEN 1 ELSE 0
-                    END bad_flag,
-                        
-                    CASE
-                        WHEN bad_flag = 1 THEN modeled_date ELSE NULL
-                    END Est_Date_start
-                    FROM (
-                    SELECT   geo_key,
-                        state_name,
-                        f.mobility_composite,
-                        f.modeled_date,
-                        CAST(  est_infections_mean*(CAST(100000 AS DECIMAL(15,4)) /population) AS DECIMAL(15,4)) infections_per100k,
-                        
-                        CASE
-                            WHEN infections_per100k <4  THEN 1 ELSE 0
-                        END safe_day,
-                            
-                        CASE when
-                             infections_per100k > LAG(infections_per100k,1) OVER(PARTITION BY uid
-                        ORDER BY modeled_date)
-                        THEN 1 ELSE 0
-                        END bad_day
-                        FROM ???.F_IND_DASH_Covid_Projections_curr_V F 
-                        JOIN ???.DIM_GEO_LOCATION_V G ON
-                        F.GEO_KEY = G.UID
-                         --where f.geo_key = 84000001
-                        )  a   ) final
-                WHERE bad_flag = 1
-                    AND  COALESCE(est_date_start,CURRENT_DATE - 1) > CURRENT_DATE - 1
-                                                                                    
-            ) bad 
-                                                                                            
-            ON states.geo_key = bad.geo_key 
-                                                      
-                                                      
-                                                           
-                                                      
-        ) for_view 
-                                        
-                                                      --      
-        LEFT OUTER JOIN 
-        (
-        SELECT 
-            MAX(WEEK_END_DATE) OVER () AS SNAPSHOT_DATE,
-            MAX(CAL_WEEK_YEAR) OVER () AS SNAPSHOT_WEEK,
-            MIN(WEEK_START_DATE) OVER () AS FIL_START_DATE_KEY,
-            MAX(WEEK_END_DATE) OVER () FIL_END_DATE_KEY,
+            SELECT prev.Est_Date_start
+                FROM prev
+                WHERE for_view.geo_key = prev.geo_key
+                    AND  bucket = 2)  prev_2_strt_dt,
+            (
+            SELECT prev.Est_Date_start
+                FROM prev
+                WHERE for_view.geo_key = prev.geo_key
+                    AND  bucket = 1)  prev_1_strt_dt,
+            (
+            SELECT prev.Est_Date_end
+                FROM prev
+                WHERE for_view.geo_key = prev.geo_key
+                    AND  bucket = 3)  prev_3_end_dt,
+            (
+            SELECT prev.Est_Date_end
+                FROM prev
+                WHERE for_view.geo_key = prev.geo_key
+                    AND  bucket = 2)  prev_2_end_dt,
+            (
+            SELECT prev.Est_Date_end
+                FROM prev
+                WHERE for_view.geo_key = prev.geo_key
+                    AND  bucket = 1)  prev_1_end_dt,
             
             CASE
-                WHEN RNK =1 THEN 'CURR'
-                WHEN RNK =2 THEN 'PREV'
-            ELSE 'PREV-1'
-            END CURR_curr_FLAG,
-                RANK() OVER (
-            ORDER BY WEEK_END_DATE DESC) RNK,
-                DT.*
-            FROM ???.DIM_CALENDAR_V DT
-            LEFT JOIN (
-            SELECT MAX(DATE_KEY) MAX_DT
-                FROM ???.F_IND_DASH_Covid_Projections_curr_V  F                  
-            ) MAXDT ON 1=1
-            WHERE CAL_DATE_KEY IN (MAX_DT-7)
-                                                
-        ) dt
-        ON   1=1
-       -- where geo_key = 84000038
-          -- prevent rows in bucket 2 that are in bucket 1 (mutuall exclusive      
-        QUALIFY
-        CASE
-            WHEN (bucket = 2 AND LAG(bucket, 1, 0) RESPECT NULLS 
-        OVER (PARTITION BY for_view.geo_key
-        ORDER BY bucket) <> 1) OR bucket IN (1,3)  THEN 1 ELSE 0
-        END = 1
+                WHEN bucket = 1   THEN
+            CASE
+                WHEN prev_1_strt_dt IS NOT NULL AND Est_Date_start <> prev_1_strt_dt THEN 1
+            END
+                WHEN bucket = 2   THEN
+            CASE
+                WHEN prev_2_strt_dt IS NOT NULL AND Est_Date_start <> prev_2_strt_dt THEN 2
+                WHEN prev_1_strt_dt IS NOT NULL THEN 1
+            END
+                WHEN bucket = 3   THEN
+            CASE
+                WHEN prev_3_strt_dt IS NOT NULL AND Est_Date_start <> prev_3_strt_dt THEN 3
+                WHEN prev_1_strt_dt IS NOT NULL THEN 1
+            END
+            END  prev_bucket,
+                
+            CASE
+                WHEN prev_bucket = 1 THEN  prev_1_strt_dt
+                WHEN prev_bucket = 2 THEN  prev_2_strt_dt
+                WHEN prev_bucket = 3 THEN  prev_3_strt_dt
+            ELSE NULL
+            END prev_est_start,
+                
+            CASE
+                WHEN prev_bucket = 1 THEN  prev_1_end_dt
+                WHEN prev_bucket = 2 THEN  prev_2_end_dt
+                WHEN prev_bucket = 3 THEN  prev_3_end_dt
+            ELSE NULL
+            END prev_est_date_end,
+                (
+            SELECT prev.snapshot_date
+                FROM prev
+                WHERE for_view.geo_key = prev.geo_key
+                    AND  bucket = prev_bucket) prev_snapshot_date,
+                mobility_composite  mobility_composite_curr,
+                NULL   NEW_ENTRY,
+                geo_key,
+                STATE_NAME,
+                STATE_CODE,
+                Population,
+                mobility_composite,
+                 --date_delta,
+            Est_Date_start,
+                Last_confirmed_infections,
+                NULL Est_Date_end,
+                Bucket,
+                (
+            SELECT dt2.week_of_year
+                FROM ???.DIM_CALENDAR_V dt2
+                WHERE cal_date_key = Est_Date_start)   - dt.week_of_year seq_week_nbr,
+                SNAPSHOT_DATE,
+                SNAPSHOT_WEEK,
+                CAL_WEEK_YEAR,
+                WEEK_START_DATE,
+                WEEK_END_DATE,
+                cal_day_sat,
+                day_of_year,
+                day_of_cal_1900,
+                Last_confirmed_infections + 1 DATE_OF_PROJECTIONS,
+                (
+            SELECT MAX(modeled_date)
+                FROM ???.F_IND_DASH_Covid_Projections_Curr_V)  PROJECTIONS_UP_UNTIL --select *
+             --select *       
+            
+            FROM (
+            SELECT states.geo_key,
+                states.state_name,
+                states.state_code,
+                states.population,
+                mobility_composite,
+                Est_Date_start,
+                bucket,
+                Last_confirmed_infections
+                FROM (
+                SELECT DISTINCT date_key,
+                    geo_key,
+                    g.state_name,
+                    g.state_code,
+                    g.Population --,  MODELED_DATE,  est_infections_mean
+                    
+                    FROM ???.F_IND_DASH_Covid_Projections_curr_V a
+                    JOIN ???.DIM_GEO_LOCATION_V g ON g.uid = a.geo_key) states  
+                                                                                                                                                         
+                JOIN (
+                SELECT distinct
+                    geo_key,
+                    state_name,
+                    safe_flag,
+                    1 bucket,
+                    Last_confirmed_infections, 
+                    MIN(Est_Date_start)  OVER(PARTITION BY geo_key) + 14  Est_Date_start,
+                    max(mobility_composite) OVER(PARTITION BY geo_key)  mobility_composite 
+                    FROM (
+                    SELECT geo_key,
+                        state_name,
+                        infections_per100k,
+                        mobility_composite,
+                        safe_day,
+                        Last_confirmed_infections,
+                        modeled_date,
+                        CASE
+                            WHEN  
+                        SUM(safe_day) OVER (PARTITION BY geo_key
+                        ORDER BY modeled_date 
+                        ROWS  BETWEEN  CURRENT ROW AND 13 FOLLOWING ) >= 14 THEN 'Y' ELSE 'N'
+                        END safe_flag,
+                            
+                        CASE
+                            WHEN safe_flag = 'Y' THEN modeled_date ELSE NULL
+                        END Est_Date_start
+                        FROM (
+                        SELECT   geo_key,
+                            state_name,
+                            f.mobility_composite,
+                            f.modeled_date,
+                            MAX(
+                            CASE
+                                WHEN f.confirmed_infections IS NOT NULL THEN f.modeled_date
+                            END ) OVER() Last_confirmed_infections,
+                                CAST(  est_infections_mean*(CAST(100000 AS DECIMAL(15,4)) /population) AS DECIMAL(15,4)) infections_per100k,
+                                
+                            CASE
+                                WHEN infections_per100k <4  THEN 1 ELSE 0
+                            END safe_day,
+                                
+                            CASE
+                                WHEN   infections_per100k > LAG(infections_per100k,1) OVER(PARTITION BY uid
+                            ORDER BY modeled_date)
+                            THEN 1 ELSE 0
+                            END bad_day
+                            FROM ???.F_IND_DASH_Covid_Projections_curr_V F 
+                            JOIN ???.DIM_GEO_LOCATION_V G ON
+                            F.GEO_KEY = G.UID
+                           -- where f.geo_key = 84000001
+                            )  a   ) final
+                    WHERE safe_flag = 'Y'
+                        AND  est_date_start > Last_confirmed_infections - 13
+                                                                                                                                                     
+                ) safe
+                ON states.geo_key = safe.geo_key 
+            UNION ALL
+            SELECT states.geo_key,
+                states.state_name,
+                states.state_code,
+                states.population,
+                mobility_composite,
+                Est_Date_start,
+                bucket,
+                Last_confirmed_infections
+                FROM (
+                SELECT DISTINCT date_key,
+                    geo_key,
+                    g.state_name,
+                    g.state_code,
+                    g.Population --,  MODELED_DATE,  est_infections_mean
+                    
+                    FROM ???.F_IND_DASH_Covid_Projections_curr_V a
+                    JOIN ???.DIM_GEO_LOCATION_V g ON g.uid = a.geo_key) states  
+                JOIN 
+                (
+                SELECT DISTINCT
+                    geo_key,
+                    state_name,
+                    safe_flag,
+                    2 bucket,
+                    Last_confirmed_infections,
+                    MIN(Est_Date_start)   OVER(PARTITION BY geo_key) + 14 Est_Date_start,
+                    max(mobility_composite)  OVER(PARTITION BY geo_key) mobility_composite
+                    FROM (
+                    SELECT geo_key,
+                        state_name,
+                        infections_per100k,
+                        mobility_composite,
+                        safe_day,
+                        Last_confirmed_infections,
+                        
+                        CASE
+                            WHEN  
+                        SUM(safe_day) OVER (PARTITION BY geo_key
+                        ORDER BY modeled_date 
+                        ROWS   BETWEEN  CURRENT ROW AND 13 FOLLOWING  ) >= 14 THEN 'Y' ELSE 'N'
+                        END safe_flag,
+                            
+                        CASE
+                            WHEN safe_flag = 'Y' THEN modeled_date ELSE NULL
+                        END Est_Date_start
+                        FROM (
+                        SELECT   geo_key,
+                            state_name,
+                            f.mobility_composite,
+                            f.modeled_date,
+                            MAX(
+                            CASE
+                                WHEN f.confirmed_infections IS NOT NULL THEN f.modeled_date
+                            END ) OVER() Last_confirmed_infections,
+                                CAST(  est_infections_mean*(CAST(100000 AS DECIMAL(15,4)) /population) AS DECIMAL(15,4)) infections_per100k,
+                                
+                            CASE
+                                WHEN infections_per100k <4  THEN 1 ELSE 0
+                            END safe_day,
+                                
+                            CASE
+                                WHEN   infections_per100k > LAG(infections_per100k,1) OVER(PARTITION BY uid
+                            ORDER BY modeled_date)
+                            THEN 1 ELSE 0
+                            END bad_day
+                            FROM ???.F_IND_DASH_Covid_Projections_curr_V F 
+                            JOIN ???.DIM_GEO_LOCATION_V G ON
+                            F.GEO_KEY = G.UID
+                             --where f.geo_key = 84000002
+                            )  a   ) final
+                    WHERE safe_flag = 'N'
+                        AND  COALESCE(est_date_start,Last_confirmed_infections -13)  >= Last_confirmed_infections  - 13
+                                                                                                                                                    
+                ) Not_safe
+                ON states.geo_key = not_safe.geo_key 
+            UNION ALL
+            SELECT states.geo_key,
+                states.state_name,
+                states.state_code,
+                states.population,
+                mobility_composite,
+                bad.Est_Date_start,
+                bucket,
+                Last_confirmed_infections
+                FROM (
+                SELECT DISTINCT date_key,
+                    geo_key,
+                    g.state_name,
+                    g.state_code,
+                    g.Population --,  MODELED_DATE,  est_infections_mean
+                    
+                    FROM ???.F_IND_DASH_Covid_Projections_curr_V a
+                    JOIN ???.DIM_GEO_LOCATION_V g ON g.uid = a.geo_key) states  
+                JOIN 
+                                                                                                                                                 
+                (
+                SELECT DISTINCT
+                    geo_key,
+                    state_name,
+                    bad_flag,
+                    3 bucket,
+                    Last_confirmed_infections,
+                    MIN(Est_Date_start) OVER(PARTITION BY geo_key)  Est_Date_start,
+                    max(mobility_composite) OVER(PARTITION BY geo_key) mobility_composite
+                    FROM (
+                    SELECT geo_key,
+                        state_name,
+                        infections_per100k,
+                        mobility_composite,
+                        bad_day,
+                        Last_confirmed_infections,
+                        
+                        CASE
+                            WHEN infections_per100k >=4
+                        AND  
+                        SUM(bad_day) OVER (PARTITION BY geo_key
+                        ORDER BY modeled_date 
+                        ROWS   BETWEEN  CURRENT ROW AND 13 FOLLOWING    ) >= 14 THEN 'Y' ELSE 'N'
+                        END bad_flag,
+                            
+                        CASE
+                            WHEN bad_flag = 'Y' THEN modeled_date ELSE NULL
+                        END Est_Date_start
+                        FROM (
+                        SELECT   geo_key,
+                            state_name,
+                            f.mobility_composite,
+                            f.modeled_date,
+                            MAX(
+                            CASE
+                                WHEN f.confirmed_infections IS NOT NULL THEN f.modeled_date
+                            END ) OVER() Last_confirmed_infections,
+                                CAST(  est_infections_mean*(CAST(100000 AS DECIMAL(15,4)) /population) AS DECIMAL(15,4)) infections_per100k,
+                                
+                            CASE
+                                WHEN infections_per100k <4  THEN 1 ELSE 0
+                            END safe_day,
+                                
+                            CASE
+                                WHEN
+                            infections_per100k > LAG(infections_per100k,1) OVER(PARTITION BY uid
+                            ORDER BY modeled_date)
+                            THEN 1 ELSE 0
+                            END bad_day
+                            FROM ???.F_IND_DASH_Covid_Projections_curr_V F 
+                            JOIN ???.DIM_GEO_LOCATION_V G ON
+                            F.GEO_KEY = G.UID
+                             --  where f.geo_key = 84000002
+                            )  a   ) final
+                    WHERE bad_flag = 'Y'
+                        AND  est_date_start > Last_confirmed_infections   - 14 
+                                                                                                                                                    
+                ) bad 
+                                                                                                                                                            
+                ON states.geo_key = bad.geo_key 
+                                                                                                      
+                                                                                                      
+                                                                                                           
+                                                                                                      
+            ) for_view 
+                                                                                        
+                                                                                                      --      
+            LEFT OUTER JOIN 
+            (
+            SELECT 
+                MAX(WEEK_END_DATE) OVER () AS SNAPSHOT_DATE,
+                MAX(CAL_WEEK_YEAR) OVER () AS SNAPSHOT_WEEK,
+                MIN(WEEK_START_DATE) OVER () AS FIL_START_DATE_KEY,
+                MAX(WEEK_END_DATE) OVER () FIL_END_DATE_KEY,
+                
+                CASE
+                    WHEN RNK =1 THEN 'CURR'
+                    WHEN RNK =2 THEN 'PREV'
+                ELSE 'PREV-1'
+                END CURR_curr_FLAG,
+                    RANK() OVER (
+                ORDER BY WEEK_END_DATE DESC) RNK,
+                    DT.*
+                FROM ???.DIM_CALENDAR_V DT
+                LEFT JOIN (
+                SELECT MAX(DATE_KEY) MAX_DT
+                    FROM ???.F_IND_DASH_Covid_Projections_curr_V  F                  
+                ) MAXDT ON 1=1
+                WHERE CAL_DATE_KEY IN (MAX_DT-7)
+                                                                                                
+            ) dt
+            ON   1=1
+                                                       -- where geo_key = 84000038
+                                                          -- prevent rows in bucket 2 that are in bucket 1 (mutuall exclusive      
+            QUALIFY
+            CASE
+                WHEN (bucket = 2 AND LAG(bucket, 1, 0) RESPECT NULLS 
+            OVER (PARTITION BY for_view.geo_key
+            ORDER BY bucket) <> 1) OR bucket IN (1,3)  THEN 1 ELSE 0
+            END = 1
         ) final;
-
 
 REPLACE VIEW ???.F_IND_DASH_NYT_COVID19_DATAHUB_TD_EMP_LOC_V AS 
 LOCKING ROW FOR ACCESS
@@ -3322,6 +3390,73 @@ SELECT
            THEN DT.CURR_PREV_FLAG
       END IN ('CURR','PREV','PREV-1','PREV-2','PREV-3')
    ) T;
+   
+   
+
+REPLACE VIEW ???.DIM_SOURCE_DATA_UPDATES  AS
+LOCKING ROW FOR ACCESS
+
+SELECT COALESCE(t1.Category,'NON') AS Category,StagingTable,COALESCE(t1.DataSource,'NO STAGING SOURCE DEFINED') AS DataSource,COALESCE(t2.Metric_Name,'NOT USED IN THE REPORTS') AS MetricName,CoreTable,COALESCE(t2.MaxAvailableDate,t1.MaxAvailableDate) as MaxAvailableDate
+FROM (
+	SELECT 'BEA - Personal Consumption 2-3-5' as Category,'STG_BEA_PersonalConsumption_2_3_5' as StagingTable,'Manual                                                                               ' as DataSource, MAX(CAST("PERIOD_MMM-YYYY" AS DATE FORMAT 'MMM-YYYY')) as MaxAvailableDate from ???.STG_BEA_PersonalConsumption_2_3_5
+	UNION
+	SELECT 'BEA - Personal Consumption 2-4-5','STG_BEA_PersonalConsumption_2_4_5' as StagingTable,'Manual', MAX(CAST("PERIOD_MMM-YYYY" AS DATE FORMAT 'MMM-YYYY')) from ???.STG_BEA_PersonalConsumption_2_4_5
+	UNION
+	SELECT 'COVID19 National Estimates','STG_COVID19_NATIONAL_ESTIMATES' as StagingTable,'Manual', MAX(CollectionDate) from ???.STG_COVID19_NATIONAL_ESTIMATES
+	UNION
+	SELECT 'COVID19 Statistics','STG_covid19_stats' as StagingTable,'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv', MAX(CAST(Date_Key AS DATE FORMAT 'YYYY-MM-DD')) FROM ???.STG_covid19_stats
+	UNION
+	SELECT 'COVID19 Projections','STG_Hospitalization_all_locs' as StagingTable,'https://ihmecovid19storage.blob.core.windows.net/latest/ihme-covid19.zip', MAX(CAST("Date" AS DATE FORMAT 'YYYY-MM-DD')) FROM ???.STG_Hospitalization_all_locs
+	UNION
+	SELECT 'Google Trends','STG_Google_Search_IOT' as StagingTable,'Python Pytrends API', MAX(CAST("Date" AS DATE FORMAT 'YYYY-MM-DD')) FROM ???.STG_Google_Search_IOT
+	UNION
+	SELECT 'Google Mobility','STG_Google_Mobility' as StagingTable,'https://www.gstatic.com/covid19/mobility/Global_Mobility_Report.csv', MAX(CAST(date_key AS DATE FORMAT 'YYYY-MM-DD')) FROM ???.STG_Google_Mobility
+	UNION
+	SELECT 'COVID19 Datahhub','STG_COVID19_Datahub_LVL3' as StagingTable,'Python Covid19 Datahub', MAX(CAST(date_key AS DATE FORMAT 'YYYY-MM-DD')) FROM ???.STG_COVID19_Datahub_LVL3
+	UNION
+	SELECT 'Labor Statistics','STG_Labor_Stats_LNS13000000' as StagingTable,'https://api.bls.gov/publicAPI/v2/timeseries/data', MAX(CAST(year_key||'-'||oreplace(period_key,'M',null) AS DATE FORMAT 'YYYY-MM')) FROM ???.STG_Labor_Stats_LNS13000000
+	UNION
+	SELECT 'Fuel Production','STG_Fuel_Production' as StagingTable,'https://www.eia.gov/dnav/pet/xls/PET_CONS_WPSUP_K_4.xls', MAX(date_key) FROM ???.STG_Fuel_Production
+	UNION
+	SELECT 'TSA Travel','STG_TSA_TRAVEL' as StagingTable,'https://www.tsa.gov/coronavirus/passenger-throughput', MAX(cast(TO_DATE((lpad(STRTOK(travel_date,'/',1),2,'0')||'/'||lpad(STRTOK(travel_date,'/',1),2,'0')|| '/'||STRTOK(travel_date,'/',3)),'MM/DD/YYYY') as date)) FROM ???.STG_TSA_TRAVEL WHERE Travel_Date is not null
+	UNION
+	SELECT 'Census Data','STG_US_CENSUS_SURVEY' as StagingTable,'https://www.census.gov/econ/currentdata/export/csv', MAX(CAST("PERIOD" AS DATE FORMAT 'MMM-YYYY')) FROM ???.STG_US_CENSUS_SURVEY
+	UNION
+	SELECT 'Consumer Sentiment Index','STG_Consumer_Sentiment_Index' as StagingTable,'http://www.sca.isr.umich.edu/files/tbcics.csv', MAX(CAST(SUBSTR("Month",1,3)||'-'||"Year" AS DATE FORMAT 'MMM-YYYY')) FROM ???.STG_Consumer_Sentiment_Index
+	UNION
+	SELECT 'Consumer Price Index','STG_Labor_Stats_CUSR0000SA0' as StagingTable,'https://api.bls.gov/publicAPI/v2/timeseries/data', MAX(CAST(year_key||'-'||oreplace(period_key,'M',null) AS DATE FORMAT 'YYYY-MM')) FROM ???.STG_Labor_Stats_CUSR0000SA0) t1
+	--
+FULL OUTER JOIN (SELECT CASE WHEN Metric_Name IN ('Household - Clothing & Footwear','Household - Food Services & Accommodation','Personal Consumption Expenditure (Product Details)') THEN 'BEA - Personal Consumption 2-4-5'
+						WHEN Metric_Name IN ('US Product Supplied 4WKAVG') THEN 'Fuel Production'
+						WHEN Metric_Name IN ('Unemployment Level','Unemployment Rate') THEN 'Labor Statistics'
+						WHEN Metric_Name IN ('CPI') THEN 'Consumer Price Index'
+						WHEN Metric_Name IN ('%Mobility_Change_Baseline for Grocery & pharmacy',
+											'%Mobility_Change_Baseline for Parks',
+											'%Mobility_Change_Baseline for Residential',
+											'%Mobility_Change_Baseline for Retail & recreation',
+											'%Mobility_Change_Baseline for Transit Stations',
+											'%Mobility_Change_Baseline for Workplace') THEN 'Google Mobility'
+						WHEN Metric_Name IN ('Consumer Sentiment Index') THEN 'Consumer Sentiment Index'
+						WHEN Metric_Name IN ('Traffic Volume') THEN 'TSA Travel'
+						WHEN Metric_Name IN ('New Daily Cases','New Daily Deaths','Deaths to-date','Cases to-date') THEN 'COVID19 Statistics'
+						WHEN Metric_Name IN ('Total units') THEN 'Census Data'
+					END AS Category,
+					Metric_Name,'FACT_INDICATOR_DASHBOARD_T2_P' AS CoreTable, MAX(Date_Key) as MaxAvailableDate
+			FROM ???.FACT_INDICATOR_DASHBOARD_T2_P
+			GROUP BY 1,2
+			UNION
+			SELECT 'Google Trends',TREND_Name,'F_IND_DASH_GOOGLE_TRENDS', MAX(Date_Key) as MaxAvailableDate
+			FROM ???.F_IND_DASH_GOOGLE_TRENDS
+			GROUP BY 1,2
+			UNION
+			SELECT 'COVID19 Datahhub','COVID19 Metrics','FACT_COVID19_DATAHUB', MAX(Date_Key) as MaxAvailableDate
+			FROM ???.FACT_COVID19_DATAHUB
+			UNION
+			SELECT 'COVID19 Projections','COVID19 Projection Metrics','FACT_Covid_Model_Data', MAX(Date_Key) as MaxAvailableDate
+			FROM ???.FACT_Covid_Model_Data
+			) t2
+			--
+ON t2.Category = t1.Category;
 
 
 REPLACE PROCEDURE ???.ETL_BEA_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
