@@ -53,6 +53,9 @@ This application consists of the following components:
   * Audit Table ETL_Indicator_Proj_Audit captures all the audit records counts and timestamp from Teradata Staging to Core
   * Error Table ETL_Proc_Error_Logs, captures all stage to core stored procedure errors
   
+# Customization:
+  * Refer to the WIKI Pages for Customer Specific Extensions
+  
 # To Uninstall:
   * Set Default Database in the DDL Installation File ddl/CUST_RTN_Uninstall.ddl
       * Do a complete replacement of '???' to target database name
