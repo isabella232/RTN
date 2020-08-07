@@ -46,7 +46,7 @@ This application consists of the following components:
   * Tableau requires refresh process after initial load for each of the 11 data sources
   * Right mouse on the data source and select Extract -> Refresh
   * You will be prompted to log into the database in order to refresh the data source
-  # OR
+  #or
   * Download the dashboard file onto your desktop target Tableau Directory
   * Right click and select "Unpackage"
   * On the created Resiliency Dashboard vx.xx.twb file, right click and open with WordPad to see the XML definition
