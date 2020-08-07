@@ -1,5 +1,34 @@
 DATABASE ???;
 
+CREATE MULTISET TABLE ???.DIM_DASH_VIZ_METRIC_XREF ,FALLBACK ,
+    NO BEFORE JOURNAL,
+    NO AFTER JOURNAL,
+    CHECKSUM = DEFAULT,
+    DEFAULT MERGEBLOCKRATIO,
+    MAP = TD_MAP1
+    (
+    CORP_ID SMALLINT NOT NULL,
+    CORP_NAME VARCHAR(255) CHARACTER SET LATIN NOT CASESPECIFIC,
+    CORP_FUNCTION VARCHAR(255) CHARACTER SET LATIN NOT CASESPECIFIC,
+    DASHBOARD_VERSION VARCHAR(255) CHARACTER SET LATIN NOT CASESPECIFIC,
+    SEMANTIC_VIEW_NAME VARCHAR(255) CHARACTER SET LATIN NOT CASESPECIFIC,
+    GEO_GRANULARITY VARCHAR(255) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+    DATE_GRANULARITY VARCHAR(255) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+    METRIC_NAME VARCHAR(255) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+    METRIC_DISPLAY_NAME VARCHAR(255) CHARACTER SET LATIN NOT CASESPECIFIC,
+    METRIC_DISPLAY_SHORT_NAME VARCHAR(255) CHARACTER SET LATIN NOT CASESPECIFIC,
+    METRIC_UOM VARCHAR(255) CHARACTER SET LATIN NOT CASESPECIFIC,
+    DASH_VIZ_DISPLAY_NAME VARCHAR(255) CHARACTER SET LATIN NOT CASESPECIFIC,
+    METRIC_VAL_IND_SEL VARCHAR(1) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+    DOMAIN_NAME VARCHAR(255) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL,
+    SUBDOMAIN_1_NAME VARCHAR(255) CHARACTER SET LATIN NOT CASESPECIFIC,
+    SUBDOMAIN_2_NAME VARCHAR(255) CHARACTER SET LATIN NOT CASESPECIFIC,
+    SUBDOMAIN_3_NAME VARCHAR(255) CHARACTER SET LATIN NOT CASESPECIFIC,
+    DATA_SOURCE_NAME VARCHAR(255) CHARACTER SET LATIN NOT CASESPECIFIC NOT NULL)
+    PRIMARY INDEX ( CORP_ID ,CORP_FUNCTION ,METRIC_NAME ,DOMAIN_NAME ,
+    DATA_SOURCE_NAME );
+	
+	
 CREATE SET TABLE ???.DIM_GEO_LOCATION_T ,FALLBACK ,
      NO BEFORE JOURNAL,
      NO AFTER JOURNAL,
@@ -1161,6 +1190,15 @@ CREATE MULTISET TABLE ???.Transaltion_Table ,FALLBACK ,
 PRIMARY INDEX ( CLNSNG_CD ,CLNSNG_SRC );
 
 
+REPLACE VIEW ???.DIM_DASH_VIZ_METRIC_XREF_V AS
+    LOCKING ROW FOR ACCESS
+    SELECT *
+        FROM ???.DIM_DASH_VIZ_METRIC_XREF
+        WHERE CORP_ID = 1
+            AND  CORP_FUNCTION = 'Generic'
+            AND  DASHBOARD_VERSION = '1';
+			
+
 REPLACE VIEW ???.DIM_CALENDAR_V  AS
     LOCKING ROW FOR ACCESS
     SELECT 
@@ -1748,8 +1786,8 @@ QUALIFY RANK() OVER (PARTITION BY COUNTY, STATE_NAME, CURR_PREV_FLAG ORDER BY DA
 
 
 REPLACE VIEW ???.F_IND_DASH_MACROECONOMICS_GEO_MONTHLY_V AS
-LOCKING ROW FOR ACCESS
-   SELECT 
+    LOCKING ROW FOR ACCESS
+    SELECT 
         DT.SNAPSHOT_DATE,
         DT.SNAPSHOT_MONTH,
         FT.DATE_KEY,
@@ -1762,114 +1800,114 @@ LOCKING ROW FOR ACCESS
         FT.COUNTRY_NAME,
         FT.POPULATION,
         FT.METRIC_NAME,
+        FT.METRIC_DISPLAY_SHORT_NAME,
+		FT.METRIC_UOM,
+		FT.DASH_VIZ_DISPLAY_NAME,
         FT.METRIC_VALUE
-   FROM
-    (
+    FROM
+       (
         SELECT 
-           DATE_KEY,
-           DATE_KEY - EXTRACT(DAY FROM DATE_KEY)+1 AS MONTH_KEY,
-           0 AS WEEK_NUM,
-           UPPER(F.GEO_GRANULARITY) GEO_GRANULARITY,
-           G.COUNTY,
-           G.STATE_CODE,
-           G.STATE_NAME,
-           G.COUNTRY_NAME,
-           G.POPULATION,
-           CASE WHEN F.DATA_SOURCE_NAME = 'Consumer Sentiment Index'
-                THEN 'Consumer Confidence Index'
-                WHEN F.DATA_SOURCE_NAME = 'BLS'
-                THEN F.METRIC_NAME
-                WHEN F.DATA_SOURCE_NAME = 'Bureau of Economic Analysis - NIPA Monthly Report T2.4.5U' AND
-                     TRIM(UPPER(F.DOMAIN_NAME)) = 'GOODS' AND
-                     TRIM(UPPER(F.SUBDOMAIN_1_NAME)) = 'NONDURABLE GOODS' AND
-                     TRIM(UPPER(F.SUBDOMAIN_2_NAME)) = 'CLOTHING AND FOOTWEAR' AND
-                     TRIM(UPPER(F.SUBDOMAIN_3_NAME)) = 'TOTAL'
-                THEN 'Household - Clothing & Footwear'
-                WHEN F.DATA_SOURCE_NAME = 'Bureau of Economic Analysis - NIPA Monthly Report T2.4.5U' AND
-                     TRIM(UPPER(F.DOMAIN_NAME)) = 'SERVICES' AND
-                     TRIM(UPPER(F.SUBDOMAIN_1_NAME)) = 'HOUSEHOLD CONSUMPTION EXPENDITURES (FOR SERVICES)' AND
-                     TRIM(UPPER(F.SUBDOMAIN_2_NAME)) = 'FOOD SERVICES AND ACCOMMODATIONS' AND
-                     TRIM(UPPER(F.SUBDOMAIN_3_NAME)) = 'TOTAL'
-                THEN 'Household - Food Services & Accommodation'
-           END AS METRIC_NAME,    
-           CASE WHEN F.DATA_SOURCE_NAME = 'Consumer Sentiment Index'
-                THEN F.METRIC_INDEX
-                WHEN F.DATA_SOURCE_NAME = 'BLS'
-                THEN F.METRIC_VALUE
-                WHEN F.DATA_SOURCE_NAME = 'Bureau of Economic Analysis - NIPA Monthly Report T2.4.5U' AND
-                     TRIM(UPPER(F.DOMAIN_NAME)) = 'GOODS' AND
-                     TRIM(UPPER(F.SUBDOMAIN_1_NAME)) = 'NONDURABLE GOODS' AND
-                     TRIM(UPPER(F.SUBDOMAIN_2_NAME)) = 'CLOTHING AND FOOTWEAR' AND
-                     TRIM(UPPER(F.SUBDOMAIN_3_NAME)) = 'TOTAL'
-                     THEN F.METRIC_VALUE
-                WHEN F.DATA_SOURCE_NAME = 'Bureau of Economic Analysis - NIPA Monthly Report T2.4.5U' AND
-                     TRIM(UPPER(F.DOMAIN_NAME)) = 'SERVICES' AND
-                     TRIM(UPPER(F.SUBDOMAIN_1_NAME)) = 'HOUSEHOLD CONSUMPTION EXPENDITURES (FOR SERVICES)' AND
-                     TRIM(UPPER(F.SUBDOMAIN_2_NAME)) = 'FOOD SERVICES AND ACCOMMODATIONS' AND
-                     TRIM(UPPER(F.SUBDOMAIN_3_NAME)) = 'TOTAL'
-                THEN F.METRIC_VALUE
-           END AS METRIC_VALUE,
-           DATA_SOURCE_NAME
+            DATE_KEY,
+            DATE_KEY - EXTRACT(DAY FROM DATE_KEY)+1 AS MONTH_KEY,
+            0 AS WEEK_NUM,
+            UPPER(F.GEO_GRANULARITY) GEO_GRANULARITY,
+            G.COUNTY,
+            G.STATE_CODE,
+            G.STATE_NAME,
+            G.COUNTRY_NAME,
+            G.POPULATION,
+            MT.METRIC_DISPLAY_NAME AS METRIC_NAME,
+            MT.METRIC_DISPLAY_SHORT_NAME,
+		    MT.METRIC_UOM,
+            MT.DASH_VIZ_DISPLAY_NAME,
+            CASE WHEN UPPER(MT.METRIC_VAL_IND_SEL) = 'I' 
+			     THEN F.METRIC_INDEX
+                 WHEN UPPER(MT.METRIC_VAL_IND_SEL) = 'V' 
+			     THEN F.METRIC_VALUE
+            END AS METRIC_VALUE,
+            F.DATA_SOURCE_NAME
         FROM ???.FACT_INDICATOR_DASHBOARD_V F
-        JOIN ???.DIM_GEO_LOCATION_V G ON 
-             F.GEO_KEY = G.UID
-		LEFT JOIN (
-		        SELECT   MAX(DATE_KEY) MAX_DT
-                   FROM ???.FACT_INDICATOR_DASHBOARD_V F
-                   WHERE F.DATA_SOURCE_NAME IN ('Bureau of Economic Analysis - NIPA Monthly Report T2.4.5U',
-                                                'Consumer Sentiment Index',
-                                                'BLS') 
-		    ) MAXDT ON 1=1
-        WHERE F.DATE_KEY BETWEEN CAST(CONCAT(TRIM(EXTRACT(YEAR FROM MAX_DT)-1),'-01-01') AS DATE FORMAT 'YYYY-MM-DD') AND MAX_DT AND  
-              CASE WHEN F.DATA_SOURCE_NAME = 'Bureau of Economic Analysis - NIPA Monthly Report T2.4.5U' AND
-                        TRIM(UPPER(F.DOMAIN_NAME))      IN ('GOODS','SERVICES') AND
-                        TRIM(UPPER(F.SUBDOMAIN_1_NAME)) IN ('NONDURABLE GOODS','HOUSEHOLD CONSUMPTION EXPENDITURES (FOR SERVICES)') AND
-                        TRIM(UPPER(F.SUBDOMAIN_2_NAME)) IN ('CLOTHING AND FOOTWEAR','FOOD SERVICES AND ACCOMMODATIONS') AND
-                        TRIM(UPPER(F.SUBDOMAIN_3_NAME)) = 'TOTAL'   
-                   THEN 1
-                   WHEN F.DATA_SOURCE_NAME IN ('Consumer Sentiment Index','BLS')
-                   THEN 1
-                   ELSE 0
-              END = 1                        				
-			 
+             JOIN ???.DIM_DASH_VIZ_METRIC_XREF_V MT  ON 
+                  MT.SEMANTIC_VIEW_NAME             = 'F_IND_DASH_MACROECONOMICS_VIZ_V' AND
+                  F.METRIC_NAME                     = MT.METRIC_NAME AND 
+                  F.DATA_SOURCE_NAME                = MT.DATA_SOURCE_NAME  AND
+                  DECODE(F.SUBDOMAIN_1_NAME,'','?',' ','?',COALESCE(F.SUBDOMAIN_1_NAME,'?')) = DECODE(MT.SUBDOMAIN_1_NAME,'','?',' ','?',COALESCE(MT.SUBDOMAIN_1_NAME,'?')) AND
+                  DECODE(F.SUBDOMAIN_2_NAME,'','?',' ','?',COALESCE(F.SUBDOMAIN_2_NAME,'?')) = DECODE(MT.SUBDOMAIN_2_NAME,'','?',' ','?',COALESCE(MT.SUBDOMAIN_2_NAME,'?')) AND
+                  DECODE(F.SUBDOMAIN_3_NAME,'','?',' ','?',COALESCE(F.SUBDOMAIN_3_NAME,'?')) = DECODE(MT.SUBDOMAIN_3_NAME,'','?',' ','?',COALESCE(MT.SUBDOMAIN_3_NAME,'?'))
+            JOIN ???.DIM_GEO_LOCATION_V G ON 
+                  F.GEO_KEY = G.UID
+            LEFT JOIN 
+			(
+             SELECT    
+			 MAX(DATE_KEY) MAX_DT
+             FROM ???.FACT_INDICATOR_DASHBOARD_V F
+             WHERE DATA_SOURCE_NAME IN (SELECT DATA_SOURCE_NAME     
+			                            FROM ???.DIM_DASH_VIZ_METRIC_XREF_V 
+                                        WHERE SEMANTIC_VIEW_NAME = 'F_IND_DASH_MACROECONOMICS_VIZ_V'
+						            )
+            ) MAXDT ON 1=1
+            WHERE F.DATE_KEY BETWEEN CAST(CONCAT(TRIM(EXTRACT(YEAR FROM MAX_DT)-1),'-01-01') AS DATE FORMAT 'YYYY-MM-DD') AND MAX_DT AND  
+			      UPPER(F.DATE_GRANULARITY) = 'MONTHLY'
+                      				
         UNION ALL
-		
-        SELECT DATE_KEY,
-               DATE_KEY - EXTRACT(DAY FROM DATE_KEY)+1 AS MONTH_KEY,
-               DENSE_RANK() OVER (PARTITION BY EXTRACT(YEAR FROM DATE_KEY) ORDER BY DATE_KEY ASC) AS WEEK_NUM,
-               UPPER(F.GEO_GRANULARITY) GEO_GRANULARITY,
-               G.COUNTY,
-               G.STATE_CODE,
-               G.STATE_NAME,
-               G.COUNTRY_NAME,
-               G.POPULATION,
-               CONCAT(F.SUBDOMAIN_1_NAME,' - ',F.METRIC_NAME) AS METRIC_NAME,
-               METRIC_VALUE,
-               DATA_SOURCE_NAME
+        
+		SELECT 
+		    DATE_KEY,
+            DATE_KEY - EXTRACT(DAY FROM DATE_KEY)+1 AS MONTH_KEY,
+            DENSE_RANK() OVER (PARTITION BY EXTRACT(YEAR FROM DATE_KEY) ORDER BY DATE_KEY ASC) AS WEEK_NUM,
+            UPPER(F.GEO_GRANULARITY) GEO_GRANULARITY,
+            G.COUNTY,
+            G.STATE_CODE,
+            G.STATE_NAME,
+            G.COUNTRY_NAME,
+            G.POPULATION,
+            MT.METRIC_DISPLAY_NAME AS METRIC_NAME,
+            MT.METRIC_DISPLAY_SHORT_NAME,
+		    MT.METRIC_UOM,
+            MT.DASH_VIZ_DISPLAY_NAME,
+            CASE WHEN UPPER(MT.METRIC_VAL_IND_SEL) = 'I' 
+			     THEN F.METRIC_INDEX
+                 WHEN UPPER(MT.METRIC_VAL_IND_SEL) = 'V' 
+			     THEN F.METRIC_VALUE
+            END AS METRIC_VALUE,
+            F.DATA_SOURCE_NAME    
         FROM ???.FACT_INDICATOR_DASHBOARD_V F
-             JOIN ???.DIM_GEO_LOCATION_V G ON 
-             F.GEO_KEY = G.UID
-	         LEFT JOIN (
-	                    SELECT   MAX(DATE_KEY) MAX_DT
-                        FROM ???.FACT_INDICATOR_DASHBOARD_V F
-                        WHERE F.DATA_SOURCE_NAME IN ('US-EIA') 
-	                   ) MAXDT ON 1=1
-        WHERE F.DATE_KEY BETWEEN CAST(CONCAT(TRIM(EXTRACT(YEAR FROM MAX_DT)-1),'-01-01') AS DATE FORMAT 'YYYY-MM-DD') AND MAX_DT AND  
-	          F.DATA_SOURCE_NAME = 'US-EIA' 
-        --QUALIFY DENSE_RANK() OVER (PARTITION BY METRIC_NAME,MONTH_KEY ORDER BY DATE_KEY DESC) <= 4	                				
-    ) FT
-    JOIN (
-          SELECT   
-		       MAX(DATE_KEY - EXTRACT(DAY FROM DATE_KEY)) AS SNAPSHOT_DATE,
-			   CONCAT('M',TRIM(MONTH(MAX(DATE_KEY - EXTRACT(DAY FROM DATE_KEY)))),'-',TRIM(YEAR(MAX(DATE_KEY - EXTRACT(DAY FROM DATE_KEY))))) AS SNAPSHOT_MONTH
-          FROM ???.FACT_INDICATOR_DASHBOARD_V F
-          WHERE F.DATA_SOURCE_NAME IN ('Consumer Sentiment Index',
-		                               'BLS',
-		                               'US-EIA',
-									   'Bureau of Economic Analysis - NIPA Monthly Report T2.4.5U')
+             JOIN ???.DIM_DASH_VIZ_METRIC_XREF_V MT  ON 
+                  MT.SEMANTIC_VIEW_NAME             = 'F_IND_DASH_MACROECONOMICS_VIZ_V' AND
+                  F.METRIC_NAME                     = MT.METRIC_NAME AND 
+                  F.DATA_SOURCE_NAME                = MT.DATA_SOURCE_NAME  AND
+                  DECODE(F.SUBDOMAIN_1_NAME,'','?',' ','?',COALESCE(F.SUBDOMAIN_1_NAME,'?')) = DECODE(MT.SUBDOMAIN_1_NAME,'','?',' ','?',COALESCE(MT.SUBDOMAIN_1_NAME,'?')) AND
+                  DECODE(F.SUBDOMAIN_2_NAME,'','?',' ','?',COALESCE(F.SUBDOMAIN_2_NAME,'?')) = DECODE(MT.SUBDOMAIN_2_NAME,'','?',' ','?',COALESCE(MT.SUBDOMAIN_2_NAME,'?')) AND
+                  DECODE(F.SUBDOMAIN_3_NAME,'','?',' ','?',COALESCE(F.SUBDOMAIN_3_NAME,'?')) = DECODE(MT.SUBDOMAIN_3_NAME,'','?',' ','?',COALESCE(MT.SUBDOMAIN_3_NAME,'?'))
+            JOIN ???.DIM_GEO_LOCATION_V G ON 
+                  F.GEO_KEY = G.UID
+            LEFT JOIN 
+			(
+             SELECT    
+			 MAX(DATE_KEY) MAX_DT
+             FROM ???.FACT_INDICATOR_DASHBOARD_V F
+             WHERE DATA_SOURCE_NAME IN (SELECT DATA_SOURCE_NAME     
+			                            FROM ???.DIM_DASH_VIZ_METRIC_XREF_V 
+                                        WHERE SEMANTIC_VIEW_NAME = 'F_IND_DASH_MACROECONOMICS_VIZ_V'
+						            )
+            ) MAXDT ON 1=1
+            WHERE F.DATE_KEY BETWEEN CAST(CONCAT(TRIM(EXTRACT(YEAR FROM MAX_DT)-1),'-01-01') AS DATE FORMAT 'YYYY-MM-DD') AND MAX_DT AND  
+			      UPPER(F.DATE_GRANULARITY) = 'WEEKLY'
+                				
+        ) FT
+		JOIN
+	    (
+         SELECT   
+            MAX(DATE_KEY - EXTRACT(DAY FROM DATE_KEY)) AS SNAPSHOT_DATE,
+            CONCAT('M',TRIM(MONTH(MAX(DATE_KEY - EXTRACT(DAY FROM DATE_KEY)))),'-',TRIM(YEAR(MAX(DATE_KEY - EXTRACT(DAY FROM DATE_KEY))))) AS SNAPSHOT_MONTH
+         FROM ???.FACT_INDICATOR_DASHBOARD_V F                    
+         WHERE DATA_SOURCE_NAME IN (SELECT DATA_SOURCE_NAME     
+			                        FROM ???.DIM_DASH_VIZ_METRIC_XREF_V 
+                                    WHERE SEMANTIC_VIEW_NAME = 'F_IND_DASH_MACROECONOMICS_VIZ_V'
+								   )
         ) DT ON 
         1=1;
-
+		
 
 REPLACE VIEW ???.F_IND_DASH_MACROECONOMICS_VIZ_V AS
     LOCKING ROW FOR ACCESS
@@ -1885,110 +1923,83 @@ REPLACE VIEW ???.F_IND_DASH_MACROECONOMICS_VIZ_V AS
         FT.COUNTRY_NAME,
         FT.POPULATION,
         FT.METRIC_NAME,
+        FT.METRIC_DISPLAY_SHORT_NAME,
+		FT.METRIC_UOM,
+		FT.DASH_VIZ_DISPLAY_NAME,
         FT.METRIC_VALUE
-        FROM
-        (
+    FROM
+       (
         SELECT 
-            DATE_KEY,
-            
-            CASE
-                WHEN RANK() OVER (PARTITION BY METRIC_NAME
-            ORDER BY DATE_KEY DESC) = 1
-            THEN 'CURR-CY'
-                WHEN RANK() OVER (PARTITION BY METRIC_NAME
-            ORDER BY DATE_KEY DESC) = 2
-            THEN 'PREV-CY'
-                WHEN RANK() OVER (PARTITION BY METRIC_NAME
-            ORDER BY DATE_KEY DESC) = 13
-            THEN 'CURR-LY'
+            T.DATE_KEY,
+            CASE WHEN RANK() OVER (PARTITION BY T.METRIC_DISPLAY_NAME ORDER BY DATE_KEY DESC) = 1
+                 THEN 'CURR-CY'
+                 WHEN RANK() OVER (PARTITION BY T.METRIC_DISPLAY_NAME ORDER BY DATE_KEY DESC) = 2
+                 THEN 'PREV-CY'
+                 WHEN RANK() OVER (PARTITION BY T.METRIC_DISPLAY_NAME ORDER BY DATE_KEY DESC) = 13
+                 THEN 'CURR-LY'
             END CURR_PREV_FLAG,
-                GEO_GRANULARITY,
-                COUNTY,
-                STATE_CODE,
-                STATE_NAME,
-                COUNTRY_NAME,
-                POPULATION,
-                METRIC_NAME,
-                METRIC_VALUE,
-                DATA_SOURCE_NAME
-            FROM
-            (
-            SELECT DATE_KEY,
+            T.GEO_GRANULARITY,
+            T.COUNTY,
+            T.STATE_CODE,
+            T.STATE_NAME,
+            T.COUNTRY_NAME,
+            T.POPULATION,
+            T.METRIC_DISPLAY_NAME AS METRIC_NAME,
+            T.METRIC_DISPLAY_SHORT_NAME,
+			T.METRIC_UOM,
+			T.DASH_VIZ_DISPLAY_NAME,
+            T.METRIC_VALUE,
+            T.DATA_SOURCE_NAME
+        FROM
+           (
+            SELECT 
+			    DATE_KEY,
                 UPPER(F.GEO_GRANULARITY) GEO_GRANULARITY,
                 G.COUNTY,
                 G.STATE_CODE,
                 G.STATE_NAME,
                 G.COUNTRY_NAME,
                 G.POPULATION,
-                
-                CASE
-                    WHEN F.DATA_SOURCE_NAME = 'Consumer Sentiment Index'
-                THEN 'Consumer Confidence Index'
-                    WHEN F.DATA_SOURCE_NAME = 'BLS'
-                THEN F.METRIC_NAME
-                    WHEN F.DATA_SOURCE_NAME = 'Bureau of Economic Analysis - NIPA Monthly Report T2.4.5U' AND
-                TRIM(UPPER(F.DOMAIN_NAME)) = 'GOODS' AND
-                TRIM(UPPER(F.SUBDOMAIN_1_NAME)) = 'NONDURABLE GOODS' AND
-                TRIM(UPPER(F.SUBDOMAIN_2_NAME)) = 'CLOTHING AND FOOTWEAR' AND
-                TRIM(UPPER(F.SUBDOMAIN_3_NAME)) = 'TOTAL'
-                THEN 'Household - Clothing & Footwear'
-                    WHEN F.DATA_SOURCE_NAME = 'Bureau of Economic Analysis - NIPA Monthly Report T2.4.5U' AND
-                TRIM(UPPER(F.DOMAIN_NAME)) = 'SERVICES' AND
-                TRIM(UPPER(F.SUBDOMAIN_1_NAME)) = 'HOUSEHOLD CONSUMPTION EXPENDITURES (FOR SERVICES)' AND
-                TRIM(UPPER(F.SUBDOMAIN_2_NAME)) = 'FOOD SERVICES AND ACCOMMODATIONS' AND
-                TRIM(UPPER(F.SUBDOMAIN_3_NAME)) = 'TOTAL'
-                THEN 'Household - Food Services & Accommodation'
-                END AS METRIC_NAME,
-                    
-                CASE
-                    WHEN F.DATA_SOURCE_NAME = 'Consumer Sentiment Index'
-                THEN F.METRIC_INDEX
-                    WHEN F.DATA_SOURCE_NAME = 'BLS'
-                THEN F.METRIC_VALUE
-                    WHEN F.DATA_SOURCE_NAME = 'Bureau of Economic Analysis - NIPA Monthly Report T2.4.5U' AND
-                TRIM(UPPER(F.DOMAIN_NAME)) = 'GOODS' AND
-                TRIM(UPPER(F.SUBDOMAIN_1_NAME)) = 'NONDURABLE GOODS' AND
-                TRIM(UPPER(F.SUBDOMAIN_2_NAME)) = 'CLOTHING AND FOOTWEAR' AND
-                TRIM(UPPER(F.SUBDOMAIN_3_NAME)) = 'TOTAL'
-                THEN F.METRIC_VALUE
-                    WHEN F.DATA_SOURCE_NAME = 'Bureau of Economic Analysis - NIPA Monthly Report T2.4.5U' AND
-                TRIM(UPPER(F.DOMAIN_NAME)) = 'SERVICES' AND
-                TRIM(UPPER(F.SUBDOMAIN_1_NAME)) = 'HOUSEHOLD CONSUMPTION EXPENDITURES (FOR SERVICES)' AND
-                TRIM(UPPER(F.SUBDOMAIN_2_NAME)) = 'FOOD SERVICES AND ACCOMMODATIONS' AND
-                TRIM(UPPER(F.SUBDOMAIN_3_NAME)) = 'TOTAL'
-                THEN F.METRIC_VALUE
+                MT.METRIC_DISPLAY_NAME,
+                MT.METRIC_DISPLAY_SHORT_NAME,
+				MT.METRIC_UOM,
+                MT.DASH_VIZ_DISPLAY_NAME,                
+                CASE WHEN UPPER(MT.METRIC_VAL_IND_SEL) = 'I' 
+				     THEN F.METRIC_INDEX
+                     WHEN UPPER(MT.METRIC_VAL_IND_SEL) = 'V' 
+					 THEN F.METRIC_VALUE
                 END AS METRIC_VALUE,
-                    DATA_SOURCE_NAME
-                FROM ???.FACT_INDICATOR_DASHBOARD_V F
+                F.DATA_SOURCE_NAME
+            FROM ???.FACT_INDICATOR_DASHBOARD_V F 
+                 JOIN ???.DIM_DASH_VIZ_METRIC_XREF_V MT  ON 
+                      MT.SEMANTIC_VIEW_NAME             = 'F_IND_DASH_MACROECONOMICS_VIZ_V' AND
+                      F.METRIC_NAME                     = MT.METRIC_NAME AND 
+                      F.DATA_SOURCE_NAME                = MT.DATA_SOURCE_NAME  AND
+                      DECODE(F.SUBDOMAIN_1_NAME,'','?',' ','?',COALESCE(F.SUBDOMAIN_1_NAME,'?')) = DECODE(MT.SUBDOMAIN_1_NAME,'','?',' ','?',COALESCE(MT.SUBDOMAIN_1_NAME,'?')) AND
+                      DECODE(F.SUBDOMAIN_2_NAME,'','?',' ','?',COALESCE(F.SUBDOMAIN_2_NAME,'?')) = DECODE(MT.SUBDOMAIN_2_NAME,'','?',' ','?',COALESCE(MT.SUBDOMAIN_2_NAME,'?')) AND
+                      DECODE(F.SUBDOMAIN_3_NAME,'','?',' ','?',COALESCE(F.SUBDOMAIN_3_NAME,'?')) = DECODE(MT.SUBDOMAIN_3_NAME,'','?',' ','?',COALESCE(MT.SUBDOMAIN_3_NAME,'?'))
                 JOIN ???.DIM_GEO_LOCATION_V G ON 
-                F.GEO_KEY = G.UID
-                LEFT JOIN (
-                SELECT   MAX(DATE_KEY) MAX_DT
-                    FROM ???.FACT_INDICATOR_DASHBOARD_V F
-                    WHERE F.DATA_SOURCE_NAME IN ('Bureau of Economic Analysis - NIPA Monthly Report T2.4.5U',
-                    'Consumer Sentiment Index',
-                    'BLS') 
+                     F.GEO_KEY = G.UID
+                LEFT JOIN 
+			    (
+                 SELECT    
+				    MAX(DATE_KEY) MAX_DT
+                 FROM ???.FACT_INDICATOR_DASHBOARD_V F
+                 WHERE DATA_SOURCE_NAME IN (SELECT DATA_SOURCE_NAME     
+				                            FROM ???.DIM_DASH_VIZ_METRIC_XREF_V 
+                                            WHERE SEMANTIC_VIEW_NAME = 'F_IND_DASH_MACROECONOMICS_VIZ_V'
+										   )
                 ) MAXDT ON 1=1
-                WHERE F.DATE_KEY BETWEEN ADD_MONTHS(MAX_DT,-20) AND MAX_DT
-                    AND  
-                CASE
-                    WHEN F.DATA_SOURCE_NAME = 'Bureau of Economic Analysis - NIPA Monthly Report T2.4.5U' AND
-                TRIM(UPPER(F.DOMAIN_NAME))      IN ('GOODS','SERVICES') AND
-                TRIM(UPPER(F.SUBDOMAIN_1_NAME)) IN ('NONDURABLE GOODS','HOUSEHOLD CONSUMPTION EXPENDITURES (FOR SERVICES)') AND
-                TRIM(UPPER(F.SUBDOMAIN_2_NAME)) IN ('CLOTHING AND FOOTWEAR','FOOD SERVICES AND ACCOMMODATIONS') AND
-                TRIM(UPPER(F.SUBDOMAIN_3_NAME)) = 'TOTAL'   
-                THEN 1
-                    WHEN F.DATA_SOURCE_NAME IN ('Consumer Sentiment Index','BLS')
-                THEN 1
-                ELSE 0
-                END = 1
-                 --GROUP BY 1,2,3,4,5,6,7,8,9,10
-                ) T
-            QUALIFY RANK() OVER (PARTITION BY METRIC_NAME
-            ORDER BY DATE_KEY DESC) IN (1,2,13)
-                                                        				
+            WHERE F.DATE_KEY BETWEEN ADD_MONTHS(MAX_DT,-20) AND MAX_DT AND  
+			      UPPER(F.DATE_GRANULARITY) = 'MONTHLY'
+
+           ) T
+        QUALIFY RANK() OVER (PARTITION BY T.METRIC_DISPLAY_NAME ORDER BY T.DATE_KEY DESC) IN (1,2,13)
+                                                                                                        				
         UNION ALL
-        SELECT DATE_KEY,
+		
+        SELECT 
+            DATE_KEY,
             'JAN-CY' AS CURR_PREV_FLAG,
             UPPER(F.GEO_GRANULARITY) GEO_GRANULARITY,
             G.COUNTY,
@@ -1996,181 +2007,188 @@ REPLACE VIEW ???.F_IND_DASH_MACROECONOMICS_VIZ_V AS
             G.STATE_NAME,
             G.COUNTRY_NAME,
             G.POPULATION,
-            
-            CASE
-                WHEN F.DATA_SOURCE_NAME = 'Consumer Sentiment Index'
-            THEN 'Consumer Confidence Index'
-                WHEN F.DATA_SOURCE_NAME = 'BLS'
-            THEN F.METRIC_NAME
-                WHEN F.DATA_SOURCE_NAME = 'Bureau of Economic Analysis - NIPA Monthly Report T2.4.5U' AND
-            TRIM(UPPER(F.DOMAIN_NAME)) = 'GOODS' AND
-            TRIM(UPPER(F.SUBDOMAIN_1_NAME)) = 'NONDURABLE GOODS' AND
-            TRIM(UPPER(F.SUBDOMAIN_2_NAME)) = 'CLOTHING AND FOOTWEAR' AND
-            TRIM(UPPER(F.SUBDOMAIN_3_NAME)) = 'TOTAL'
-            THEN 'Household - Clothing & Footwear'
-                WHEN F.DATA_SOURCE_NAME = 'Bureau of Economic Analysis - NIPA Monthly Report T2.4.5U' AND
-            TRIM(UPPER(F.DOMAIN_NAME)) = 'SERVICES' AND
-            TRIM(UPPER(F.SUBDOMAIN_1_NAME)) = 'HOUSEHOLD CONSUMPTION EXPENDITURES (FOR SERVICES)' AND
-            TRIM(UPPER(F.SUBDOMAIN_2_NAME)) = 'FOOD SERVICES AND ACCOMMODATIONS' AND
-            TRIM(UPPER(F.SUBDOMAIN_3_NAME)) = 'TOTAL'
-            THEN 'Household - Food Services & Accommodation'
-            END AS METRIC_NAME,
-                
-            CASE
-                WHEN F.DATA_SOURCE_NAME = 'Consumer Sentiment Index'
-            THEN F.METRIC_INDEX
-                WHEN F.DATA_SOURCE_NAME = 'BLS'
-            THEN F.METRIC_VALUE
-                WHEN F.DATA_SOURCE_NAME = 'Bureau of Economic Analysis - NIPA Monthly Report T2.4.5U' AND
-            TRIM(UPPER(F.DOMAIN_NAME)) = 'GOODS' AND
-            TRIM(UPPER(F.SUBDOMAIN_1_NAME)) = 'NONDURABLE GOODS' AND
-            TRIM(UPPER(F.SUBDOMAIN_2_NAME)) = 'CLOTHING AND FOOTWEAR' AND
-            TRIM(UPPER(F.SUBDOMAIN_3_NAME)) = 'TOTAL'
-            THEN F.METRIC_VALUE
-                WHEN F.DATA_SOURCE_NAME = 'Bureau of Economic Analysis - NIPA Monthly Report T2.4.5U' AND
-            TRIM(UPPER(F.DOMAIN_NAME)) = 'SERVICES' AND
-            TRIM(UPPER(F.SUBDOMAIN_1_NAME)) = 'HOUSEHOLD CONSUMPTION EXPENDITURES (FOR SERVICES)' AND
-            TRIM(UPPER(F.SUBDOMAIN_2_NAME)) = 'FOOD SERVICES AND ACCOMMODATIONS' AND
-            TRIM(UPPER(F.SUBDOMAIN_3_NAME)) = 'TOTAL'
-            THEN F.METRIC_VALUE
+            MT.METRIC_DISPLAY_NAME AS METRIC_NAME,
+            MT.METRIC_DISPLAY_SHORT_NAME,
+			MT.METRIC_UOM,
+            MT.DASH_VIZ_DISPLAY_NAME,  
+            CASE WHEN UPPER(MT.METRIC_VAL_IND_SEL) = 'I' 
+			     THEN F.METRIC_INDEX
+                 WHEN UPPER(MT.METRIC_VAL_IND_SEL) = 'V' 
+			     THEN F.METRIC_VALUE
             END AS METRIC_VALUE,
+            F.DATA_SOURCE_NAME
+        FROM ???.FACT_INDICATOR_DASHBOARD_V F
+             JOIN ???.DIM_DASH_VIZ_METRIC_XREF_V MT  ON 
+                  MT.SEMANTIC_VIEW_NAME             = 'F_IND_DASH_MACROECONOMICS_VIZ_V' AND
+                  F.METRIC_NAME                     = MT.METRIC_NAME AND 
+                  F.DATA_SOURCE_NAME                = MT.DATA_SOURCE_NAME  AND
+                  DECODE(F.SUBDOMAIN_1_NAME,'','?',' ','?',COALESCE(F.SUBDOMAIN_1_NAME,'?')) = DECODE(MT.SUBDOMAIN_1_NAME,'','?',' ','?',COALESCE(MT.SUBDOMAIN_1_NAME,'?')) AND
+                  DECODE(F.SUBDOMAIN_2_NAME,'','?',' ','?',COALESCE(F.SUBDOMAIN_2_NAME,'?')) = DECODE(MT.SUBDOMAIN_2_NAME,'','?',' ','?',COALESCE(MT.SUBDOMAIN_2_NAME,'?')) AND
+                  DECODE(F.SUBDOMAIN_3_NAME,'','?',' ','?',COALESCE(F.SUBDOMAIN_3_NAME,'?')) = DECODE(MT.SUBDOMAIN_3_NAME,'','?',' ','?',COALESCE(MT.SUBDOMAIN_3_NAME,'?'))
+             JOIN ???.DIM_GEO_LOCATION_V G ON 
+             F.GEO_KEY = G.UID
+             LEFT JOIN 
+			 (
+              SELECT    
+			  MAX(DATE_KEY) MAX_DT
+              FROM ???.FACT_INDICATOR_DASHBOARD_V F
+              WHERE DATA_SOURCE_NAME IN (SELECT DATA_SOURCE_NAME     
+			                             FROM ???.DIM_DASH_VIZ_METRIC_XREF_V 
+                                         WHERE SEMANTIC_VIEW_NAME = 'F_IND_DASH_MACROECONOMICS_VIZ_V'
+							   )
+             ) MAXDT ON 1=1
+            WHERE MONTH( F.DATE_KEY) = 1 AND  
+			      YEAR(F.DATE_KEY) = YEAR (MAX_DT) AND  
+				  UPPER(F.DATE_GRANULARITY) = 'MONTHLY'
+
+        UNION ALL
+        
+		SELECT 
+            T.DATE_KEY AS DATE_KEY,
+            CASE WHEN RANK() OVER (PARTITION BY T.METRIC_DISPLAY_NAME ORDER BY DATE_KEY DESC) = 1
+                 THEN 'CURR-CY'
+                 WHEN RANK() OVER (PARTITION BY T.METRIC_DISPLAY_NAME ORDER BY DATE_KEY DESC) = 2
+                 THEN 'PREV-CY'
+                 WHEN RANK() OVER (PARTITION BY T.METRIC_DISPLAY_NAME ORDER BY DATE_KEY DESC) = 13
+                 THEN 'CURR-LY'
+            END CURR_PREV_FLAG,
+            T.GEO_GRANULARITY,
+            T.COUNTY,
+            T.STATE_CODE,
+            T.STATE_NAME,
+            T.COUNTRY_NAME,
+            T.POPULATION,
+            T.METRIC_DISPLAY_NAME AS METRIC_NAME,
+            T.METRIC_DISPLAY_SHORT_NAME,
+			T.METRIC_UOM,
+			T.DASH_VIZ_DISPLAY_NAME,
+            T.METRIC_VALUE,
+            T.DATA_SOURCE_NAME
+        FROM
+           (
+            SELECT 
+			    DATE_KEY,
+                ADD_MONTHS(DATE_KEY - EXTRACT(DAY FROM DATE_KEY)+1,1)-1 AS MONTH_KEY,
+                UPPER(F.GEO_GRANULARITY) GEO_GRANULARITY,
+                G.COUNTY,
+                G.STATE_CODE,
+                G.STATE_NAME,
+                G.COUNTRY_NAME,
+                G.POPULATION,
+                MT.METRIC_DISPLAY_NAME,
+                MT.METRIC_DISPLAY_SHORT_NAME,
+				MT.METRIC_UOM,
+                MT.DASH_VIZ_DISPLAY_NAME,                
+                CASE WHEN UPPER(MT.METRIC_VAL_IND_SEL) = 'I' 
+				     THEN F.METRIC_INDEX
+                     WHEN UPPER(MT.METRIC_VAL_IND_SEL) = 'V' 
+					 THEN F.METRIC_VALUE
+                END AS METRIC_VALUE,
                 F.DATA_SOURCE_NAME
             FROM ???.FACT_INDICATOR_DASHBOARD_V F
-            JOIN ???.DIM_GEO_LOCATION_V G ON 
-            F.GEO_KEY = G.UID
-            LEFT JOIN (
-            SELECT   MAX(DATE_KEY) MAX_DT
-                FROM ???.FACT_INDICATOR_DASHBOARD_V F
-                WHERE F.DATA_SOURCE_NAME IN ('Bureau of Economic Analysis - NIPA Monthly Report T2.4.5U',
-                'Consumer Sentiment Index',
-                'BLS') 
-            ) MAXDT ON 1=1
-            WHERE MONTH( F.DATE_KEY) = 1
-                AND  YEAR(F.DATE_KEY) = YEAR (MAX_DT)
-                AND  
-            CASE
-                WHEN F.DATA_SOURCE_NAME = 'Bureau of Economic Analysis - NIPA Monthly Report T2.4.5U' AND
-            TRIM(UPPER(F.DOMAIN_NAME))      IN ('GOODS','SERVICES') AND
-            TRIM(UPPER(F.SUBDOMAIN_1_NAME)) IN ('NONDURABLE GOODS','HOUSEHOLD CONSUMPTION EXPENDITURES (FOR SERVICES)') AND
-            TRIM(UPPER(F.SUBDOMAIN_2_NAME)) IN ('CLOTHING AND FOOTWEAR','FOOD SERVICES AND ACCOMMODATIONS') AND
-            TRIM(UPPER(F.SUBDOMAIN_3_NAME)) = 'TOTAL'   
-            THEN 1
-                WHEN F.DATA_SOURCE_NAME IN ('Consumer Sentiment Index','BLS')
-            THEN 1
-            ELSE 0
-            END = 1
-             --GROUP BY 1,2,3,4,5,6,7,8,9,
-            UNION ALL
+             JOIN ???.DIM_DASH_VIZ_METRIC_XREF_V MT  ON 
+                  MT.SEMANTIC_VIEW_NAME             = 'F_IND_DASH_MACROECONOMICS_VIZ_V' AND
+                  F.METRIC_NAME                     = MT.METRIC_NAME AND 
+                  F.DATA_SOURCE_NAME                = MT.DATA_SOURCE_NAME  AND
+                  DECODE(F.SUBDOMAIN_1_NAME,'','?',' ','?',COALESCE(F.SUBDOMAIN_1_NAME,'?')) = DECODE(MT.SUBDOMAIN_1_NAME,'','?',' ','?',COALESCE(MT.SUBDOMAIN_1_NAME,'?')) AND
+                  DECODE(F.SUBDOMAIN_2_NAME,'','?',' ','?',COALESCE(F.SUBDOMAIN_2_NAME,'?')) = DECODE(MT.SUBDOMAIN_2_NAME,'','?',' ','?',COALESCE(MT.SUBDOMAIN_2_NAME,'?')) AND
+                  DECODE(F.SUBDOMAIN_3_NAME,'','?',' ','?',COALESCE(F.SUBDOMAIN_3_NAME,'?')) = DECODE(MT.SUBDOMAIN_3_NAME,'','?',' ','?',COALESCE(MT.SUBDOMAIN_3_NAME,'?'))
+             JOIN ???.DIM_GEO_LOCATION_V G ON 
+             F.GEO_KEY = G.UID
+             LEFT JOIN 
+			 (
+              SELECT    
+			  MAX(DATE_KEY) MAX_DT
+              FROM ???.FACT_INDICATOR_DASHBOARD_V F
+              WHERE DATA_SOURCE_NAME IN (SELECT DATA_SOURCE_NAME     
+			                             FROM ???.DIM_DASH_VIZ_METRIC_XREF_V 
+                                         WHERE SEMANTIC_VIEW_NAME = 'F_IND_DASH_MACROECONOMICS_VIZ_V'
+							            )
+             ) MAXDT ON 1=1
+            WHERE F.DATE_KEY BETWEEN ADD_MONTHS(MAX_DT,-20) AND ADD_MONTHS(MAX_DT,0) AND      -- US-EIA had -20 to -1 and not 0
+			      UPPER(F.DATE_GRANULARITY) = 'WEEKLY'
+            QUALIFY RANK() OVER (PARTITION BY METRIC_DISPLAY_NAME,MONTH_KEY ORDER BY DATE_KEY DESC) = 1
+           ) T
+        QUALIFY RANK() OVER (PARTITION BY T.METRIC_DISPLAY_NAME ORDER BY DATE_KEY DESC) IN (1,2,13)
+                                                                                                        
+        UNION ALL
+		
         SELECT 
             T.DATE_KEY AS DATE_KEY,
-            
-            CASE
-                WHEN RANK() OVER (PARTITION BY METRIC_NAME
-            ORDER BY T.DATE_KEY DESC) = 1
-            THEN 'CURR-CY'
-                WHEN RANK() OVER (PARTITION BY METRIC_NAME
-            ORDER BY T.DATE_KEY DESC) = 2
-            THEN 'PREV-CY'
-                WHEN RANK() OVER (PARTITION BY METRIC_NAME
-            ORDER BY T.DATE_KEY DESC) = 13
-            THEN 'CURR-LY'
-            END CURR_PREV_FLAG,
-                GEO_GRANULARITY,
-                COUNTY,
-                STATE_CODE,
-                STATE_NAME,
-                COUNTRY_NAME,
-                POPULATION,
-                METRIC_NAME,
-                METRIC_VALUE,
-                DATA_SOURCE_NAME
-            FROM
-            (
-            SELECT DATE_KEY,
-                ADD_MONTHS(DATE_KEY - EXTRACT(DAY
-                FROM DATE_KEY)+1,1)-1 AS MONTH_KEY,
-                    UPPER(F.GEO_GRANULARITY) GEO_GRANULARITY,
-                    G.COUNTY,
-                    G.STATE_CODE,
-                    G.STATE_NAME,
-                    G.COUNTRY_NAME,
-                    G.POPULATION,
-                    CONCAT(F.SUBDOMAIN_1_NAME,' - ',F.METRIC_NAME) AS METRIC_NAME,
-                    METRIC_VALUE,
-                    DATA_SOURCE_NAME
-                FROM ???.FACT_INDICATOR_DASHBOARD_V F
-                JOIN ???.DIM_GEO_LOCATION_V G ON 
-                F.GEO_KEY = G.UID
-                LEFT JOIN (
-                SELECT   MAX(DATE_KEY) MAX_DT
-                    FROM ???.FACT_INDICATOR_DASHBOARD_V F
-                    WHERE F.DATA_SOURCE_NAME IN ('US-EIA') 
-                ) MAXDT ON 1=1
-                WHERE F.DATE_KEY BETWEEN ADD_MONTHS(MAX_DT,-20) AND ADD_MONTHS(MAX_DT,0)
-                    AND  F.DATA_SOURCE_NAME = 'US-EIA' 
-                QUALIFY RANK() OVER (PARTITION BY METRIC_NAME,MONTH_KEY
-                ORDER BY DATE_KEY DESC) = 1
-            ) T
-            QUALIFY RANK() OVER (PARTITION BY METRIC_NAME
-            ORDER BY DATE_KEY DESC) IN (1,2,13)
-                                                        
-        UNION ALL
-        SELECT 
-            T2.DATE_KEY AS DATE_KEY,
-            CURR_PREV_FLAG,
-            GEO_GRANULARITY,
-            COUNTY,
-            STATE_CODE,
-            STATE_NAME,
-            COUNTRY_NAME,
-            POPULATION,
-            METRIC_NAME,
-            METRIC_VALUE,
-            DATA_SOURCE_NAME
-            FROM
-            (
-            SELECT DATE_KEY,
-                ADD_MONTHS(DATE_KEY - EXTRACT(DAY
-                FROM DATE_KEY)+1,1)-1 AS MONTH_KEY,
-                    'JAN-CY' AS CURR_PREV_FLAG,
-                    UPPER(F.GEO_GRANULARITY) GEO_GRANULARITY,
-                    G.COUNTY,
-                    G.STATE_CODE,
-                    G.STATE_NAME,
-                    G.COUNTRY_NAME,
-                    G.POPULATION,
-                    CONCAT(F.SUBDOMAIN_1_NAME,' - ',F.METRIC_NAME) AS METRIC_NAME,
-                    METRIC_VALUE,
-                    DATA_SOURCE_NAME
-                FROM ???.FACT_INDICATOR_DASHBOARD_V F
-                JOIN ???.DIM_GEO_LOCATION_V G ON 
-                F.GEO_KEY = G.UID
-                LEFT JOIN (
-                SELECT   MAX(DATE_KEY) MAX_DT
-                    FROM ???.FACT_INDICATOR_DASHBOARD_V F
-                    WHERE F.DATA_SOURCE_NAME IN ('US-EIA') 
-                ) MAXDT ON 1=1
-                WHERE MONTH( F.DATE_KEY) = 1
-                    AND  YEAR(DATE_KEY) = YEAR(MAX_DT)
-                    AND  F.DATA_SOURCE_NAME = 'US-EIA' 
-                QUALIFY RANK() OVER (PARTITION BY METRIC_NAME,MONTH_KEY
-                ORDER BY DATE_KEY DESC) = 1
-            ) T2				
-                                                        				
-        ) FT
-        JOIN (
-        SELECT   
-            MAX(DATE_KEY - EXTRACT(DAY
-            FROM DATE_KEY)) AS SNAPSHOT_DATE,
-                CONCAT('M',TRIM(MONTH(MAX(DATE_KEY - EXTRACT(DAY
-            FROM DATE_KEY)))),'-',TRIM(YEAR(MAX(DATE_KEY - EXTRACT(DAY
-            FROM DATE_KEY))))) AS SNAPSHOT_MONTH
+            T.CURR_PREV_FLAG,
+            T.GEO_GRANULARITY,
+            T.COUNTY,
+            T.STATE_CODE,
+            T.STATE_NAME,
+            T.COUNTRY_NAME,
+            T.POPULATION,
+            T.METRIC_DISPLAY_NAME AS METRIC_NAME,
+            T.METRIC_DISPLAY_SHORT_NAME,
+			T.METRIC_UOM,
+			T.DASH_VIZ_DISPLAY_NAME,
+            T.METRIC_VALUE,
+            T.DATA_SOURCE_NAME
+        FROM
+           (
+            SELECT 
+			    DATE_KEY,
+                ADD_MONTHS(DATE_KEY - EXTRACT(DAY FROM DATE_KEY)+1,1)-1 AS MONTH_KEY,
+                'JAN-CY' AS CURR_PREV_FLAG,
+                UPPER(F.GEO_GRANULARITY) GEO_GRANULARITY,
+                G.COUNTY,
+                G.STATE_CODE,
+                G.STATE_NAME,
+                G.COUNTRY_NAME,
+                G.POPULATION,
+                MT.METRIC_DISPLAY_NAME,
+                MT.METRIC_DISPLAY_SHORT_NAME,
+			    MT.METRIC_UOM,
+                MT.DASH_VIZ_DISPLAY_NAME,  
+                CASE WHEN UPPER(MT.METRIC_VAL_IND_SEL) = 'I' 
+			         THEN F.METRIC_INDEX
+                     WHEN UPPER(MT.METRIC_VAL_IND_SEL) = 'V' 
+			         THEN F.METRIC_VALUE
+                END AS METRIC_VALUE,
+                F.DATA_SOURCE_NAME
             FROM ???.FACT_INDICATOR_DASHBOARD_V F
-            WHERE F.DATA_SOURCE_NAME IN ('Consumer Sentiment Index',
-            'BLS','US-EIA',
-            'Bureau of Economic Analysis - NIPA Monthly Report T2.4.5U')
+             JOIN ???.DIM_DASH_VIZ_METRIC_XREF_V MT  ON 
+                  MT.SEMANTIC_VIEW_NAME             = 'F_IND_DASH_MACROECONOMICS_VIZ_V' AND
+                  F.METRIC_NAME                     = MT.METRIC_NAME AND 
+                  F.DATA_SOURCE_NAME                = MT.DATA_SOURCE_NAME  AND
+                  DECODE(F.SUBDOMAIN_1_NAME,'','?',' ','?',COALESCE(F.SUBDOMAIN_1_NAME,'?')) = DECODE(MT.SUBDOMAIN_1_NAME,'','?',' ','?',COALESCE(MT.SUBDOMAIN_1_NAME,'?')) AND
+                  DECODE(F.SUBDOMAIN_2_NAME,'','?',' ','?',COALESCE(F.SUBDOMAIN_2_NAME,'?')) = DECODE(MT.SUBDOMAIN_2_NAME,'','?',' ','?',COALESCE(MT.SUBDOMAIN_2_NAME,'?')) AND
+                  DECODE(F.SUBDOMAIN_3_NAME,'','?',' ','?',COALESCE(F.SUBDOMAIN_3_NAME,'?')) = DECODE(MT.SUBDOMAIN_3_NAME,'','?',' ','?',COALESCE(MT.SUBDOMAIN_3_NAME,'?'))
+             JOIN ???.DIM_GEO_LOCATION_V G ON 
+             F.GEO_KEY = G.UID
+             LEFT JOIN 
+			 (
+              SELECT    
+			  MAX(DATE_KEY) MAX_DT
+              FROM ???.FACT_INDICATOR_DASHBOARD_V F
+              WHERE DATA_SOURCE_NAME IN (SELECT DATA_SOURCE_NAME     
+			                             FROM ???.DIM_DASH_VIZ_METRIC_XREF_V 
+                                         WHERE SEMANTIC_VIEW_NAME = 'F_IND_DASH_MACROECONOMICS_VIZ_V'
+							            )
+             ) MAXDT ON 1=1
+            WHERE MONTH(F.DATE_KEY) = 1 AND  
+			      YEAR(DATE_KEY) = YEAR(MAX_DT) AND  
+				  UPPER(F.DATE_GRANULARITY) = 'WEEKLY'
+            QUALIFY RANK() OVER (PARTITION BY MT.METRIC_DISPLAY_NAME, MONTH_KEY ORDER BY DATE_KEY DESC) = 1
+           ) T				
+                                                                                                        				
+        ) FT
+        JOIN 
+	    (
+         SELECT   
+            MAX(DATE_KEY - EXTRACT(DAY FROM DATE_KEY)) AS SNAPSHOT_DATE,
+            CONCAT('M',TRIM(MONTH(MAX(DATE_KEY - EXTRACT(DAY FROM DATE_KEY)))),'-',TRIM(YEAR(MAX(DATE_KEY - EXTRACT(DAY FROM DATE_KEY))))) AS SNAPSHOT_MONTH
+         FROM ???.FACT_INDICATOR_DASHBOARD_V F                    
+         WHERE DATA_SOURCE_NAME IN (SELECT DATA_SOURCE_NAME     
+			                        FROM ???.DIM_DASH_VIZ_METRIC_XREF_V 
+                                    WHERE SEMANTIC_VIEW_NAME = 'F_IND_DASH_MACROECONOMICS_VIZ_V'
+								   )
         ) DT ON 
-        1=1;
+       1=1;
 
 
 REPLACE VIEW ???.F_IND_DASH_NYT_COVID19_GEO_7MAVG_WEEKLY_SNPSHT_V AS
