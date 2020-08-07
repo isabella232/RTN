@@ -45,7 +45,20 @@ This application consists of the following components:
 # Tableau Dashboard Refresh:
   * Tableau requires refresh process after initial load for each of the 11 data sources
   * Right mouse on the data source and select Extract -> Refresh
-  * You will be prompted to log into the database in order to refresh the data source 
+  * You will be prompted to log into the database in order to refresh the data source
+
+  OR
+
+  * Download the dashboard file onto your desktop target Tableau Directory
+  * Right click and select "Unpackage"
+  * On the created Resiliency Dashboard vx.xx.twb file, right click and open with WordPad to see the XML definition
+  * Modify by "Select" and "Replace" the following Connection Information:
+	- 'tdprd2.td.teradata.com' to your Host/Sever Name
+	- 'auth-ldap' to 'auth-teradata' if other than LDAP
+	- 'ADLDEMO_COVID19' to your schema name
+	- 'CH186039' to your User Name
+  * Save and Open the Dashboard
+  * Refresh all data sources and check all tabs
 
 # Audit Process/Validation:
   * Post every run, an email is generated with all the daily load statitics and tables/processes requiring attention
