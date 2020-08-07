@@ -133,7 +133,7 @@ print("FACT_Covid_Model_Data Finished!")
 
 # DIM_DASH_VIZ_METRIC_XREF(Will load if there is no records for the first time)
 url = 'https://raw.githubusercontent.com/golestm/RTN/master/data/DIM_DASH_VIZ_METRIC_XREF.txt'
-df = pd.read_csv(url,sep="|", doublequote=True,  encoding='latin-1')
+df = pd.read_csv(url,sep="|", doublequote=True,  encoding='latin-1', dtype = {'DASHBOARD_VERSION':str})
 copy_to_sql(df = df, table_name = "TEMP_DIM_DASH_VIZ_METRIC_XREF", schema_name=params.SchemaName, if_exists = 'replace')
 pd.read_sql('INSERT INTO DIM_DASH_VIZ_METRIC_XREF SELECT * FROM TEMP_DIM_DASH_VIZ_METRIC_XREF WHERE NOT EXISTS (SELECT 1 FROM DIM_DASH_VIZ_METRIC_XREF);',con)
 print("DIM_DASH_VIZ_METRIC_XREF!")
