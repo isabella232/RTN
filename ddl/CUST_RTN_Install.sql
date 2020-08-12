@@ -4849,7 +4849,7 @@ BEGIN
 DECLARE v_CoreTable VARCHAR(100) DEFAULT 'FACT_Covid_Model_Data';
 DECLARE v_RecordsAffected INTEGER DEFAULT 0;
 DECLARE v_ProcName VARCHAR(100) DEFAULT 'ETL_COVID_MODEL_CORE';
-DECLARE v_Date_Key_Val VARCHAR(30);
+DECLARE v_Date_Key_Val DATE;
 DECLARE v_Message VARCHAR(200);
 
 /* Exception Handling when when SQL Exception occurs */
