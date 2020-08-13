@@ -1,2 +1,0 @@
-STG_Google_Mobility.txt filter=lfs diff=lfs merge=lfs -text
-STG_COVID19_Datahub_LVL3.txt filter=lfs diff=lfs merge=lfs -text
