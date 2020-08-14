@@ -4,250 +4,250 @@ Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "May-2019"|"1338"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Apr-2020"|"1066"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Jan-2020"|"1536"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Aug-2020"|"NA"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Nov-2018"|"1319"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Jun-2020"|"1258"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Sep-2019"|"1437"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Oct-2020"|"NA"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Jan-2018"|"1365"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Feb-2018"|"1332"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Apr-2018"|"1387"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Nov-2019"|"1510"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Jun-2018"|"1317"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Dec-2020"|"NA"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Aug-2018"|"1258"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Dec-2019"|"1457"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Jun-2019"|"1273"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Jul-2020"|"NA"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "May-2018"|"1330"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Mar-2020"|"1356"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "May-2020"|"1216"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Feb-2020"|"1438"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Jul-2019"|"1366"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Apr-2019"|"1330"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Mar-2018"|"1415"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Sep-2020"|"NA"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Feb-2019"|"1305"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Sep-2018"|"1290"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Jan-2019"|"1316"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Nov-2020"|"NA"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Jul-2018"|"1331"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Aug-2019"|"1471"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Oct-2019"|"1503"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Dec-2018"|"1334"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
 "Mar-2019"|"1327"|"Housing Starts in 1000s"|"U.S. Census Bureau
 Source: New Residential Construction
 Annual Rate for Housing Units Authorized in Permit-Issuing Places: United States
 Seasonally Adjusted Total Units [Thousands of Units]
 Period: 2018 to 2020
-Data Extracted on: August 13, 2020 (1:59 pm)
-"|"2020-08-13 16:03:40.993700"
+Data Extracted on: August 14, 2020 (2:40 pm)
+"|"2020-08-14 11:40:49.660235"
