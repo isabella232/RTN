@@ -376,7 +376,7 @@ print("Census Data Finished!  " + timestampStr)
 from urllib.parse import quote_plus
 import datetime
 url = 'http://www.sca.isr.umich.edu/files/tbcics.csv'
-res = requests.get(url, proxies=params.proxies)
+res = requests.get(url)
 df = pd.read_csv(BytesIO(res.content),skiprows=[0,1,2,3],dtype = {'Unnamed: 1':str})
 df = df[['Unnamed: 0','Unnamed: 1','Unnamed: 4']]
 df = df.dropna()
