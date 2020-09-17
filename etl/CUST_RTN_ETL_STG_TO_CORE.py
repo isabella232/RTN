@@ -41,6 +41,7 @@ from datetime import datetime, timedelta
 from datetime import datetime
 from teradataml.context.context import *
 import ssl
+import teradatasql
 ssl._create_default_https_context = ssl._create_unverified_context
 import params
 con = teradatasql.connect(host=params.MyHost, user=params.MyUser, password=params.Password,logmech=params.LogMech,tmode='TERA')
