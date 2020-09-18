@@ -104,7 +104,7 @@ for i in cleaned_list:
     url = 'https://ihmecovid19storage.blob.core.windows.net/latest/ihme-covid19.zip'
     z = urlopen(url)
     myzip = ZipFile(BytesIO(z.read())).extract(i)
-    df = pd.read_csv(myzip)
+    df = pd.read_csv(myzip, dtype='unicode')
     p = Path(i)
     df['Path_Update_Dt'] = p.parts[0]
     df['current_dttm'] = datetime.datetime.today()
