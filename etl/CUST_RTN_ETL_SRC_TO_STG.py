@@ -11,17 +11,6 @@
 #############################################################
 # Libraries
 #############################################################
-#pip install ipython
-#pip install --upgrade covid19dh
-#pip install numpy --upgrade
-#pip install requests
-#pip3 install tabulate
-#pip install xlrd
-#pip3 install requests-html
-#pip install html5lib
-#pip install teradataml
-#pip install pytrends
-
 from IPython import get_ipython
 from covid19dh import covid19
 import pytz
@@ -79,7 +68,7 @@ from datetime import datetime
 import datetime
 
 url = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv'
-df = pd.read_csv(url)
+df = pd.read_csv(url, dtype='unicode')
 df['current_dttm'] = datetime.datetime.today()
 df = df.rename(columns={'date': 'date_key'})
 
