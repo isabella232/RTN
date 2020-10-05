@@ -148,6 +148,10 @@ iot['current_dttm'] = datetime.datetime.today()
 iot['Keyword_List'] =a
 iot['Cat_CD']=cat
 iot['Type'] ='Interest over time'
+
+iot['isPartial'] = iot['isPartial'].str.replace('True','1')
+iot['isPartial'] = iot['isPartial'].str.replace('False','0')
+
 copy_to_sql(df = iot, table_name = "STG_Google_Search_IOT", schema_name=params.SchemaName, index=True, if_exists="replace") 
 
 a=''
@@ -162,6 +166,10 @@ iot['current_dttm'] = datetime.datetime.today()
 iot['Keyword_List'] =a
 iot['Cat_CD']=cat
 iot['Type'] ='Interest over time'
+
+iot['isPartial'] = iot['isPartial'].str.replace('True','1')
+iot['isPartial'] = iot['isPartial'].str.replace('False','0')
+
 copy_to_sql(df = iot, table_name = "STG_Google_Search_IOT", schema_name=params.SchemaName, index=True, if_exists="append") 
 
 a=''
@@ -176,6 +184,10 @@ iot['current_dttm'] = datetime.datetime.today()
 iot['Keyword_List'] =a
 iot['Cat_CD']=cat
 iot['Type'] ='Interest over time'
+
+iot['isPartial'] = iot['isPartial'].str.replace('True','1')
+iot['isPartial'] = iot['isPartial'].str.replace('False','0')
+
 copy_to_sql(df = iot, table_name = "STG_Google_Search_IOT", schema_name=params.SchemaName, index=True, if_exists="append") 
 
 
@@ -361,7 +373,7 @@ print("Census Data Finished!  " + timestampStr)
 
 
 #############################################################
-# 11) Consumer Sentiment Index
+# 12) Consumer Sentiment Index
 #############################################################
 
 from urllib.parse import quote_plus
@@ -381,6 +393,34 @@ datetime.utcnow()
 dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
 timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
 print("Consumer Sentiment Index!  " + timestampStr)
+
+
+#############################################################
+# 13) Estimated Hospitalization
+#############################################################
+import datetime
+url = 'https://healthdata.gov/node/3281096/download'
+df = pd.read_csv(url, dtype='unicode')
+df['current_dttm'] = datetime.datetime.today()
+copy_to_sql(df = df, table_name = "STG_Estimated_Inpatient_All", schema_name=params.SchemaName, if_exists = 'replace')
+
+url = 'https://healthdata.gov/node/3281101/download'
+df = pd.read_csv(url, dtype='unicode')
+df['current_dttm'] = datetime.datetime.today()
+copy_to_sql(df = df, table_name = "STG_Estimated_Inpatient_Covid", schema_name=params.SchemaName, if_exists = 'replace')
+
+url = 'https://healthdata.gov/node/3281106/download'
+df = pd.read_csv(url, dtype='unicode')
+df['current_dttm'] = datetime.datetime.today()
+copy_to_sql(df = df, table_name = "STG_Estimated_Icu", schema_name=params.SchemaName, if_exists = 'replace')
+
+
+
+from datetime import datetime
+datetime.utcnow()
+dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
+timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
+print("Estimated Hospitalization!  " + timestampStr)
 
 
 #############################################################
@@ -414,6 +454,12 @@ UNION \
 SELECT 'Python' as Process_Name, 'Staging' as Table_Type, 'STG_Fuel_Production' as TableName, count(*) as Records_Processed, max(current_dttm) as Process_Dttm FROM STG_Fuel_Production GROUP BY 1,2,3 \
 UNION \
 SELECT 'Python' as Process_Name, 'Staging' as Table_Type, 'STG_TSA_TRAVEL' as TableName, count(*) as Records_Processed, max(current_dttm) as Process_Dttm FROM STG_TSA_TRAVEL GROUP BY 1,2,3 \
+UNION \
+SELECT 'Python' as Process_Name, 'Staging' as Table_Type, 'STG_Estimated_Inpatient_All' as TableName, count(*) as Records_Processed, max(current_dttm) as Process_Dttm FROM STG_TSA_TRAVEL GROUP BY 1,2,3 \
+UNION \
+SELECT 'Python' as Process_Name, 'Staging' as Table_Type, 'STG_Estimated_Inpatient_Covid' as TableName, count(*) as Records_Processed, max(current_dttm) as Process_Dttm FROM STG_Estimated_Inpatient_Covid GROUP BY 1,2,3 \
+UNION \
+SELECT 'Python' as Process_Name, 'Staging' as Table_Type, 'STG_Estimated_Icu' as TableName, count(*) as Records_Processed, max(current_dttm) as Process_Dttm FROM STG_Estimated_Icu GROUP BY 1,2,3 \
 UNION \
 SELECT 'Python' as Process_Name, 'Staging' as Table_Type, 'STG_Consumer_Sentiment_Index' as TableName, count(*) as Records_Processed, max(current_dttm) as Process_Dttm FROM STG_Consumer_Sentiment_Index GROUP BY 1,2,3;"
 
