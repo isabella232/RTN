@@ -149,8 +149,8 @@ iot['Keyword_List'] =a
 iot['Cat_CD']=cat
 iot['Type'] ='Interest over time'
 
-iot['isPartial'] = iot['isPartial'].str.replace('True','1')
-iot['isPartial'] = iot['isPartial'].str.replace('False','0')
+iot['isPartial'] = iot['isPartial'].astype(str).str.replace('True','1')
+iot['isPartial'] = iot['isPartial'].astype(str).str.replace('False','0')
 
 copy_to_sql(df = iot, table_name = "STG_Google_Search_IOT", schema_name=params.SchemaName, index=True, if_exists="replace") 
 
@@ -167,8 +167,8 @@ iot['Keyword_List'] =a
 iot['Cat_CD']=cat
 iot['Type'] ='Interest over time'
 
-iot['isPartial'] = iot['isPartial'].str.replace('True','1')
-iot['isPartial'] = iot['isPartial'].str.replace('False','0')
+iot['isPartial'] = iot['isPartial'].astype(str).str.replace('True','1')
+iot['isPartial'] = iot['isPartial'].astype(str).str.replace('False','0')
 
 copy_to_sql(df = iot, table_name = "STG_Google_Search_IOT", schema_name=params.SchemaName, index=True, if_exists="append") 
 
@@ -185,8 +185,8 @@ iot['Keyword_List'] =a
 iot['Cat_CD']=cat
 iot['Type'] ='Interest over time'
 
-iot['isPartial'] = iot['isPartial'].str.replace('True','1')
-iot['isPartial'] = iot['isPartial'].str.replace('False','0')
+iot['isPartial'] = iot['isPartial'].astype(str).str.replace('True','1')
+iot['isPartial'] = iot['isPartial'].astype(str).str.replace('False','0')
 
 copy_to_sql(df = iot, table_name = "STG_Google_Search_IOT", schema_name=params.SchemaName, index=True, if_exists="append") 
 
