@@ -5054,6 +5054,7 @@ Date           	Ver#		Modified By(Name)       	Version Comments
 07/25/2020		3.0			Teradata DW					Modified the STG_Summary_stats_all_locs to not be based on path date
 07/29/2020		4.0			Teradata DW					Modified the State join to be US only
 10/02/2020		5.0			Teradata DW					Added the new source of hospitalization data
+10/07/2020		6.0			Teradata DW					The source data column naming changed casuing the proc to break
 */
 /*****************************************************************************************************/
 SQL SECURITY INVOKER
@@ -5681,13 +5682,13 @@ SET v_RecordsAffected = v_RecordsAffected + ACTIVITY_COUNT;
 INSERT INTO ???.F_IND_DASH_EST_HOSP_ICU
 SELECT "state",
     "collection_date",
-    "ICU Beds Occupied Estimated",
+    "Staffed Adult ICU Beds Occupied Estimated",
     "Count LL",
     "Count UL",
-    "Percentage of ICU Beds Occupied Estimated",
+    "Percentage of Staffed Adult ICU Beds Occupied Estimated",
     "Percentage LL",
     "Percentage UL",
-    "Total ICU Beds",
+    "Total Staffed Adult ICU Beds",
     "Total LL",
     "Total UL",
     CURRENT_TIMESTAMP(0)
