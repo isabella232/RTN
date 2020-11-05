@@ -109,9 +109,9 @@ for i in cleaned_list:
     df['Path_Update_Dt'] = p.parts[0]
     df['current_dttm'] = datetime.datetime.today()
     
-    if 'Reference_hospitalization_all_locs' in i:
+    if 'Reference_hospitalization_all_locs' in i.lower():
         copy_to_sql(df = df, table_name = 'STG_Hospitalization_all_locs', schema_name=params.SchemaName, index=False, if_exists="replace")
-    if 'Summary_stats_all_locs' in i:
+    if 'Summary_stats_all_locs' in i.lower():
         copy_to_sql(df = df, table_name = 'STG_Summary_stats_all_locs', schema_name=params.SchemaName, index=False, if_exists="replace")
 
         
