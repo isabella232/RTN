@@ -278,7 +278,7 @@ df1.loc[:,'footnotes']="Unemployment Level"
 df1.loc[:,'series_id']="LNS13000000"
 df1['current_dttm'] = datetime.datetime.today()
 df1.rename(columns={'year': 'Year_Key', 'periodName': 'Period_Month', 'value': 'Metric_Val', 'period': 'Period_Key'}, inplace=True)
-del df1["calculations"]
+#del df1["calculations"]
 copy_to_sql(df = df1, table_name = "STG_Labor_Stats_LNS13000000", schema_name = params.SchemaName, index=False, if_exists="replace")
 
 df2 = pd.DataFrame(json_data['Results']['series'][2]['data'])
