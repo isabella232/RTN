@@ -269,7 +269,7 @@ df0.loc[:,'footnotes']="Consumer Price Index"
 df0.loc[:,'series_id']="CUSR0000SA0"
 df0['current_dttm'] = datetime.datetime.today()
 df0.rename(columns={'year': 'Year_Key', 'periodName': 'Period_Month', 'value': 'Metric_Val', 'period': 'Period_Key'}, inplace=True)
-del df0["calculations"]
+#del df0["calculations"]
 copy_to_sql(df = df0, table_name = "STG_Labor_Stats_CUSR0000SA0", schema_name = params.SchemaName, index=False, if_exists="replace")
 
 df1 = pd.DataFrame(json_data['Results']['series'][1]['data'])
