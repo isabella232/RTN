@@ -287,7 +287,7 @@ df2.loc[:,'footnotes']="Unemployment Rate"
 df2.loc[:,'series_id']="LNS14000000"
 df2['current_dttm'] = datetime.datetime.today()
 df2.rename(columns={'year': 'Year_Key', 'periodName': 'Period_Month', 'value': 'Metric_Val', 'period': 'Period_Key'}, inplace=True)
-del df2["calculations"]
+#del df2["calculations"]
 copy_to_sql(df = df2, table_name = "STG_Labor_Stats_LNS14000000", schema_name = params.SchemaName, index=False, if_exists="replace")
 
 from datetime import datetime
