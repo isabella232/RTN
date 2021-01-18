@@ -343,7 +343,8 @@ df = pd.read_html(str(stat_table),header=0)[0]
 
 df.columns = ('Travel_Date',
               'TravelThroughPut', 
-              'TravelThroughPutLastYear')
+              'TravelThroughPutLastYear',
+	      'TravelThroughPut2019')
 
 df['current_dttm'] = datetime.datetime.today()
         
