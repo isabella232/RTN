@@ -56,7 +56,7 @@ This application consists of the following components:
 	- 'tdprd2.td.teradata.com' to your Host/Sever Name
 	- 'auth-ldap' to 'auth-teradata' if other than LDAP
 	- 'ADLDEMO_COVID19' to your schema name
-	- 'CH186039' to your User Name
+	- 'AS186097' to your User Name
   * Save and Open the Dashboard
   * Refresh all data sources and check all tabs
 
