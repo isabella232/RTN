@@ -1423,7 +1423,7 @@ REPLACE VIEW ???.DIM_GEO_LOCATION_V AS
         null Population
 FROM ???.DIM_GEO_LOCATION_T a
         join 
-???.DIM_ZIPCODE_COUNTY_MSA_LKUP_V b
+???.DIM_ZIPCODE_COUNTY_MSA_LKUP b
 on a.fips = b.county_fips
 and a.geo_granularity = 'county';
 
