@@ -411,29 +411,54 @@ print("Consumer Sentiment Index!  " + timestampStr)
 #############################################################
 # 13) Estimated Hospitalization
 #############################################################
+import json
+import requests
 import datetime
-url = 'https://healthdata.gov/node/3281096/download'
+
+url = 'https://healthdata.gov/resource/jjp9-htie.csv?$limit=10000'
 df = pd.read_csv(url, dtype='unicode')
+df.reset_index(drop=True, inplace=True)
 df['current_dttm'] = datetime.datetime.today()
-copy_to_sql(df = df, table_name = "STG_Estimated_Inpatient_All", schema_name=params.SchemaName, if_exists = 'replace')
+df = df.drop(['geocoded_state'], axis = 1)
+df['collection_date'] = pd.to_datetime(df['collection_date']).dt.date
+df.rename(columns={'inpatient_beds_occupied': 'Inpatient Beds Occupied Estimated', 'count_ll': 'Count LL', 'count_ul': 'Count UL'
+,'percentage_of_inpatient_beds': 'Percentage of Inpatient Beds Occupied Estimated', 'percentage_ll': 'Percentage LL', 'percentage_ul': 'Percentage UL'
+,'total_inpatient_beds': 'Total Inpatient Beds', 'total_ll': 'Total LL', 'total_ul': 'Total UL'
+}, inplace=True)
+copy_to_sql(df = df, table_name = "STG_Estimated_Inpatient_All", schema_name='ADLDEMO_COVID19', if_exists = 'replace')
 
-url = 'https://healthdata.gov/node/3281101/download'
+url = 'https://healthdata.gov/resource/py8k-j5rq.csv?$limit=10000'
 df = pd.read_csv(url, dtype='unicode')
+df.reset_index(drop=True, inplace=True)
 df['current_dttm'] = datetime.datetime.today()
-copy_to_sql(df = df, table_name = "STG_Estimated_Inpatient_Covid", schema_name=params.SchemaName, if_exists = 'replace')
+df['collection_date'] = pd.to_datetime(df['collection_date']).dt.date
+df = df.drop(['geocoded_state'], axis = 1)
+df.rename(columns={'inpatient_beds_occupied_by': 'Inpatient Beds Occupied by COVID-19 Patients Estimated', 'count_ll': 'Count LL', 'count_ul': 'Count UL'
+,'percentage_of_inpatient_beds': 'Percentage of Inpatient Beds Occupied by COVID-19 Patients Estimated', 'percentage_ll': 'Percentage LL', 'percentage_ul': 'Percentage UL'
+,'total_inpatient_beds': 'Total Inpatient Beds', 'total_ll': 'Total LL', 'total_ul': 'Total UL'
+}, inplace=True)
+copy_to_sql(df = df, table_name = "STG_Estimated_Inpatient_Covid", schema_name='ADLDEMO_COVID19', if_exists = 'replace')
 
-url = 'https://healthdata.gov/node/3281106/download'
+
+
+url = 'https://healthdata.gov/resource/7ctx-gtb7.csv?$limit=10000'
 df = pd.read_csv(url, dtype='unicode')
+df.reset_index(drop=True, inplace=True)
 df['current_dttm'] = datetime.datetime.today()
-copy_to_sql(df = df, table_name = "STG_Estimated_Icu", schema_name=params.SchemaName, if_exists = 'replace')
-
-
+df['collection_date'] = pd.to_datetime(df['collection_date']).dt.date
+df = df.drop(['geocoded_state'], axis = 1)
+df.rename(columns={'staffed_adult_icu_beds_occupied_est': 'Staffed Adult ICU Beds Occupied Estimated', 'count_ll': 'Count LL', 'count_ul': 'Count UL'
+,'percentage_of_staffed_adult_icu_beds_occupied_est': 'Percentage of Staffed Adult ICU Beds Occupied Estimated', 'percentage_ll': 'Percentage LL', 'percentage_ul': 'Percentage UL'
+,'total_staffed_adult_icu_beds': 'Total Staffed Adult ICU Beds', 'total_ll': 'Total LL', 'total_ul': 'Total UL'
+}, inplace=True)
+copy_to_sql(df = df, table_name = "STG_Estimated_Icu", schema_name='ADLDEMO_COVID19', if_exists = 'replace')
 
 from datetime import datetime
 datetime.utcnow()
 dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
 timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
 print("Estimated Hospitalization!  " + timestampStr)
+
 
 
 #############################################################
