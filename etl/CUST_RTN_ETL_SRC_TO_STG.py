@@ -221,7 +221,7 @@ print("Google Mobility Finished!  " + timestampStr)
 #############################################################
 import datetime
 
-df = covid19("USA", level = 3, start = date(2020,1,1), verbose = False)
+df, src= covid19("USA", level = 3, start = date(2020,1,1), verbose = False)
 df['current_dttm'] = datetime.datetime.today()
 df = df.rename(columns={'date': 'date_key'})
 
@@ -238,7 +238,7 @@ print("COVID Datahub Level 3 Finished!  " + timestampStr)
 #############################################################
 import datetime
 
-df = covid19("USA", level = 2, start = date(2020,1,1), verbose = False)
+df, src = covid19("USA", level = 2, start = date(2020,1,1), verbose = False)
 df['current_dttm'] = datetime.datetime.today()
 df = df.rename(columns={'date': 'date_key'})
 
@@ -259,7 +259,7 @@ import requests
 import datetime
 #data = json.dumps({"seriesid": ['CUSR0000SA0','SUUR0000SA0'],"startyear":"2019", "endyear":"2020"})
 headers = {'Content-type': 'application/json'}
-data = json.dumps({"seriesid": ['CUSR0000SA0','LNS13000000','LNS14000000'],"startyear":"2018", "endyear":"2020"})
+data = json.dumps({"seriesid": ['CUSR0000SA0','LNS13000000','LNS14000000'],"startyear":"2018", "endyear":"2021"})
 p = requests.post('https://api.bls.gov/publicAPI/v2/timeseries/data/', data=data, headers=headers)
 json_data = json.loads(p.text)
 
@@ -362,7 +362,7 @@ print("TSA Travel Finished!  " + timestampStr)
 #############################################################
 
 import datetime
-url = 'https://www.census.gov/econ/currentdata/export/csv?programCode=RESCONST&timeSlotType=12&startYear=2018&endYear=2020&categoryCode=APERMITS&dataTypeCode=TOTAL&geoLevelCode=US&adjusted=yes&errorData=no&internal=false'
+url = 'https://www.census.gov/econ/currentdata/export/csv?programCode=RESCONST&timeSlotType=12&startYear=2018&endYear=2021&categoryCode=APERMITS&dataTypeCode=TOTAL&geoLevelCode=US&adjusted=yes&errorData=no&internal=false'
 hd = pd.read_csv(url, sep='~',  header=None, nrows=6, keep_default_na=False)
 desc=''
 for (idx, row) in hd.iterrows():
