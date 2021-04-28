@@ -221,7 +221,7 @@ print("Google Mobility Finished!  " + timestampStr)
 #############################################################
 import datetime
 
-df, src= covid19("USA", level = 3, start = date(2020,1,1), verbose = False)
+df, src = covid19("USA", level = 3, start = date(2020,1,1), verbose = False)
 df['current_dttm'] = datetime.datetime.today()
 df = df.rename(columns={'date': 'date_key'})
 
