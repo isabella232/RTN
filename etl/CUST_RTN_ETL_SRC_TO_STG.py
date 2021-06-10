@@ -425,7 +425,7 @@ df.rename(columns={'inpatient_beds_occupied': 'Inpatient Beds Occupied Estimated
 ,'percentage_of_inpatient_beds': 'Percentage of Inpatient Beds Occupied Estimated', 'percentage_ll': 'Percentage LL', 'percentage_ul': 'Percentage UL'
 ,'total_inpatient_beds': 'Total Inpatient Beds', 'total_ll': 'Total LL', 'total_ul': 'Total UL'
 }, inplace=True)
-copy_to_sql(df = df, table_name = "STG_Estimated_Inpatient_All", schema_name='ADLDEMO_COVID19', if_exists = 'replace')
+copy_to_sql(df = df, table_name = "STG_Estimated_Inpatient_All", schema_name=params.SchemaName, if_exists = 'replace')
 
 url = 'https://healthdata.gov/resource/py8k-j5rq.csv?$limit=10000'
 df = pd.read_csv(url, dtype='unicode')
@@ -437,7 +437,7 @@ df.rename(columns={'inpatient_beds_occupied_by': 'Inpatient Beds Occupied by COV
 ,'percentage_of_inpatient_beds': 'Percentage of Inpatient Beds Occupied by COVID-19 Patients Estimated', 'percentage_ll': 'Percentage LL', 'percentage_ul': 'Percentage UL'
 ,'total_inpatient_beds': 'Total Inpatient Beds', 'total_ll': 'Total LL', 'total_ul': 'Total UL'
 }, inplace=True)
-copy_to_sql(df = df, table_name = "STG_Estimated_Inpatient_Covid", schema_name='ADLDEMO_COVID19', if_exists = 'replace')
+copy_to_sql(df = df, table_name = "STG_Estimated_Inpatient_Covid", schema_name=params.SchemaName, if_exists = 'replace')
 
 
 
@@ -451,13 +451,23 @@ df.rename(columns={'staffed_adult_icu_beds_occupied_est': 'Staffed Adult ICU Bed
 ,'percentage_of_staffed_adult_icu_beds_occupied_est': 'Percentage of Staffed Adult ICU Beds Occupied Estimated', 'percentage_ll': 'Percentage LL', 'percentage_ul': 'Percentage UL'
 ,'total_staffed_adult_icu_beds': 'Total Staffed Adult ICU Beds', 'total_ll': 'Total LL', 'total_ul': 'Total UL'
 }, inplace=True)
-copy_to_sql(df = df, table_name = "STG_Estimated_Icu", schema_name='ADLDEMO_COVID19', if_exists = 'replace')
+copy_to_sql(df = df, table_name = "STG_Estimated_Icu", schema_name=params.SchemaName, if_exists = 'replace')
 
 from datetime import datetime
 datetime.utcnow()
 dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
 timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
 print("Estimated Hospitalization!  " + timestampStr)
+
+#############################################################
+#14) Loading time series data for Vaccinations
+#############################################################
+
+url = 'https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/vaccinations/us_state_vaccinations.csv'
+df = pd.read_csv(url)
+copy_to_sql(df, table_name="US_STATE_VAC", schema_name=params.SchemaName  ,if_exists="replace")
+
+vantage.execute ("UPDATE "+params.SchemaName+".US_STATE_VAC SET location = 'New York' WHERE location = 'New York State';")
 
 
 
