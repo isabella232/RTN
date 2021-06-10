@@ -43,23 +43,6 @@ import params
 vantage  = create_context(host=params.MyHost, username=params.MyUser, password=params.Password,temp_database_name=params.SchemaName,logmech=params.LogMech)
 
 
-
-#############################################################
-#Loading time series data for Vaccinations
-#############################################################
-
-
-url = 'https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/vaccinations/us_state_vaccinations.csv'
-df = pd.read_csv(url)
-copy_to_sql(df, table_name="US_STATE_VAC", schema_name=params.SchemaName  ,if_exists="replace")
-
-
- "UPDATE"  +params.SchemaName +".US_STATE_VAC
- SET location = 'New York'
- WHERE location = 'New York State'"
-
-
-
 #############################################################
 #Fetching Training Data for Cases in State
 #############################################################
