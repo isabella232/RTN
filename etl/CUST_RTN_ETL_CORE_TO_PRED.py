@@ -53,11 +53,11 @@ url = 'https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/v
 df = pd.read_csv(url)
 copy_to_sql(df, table_name="US_STATE_VAC", schema_name=params.SchemaName  ,if_exists="replace")
 
-vantage.execute("""\
+
  "UPDATE"  +params.SchemaName +".US_STATE_VAC
  SET location = 'New York'
- WHERE location = 'New York State'";
-""")
+ WHERE location = 'New York State'"
+
 
 
 #############################################################
