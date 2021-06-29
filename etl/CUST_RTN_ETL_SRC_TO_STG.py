@@ -34,6 +34,7 @@ ssl._create_default_https_context = ssl._create_unverified_context
 import params
 con = create_context(host=params.MyHost, username=params.MyUser, password=params.Password,temp_database_name=params.SchemaName,logmech=params.LogMech)
 
+
 #############################################################
 # 1) Apple Mobility
 #############################################################
@@ -60,10 +61,10 @@ con = create_context(host=params.MyHost, username=params.MyUser, password=params
 #timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
 #print("Apple Mobility Finished!  " + timestampStr)
 
+
 #############################################################
 # 2) Covid Cases
 #############################################################
-
 from datetime import datetime
 import datetime
 
@@ -216,6 +217,7 @@ dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/
 timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
 print("Google Mobility Finished!  " + timestampStr)
 
+
 #############################################################
 # 6)  COVID Datahub Level 3
 #############################################################
@@ -232,6 +234,7 @@ datetime.utcnow()
 dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
 timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
 print("COVID Datahub Level 3 Finished!  " + timestampStr)
+
 
 #############################################################
 # 7)  COVID Datahub Level 2
@@ -324,10 +327,10 @@ dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/
 timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
 print("Fuel Production Finished!  " + timestampStr)
 
+
 #############################################################
 # 10) TSA Travel
 #############################################################
-
 import requests
 from bs4 import BeautifulSoup
 from requests_html import HTMLSession
@@ -341,10 +344,20 @@ stat_table = soup.find('table')
 
 df = pd.read_html(str(stat_table),header=0)[0]
 
-df.columns = ('Travel_Date',
-              'TravelThroughPut', 
-              'TravelThroughPutLastYear',
-	      'TravelThroughPut2019')
+df['Date'] = pd.to_datetime(df['Date'])
+
+    
+for t in df['Date']:
+    if t < datetime.date(2021,1, 1):
+        df['Travel_Date'] = df['Date']
+        df['TravelThroughPut'] = df['2020 Traveler Throughput']
+        df['TravelThroughPutLastYear'] = df['2019 Traveler Throughput'] 
+    else:
+        df['Travel_Date'] = df['Date']
+        df['TravelThroughPut'] = df['2021 Traveler Throughput']
+        df['TravelThroughPutLastYear'] = df['2020 Traveler Throughput']
+        
+df = df [['Travel_Date','TravelThroughPut','TravelThroughPutLastYear']]
 
 df['current_dttm'] = datetime.datetime.today()
         
@@ -360,7 +373,6 @@ print("TSA Travel Finished!  " + timestampStr)
 #############################################################
 # 11) CENSUS Data
 #############################################################
-
 import datetime
 url = 'https://www.census.gov/econ/currentdata/export/csv?programCode=RESCONST&timeSlotType=12&startYear=2018&endYear=2021&categoryCode=APERMITS&dataTypeCode=TOTAL&geoLevelCode=US&adjusted=yes&errorData=no&internal=false'
 hd = pd.read_csv(url, sep='~',  header=None, nrows=6, keep_default_na=False)
@@ -388,7 +400,6 @@ print("Census Data Finished!  " + timestampStr)
 #############################################################
 # 12) Consumer Sentiment Index
 #############################################################
-
 from urllib.parse import quote_plus
 import datetime
 url = 'http://www.sca.isr.umich.edu/files/tbcics.csv'
@@ -427,6 +438,7 @@ df.rename(columns={'inpatient_beds_occupied': 'Inpatient Beds Occupied Estimated
 }, inplace=True)
 copy_to_sql(df = df, table_name = "STG_Estimated_Inpatient_All", schema_name=params.SchemaName, if_exists = 'replace')
 
+
 url = 'https://healthdata.gov/resource/py8k-j5rq.csv?$limit=10000'
 df = pd.read_csv(url, dtype='unicode')
 df.reset_index(drop=True, inplace=True)
@@ -438,7 +450,6 @@ df.rename(columns={'inpatient_beds_occupied_by': 'Inpatient Beds Occupied by COV
 ,'total_inpatient_beds': 'Total Inpatient Beds', 'total_ll': 'Total LL', 'total_ul': 'Total UL'
 }, inplace=True)
 copy_to_sql(df = df, table_name = "STG_Estimated_Inpatient_Covid", schema_name=params.SchemaName, if_exists = 'replace')
-
 
 
 url = 'https://healthdata.gov/resource/7ctx-gtb7.csv?$limit=10000'
@@ -459,15 +470,15 @@ dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/
 timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
 print("Estimated Hospitalization!  " + timestampStr)
 
+
 #############################################################
 #14) Loading time series data for Vaccinations
 #############################################################
-
 url = 'https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/vaccinations/us_state_vaccinations.csv'
 df = pd.read_csv(url)
 copy_to_sql(df, table_name="US_STATE_VAC", schema_name=params.SchemaName  ,if_exists="replace")
 
-vantage.execute ("UPDATE "+params.SchemaName+".US_STATE_VAC SET location = 'New York' WHERE location = 'New York State';")
+con.execute ("UPDATE "+params.SchemaName+".US_STATE_VAC SET location = 'New York' WHERE location = 'New York State';")
 
 
 
