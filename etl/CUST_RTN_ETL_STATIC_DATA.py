@@ -147,6 +147,12 @@ dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/
 timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
 print("Initial Static Tables Reloaded!  " + timestampStr)
 
+# STATE POPULATION
+url = 'https://raw.githubusercontent.com/Teradata/RTN/master/data/STATE_POPULATION.txt'
+df = pd.read_csv(url,sep="|", doublequote=True,  encoding='latin-1')
+copy_to_sql(df = df, table_name = "STATE_POP", schema_name=params.SchemaName, if_exists = 'replace')
+
+
 #############################################################
 # Printing the Load Summary Stats
 #############################################################
