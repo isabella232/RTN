@@ -12,4 +12,3 @@
 "1"|"TDC"|"Generic"|"1"|"F_IND_DASH_MACROECONOMICS_VIZ_V"|"COUNTRY"|"WEEKLY"|"US Product Supplied 4WKAVG"|"Motor Gasoline 4WKAVG"|"Motor Gasoline"|"Barrels per day"|"Motor Gasoline Supplied 4WKAVG"|"V"|"Fuel Supply"|"Motor Gasoline"|"Total"|"Total"|"US-EIA"
 "1"|"TDC"|"Generic"|"1"|"F_IND_DASH_MACROECONOMICS_VIZ_V"|"Country"|"Monthly"|"Personal Consumption Expenditure (Product Details)"|"Computer sales personal"|"Computer sales"|"USD"|"Computer sales"|"V"|"Goods"|"Durable goods"|"Recreational goods and vehicles"|"Video, audio, photographic, and information processing equipment and media (75, 76, and part of 93)"|"Bureau of Economic Analysis - NIPA Monthly Report T2.4.5U"
 "1"|"TDC"|"Generic"|"1"|"F_IND_DASH_MACROECONOMICS_VIZ_V"|"Country"|"Monthly"|"Net Sales"|"Monthly Sales Amount"|"Sales Amt (Monthly)"|"USD"|"Monthly Sales Amount (USD)"|"V"|"Net Sales"|"Total"|"Total"|"Total"|"Customer Data Warehouse"
-
