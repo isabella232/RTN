@@ -12,7 +12,3 @@
 "1"|"TDC"|"Generic"|"1"|"F_IND_DASH_MACROECONOMICS_VIZ_V"|"COUNTRY"|"WEEKLY"|"US Product Supplied 4WKAVG"|"Motor Gasoline 4WKAVG"|"Motor Gasoline"|"Barrels per day"|"Motor Gasoline Supplied 4WKAVG"|"V"|"Fuel Supply"|"Motor Gasoline"|"Total"|"Total"|"US-EIA"
 "1"|"TDC"|"Generic"|"1"|"F_IND_DASH_MACROECONOMICS_VIZ_V"|"COUNTRY"|"WEEKLY"|"US Product Supplied 4WKAVG"|"All Petro-Products"|"All Petro-Products"|"Barrels per day"|"All Petro Product Supplied 4WKAVG"|"V"|"Fuel Supply"|"All Petro-Products"|"Total"|"Total"|"US-EIA"
 "1"|"TDC"|"Generic"|"1"|"F_IND_DASH_MACROECONOMICS_VIZ_V"|"COUNTRY"|"WEEKLY"|"US Product Supplied 4WKAVG"|"Jet Fuel 4WKAVG"|"Jet Fuel"|"Barrels per day"|"Jet Fuel Supplied 4WKAVG"|"V"|"Fuel Supply"|"Jet Fuel"|"Total"|"Total"|"US-EIA"
-
-
-
-
