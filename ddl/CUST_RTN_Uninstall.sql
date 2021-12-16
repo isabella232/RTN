@@ -7,13 +7,18 @@ DROP TABLE ???."DIM_Site_addresses";
 DROP TABLE ???."DIM_ZIPCODE_COUNTY_MSA_LKUP";
 DROP TABLE ???."DIM_ZIP_COUNTY_MSA_MAP_RAW";
 DROP TABLE ???."ETL_Indicator_Proj_Audit";
+DROP TABLE ???."ETL_Proc_Error_Logs";
 DROP TABLE ???."FACT_COVID19_DATAHUB";
 DROP TABLE ???."FACT_COVID19_DATAHUB_STATE";
 DROP TABLE ???."FACT_Covid_Model_Data";
 DROP TABLE ???."FACT_COVID_MODEL_DATA_SUM";
+DROP TABLE ???."FACT_Covid_Model_Data_UNPIVOT";
 DROP TABLE ???."FACT_INDICATOR_DASHBOARD_T2_P";
 DROP TABLE ???."F_IND_DASH_GOOGLE_TRENDS";
+DROP TABLE ???."F_IND_DASH_NYT_COVID19_COUNTY_7MAVG";
 DROP TABLE ???."F_IND_DASH_NYT_COVID19_GEO_7MAVG_WEEKLY_SNPSHT";
+DROP TABLE ???."gm_step1";
+DROP TABLE ???."gm_step2";
 DROP TABLE ???."STG_BEA_PersonalConsumption_2_3_5";
 DROP TABLE ???."STG_BEA_PersonalConsumption_2_4_5";
 DROP TABLE ???."STG_Consumer_Sentiment_Index";
@@ -32,18 +37,32 @@ DROP TABLE ???."STG_Labor_Stats_LNS14000000";
 DROP TABLE ???."STG_Summary_stats_all_locs";
 DROP TABLE ???."STG_TSA_TRAVEL";
 DROP TABLE ???."STG_US_CENSUS_SURVEY";
-DROP TABLE ???."TEMP_DIM_DASH_VIZ_METRIC_XREF";          --Not created with install script - created during execution
+DROP TABLE ???."STG_Estimated_Inpatient_All";
+DROP TABLE ???."STG_Estimated_Inpatient_Covid";
+DROP TABLE ???."STG_Estimated_Icu";
+DROP TABLE ???."Transaltion_Table";
+DROP TABLE ???."F_IND_DASH_EST_HOSP_ICU";
+DROP TABLE ???."F_IND_DASH_EST_HOSP_INPATIENT";
+DROP TABLE ???."F_IND_DASH_EST_HOSP_COVID_INPATIENT";
 DROP TABLE ???."TEMP_DIM_GEO_LOCATION_T";                --Not created with install script - created during execution
+DROP TABLE ???."TEMP_DIM_ZIP_COUNTY_MSA_MAP_RAW";        --Not created with install script - created during execution
+DROP TABLE ???."TEMP_DIM_DASH_VIZ_METRIC_XREF";          --Not created with install script - created during execution
 DROP TABLE ???."TEMP_DIM_People_location";               --Not created with install script - created during execution
 DROP TABLE ???."TEMP_DIM_Site_addresses";                --Not created with install script - created during execution
-DROP TABLE ???."TEMP_DIM_ZIP_COUNTY_MSA_MAP_RAW";        --Not created with install script - created during execution
 DROP TABLE ???."TEMP_FACT_Covid_Model_Data";             --Not created with install script - created during execution
 DROP TABLE ???."TEMP_STG_BEA_PersonalConsumption_2_3_5"; --Not created with install script - created during execution
 DROP TABLE ???."TEMP_STG_BEA_PersonalConsumption_2_4_5"; --Not created with install script - created during execution
 DROP TABLE ???."TEMP_STG_COVID19_NATIONAL_ESTIMATES";    --Not created with install script - created during execution
 DROP TABLE ???."TEMP_STG_CO_EST2019";                    --Not created with install script - created during execution
 DROP TABLE ???."TEMP_Transaltion_Table";                 --Not created with install script - created during execution
-DROP TABLE ???."Transaltion_Table";
+DROP TABLE ???."US_STATE_VAC";
+DROP TABLE ???."STATE_POP";
+DROP TABLE ???."varmax_case_vac";
+DROP TABLE ???."varmax_death_vac";
+DROP TABLE ???."arima_county_case";
+DROP TABLE ???."arima_county_death";
+DROP TABLE ???."EF_ARIMA_PRED";
+DROP TABLE ???."EF_ARIMA_PRED_NH";
 DROP VIEW ???."DIM_CALENDAR_V";
 DROP VIEW ???."DIM_DASH_VIZ_METRIC_XREF_V";
 DROP VIEW ???."DIM_GEO_LOCATION_V";
@@ -57,27 +76,62 @@ DROP VIEW ???."FACT_INDICATOR_DASHBOARD_V";
 DROP VIEW ???."F_IND_DASH_COVID_NAT_ESTIMATES_V";
 DROP VIEW ???."F_IND_DASH_Covid_Projections_Curr_V";
 DROP VIEW ???."F_IND_DASH_Covid_Projections_Prev_V";
+DROP VIEW ???."F_IND_DASH_Covid_Summary_V";
 DROP VIEW ???."F_IND_DASH_DataHub_V";
-DROP VIEW ???."F_IND_DASH_GOOGLE_SEARCH_TRENDS_VIZ_V";
 DROP VIEW ???."F_IND_DASH_GOOGLE_TRENDS_V";
+DROP VIEW ???."F_IND_DASH_GOOGLE_SEARCH_TRENDS_VIZ_V";
 DROP VIEW ???."F_IND_DASH_HEALTH_VIZ_V";
 DROP VIEW ???."F_IND_DASH_MACROECONOMICS_GEO_MONTHLY_V";
 DROP VIEW ???."F_IND_DASH_MACROECONOMICS_VIZ_V";
+DROP VIEW ???."F_IND_DASH_NYT_COVID19_GEO_7MAVG_WEEKLY_SNPSHT_V";
 DROP VIEW ???."F_IND_DASH_MOBILITY_GEO_VIZ_V";
 DROP VIEW ???."F_IND_DASH_MOBILITY_GEO_WEEKLY_V";
 DROP VIEW ???."F_IND_DASH_NYT_COVID19_DATAHUB_TD_EMP_LOC_V";
-DROP VIEW ???."F_IND_DASH_NYT_COVID19_GEO_7MAVG_WEEKLY_SNPSHT_V";
 DROP VIEW ???."F_IND_DASH_Timeline_to_safety_V";
+DROP VIEW ???."F_IND_DASHBOARD_MOBILITY_GEO_WEEKLY_V";
 DROP VIEW ???."XREF_SOURCE_DATA_UPDATES_V";
+DROP PROCEDURE ???."ETL_BEA_CORE";
+DROP PROCEDURE ???."ETL_CENSUS_DATA_CORE";
+DROP PROCEDURE ???."ETL_CONSUMER_SENTIMENT_CORE";
 DROP PROCEDURE ???."ETL_COVID_CASES_CORE";
 DROP PROCEDURE ???."ETL_COVID_MODEL_CORE";
-
---Additional objects that need droppin
-DROP TABLE ???."FACT_Covid_Model_Data_UNPIVOT";
-DROP TABLE ???."ETL_Proc_Error_Logs";
-DROP TABLE ???."F_IND_DASH_NYT_COVID19_COUNTY_7MAVG";
-DROP TABLE ???."gm_step1";
-DROP TABLE ???."gm_step2";
-DROP VIEW  ???."F_IND_DASH_Covid_Summary_V";
-DROP VIEW  ???."F_IND_DASHBOARD_MOBILITY_GEO_WEEKLY_V";
-
+DROP PROCEDURE ???."ETL_COVID19_DATAHUB_CORE";
+DROP PROCEDURE ???."ETL_CUST_DATA_CORE";
+DROP PROCEDURE ???."ETL_FUEL_PROD_CORE";
+DROP PROCEDURE ???."ETL_GOOGLE_MOBILITY_CORE";
+DROP PROCEDURE ???."ETL_GOOGLE_TREND_CORE";
+DROP PROCEDURE ???."ETL_LABOR_STATS_CORE";
+DROP PROCEDURE ???."ETL_LOOKUP_CORE";
+DROP PROCEDURE ???."ETL_POST_LOAD_CORE";
+DROP PROCEDURE ???."ETL_TSA_TRAVEL_CORE";
+DROP VIEW ???."US_STATE_VAC_PREV";
+DROP VIEW ???."US_CONF";
+DROP VIEW ???."US_CONF_STATE";
+DROP VIEW ???."US_CONF_STATE_VAC";
+DROP VIEW ???."US_CONF_STATE_VAC_SMAVG";
+DROP VIEW ???."US_DEATH";
+DROP VIEW ???."US_DEATH_STATE";
+DROP VIEW ???."US_DEATH_STATE_VAC";
+DROP VIEW ???."US_DEATH_STATE_VAC_SMAVG";
+DROP VIEW ???."US_CONF_COUNTY_TOP";
+DROP VIEW ???."US_CONF_COUNTY";
+DROP VIEW ???."US_CONF_COUNTY_SMAVG";
+DROP VIEW ???."US_DEATH_COUNTY_TOP";
+DROP VIEW ???."US_DEATH_COUNTY";
+DROP VIEW ???."US_DEATH_COUNTY_SMAVG";
+DROP VIEW ???."ECONOMIC_FACTORS";
+DROP VIEW ???."ECONOMIC_FACTORS_TRN";
+DROP VIEW ???."ECONOMIC_FACTORS_NH";
+DROP VIEW ???."ECONOMIC_FACTORS_NH_TRN";
+DROP VIEW ???."US_STATE_VAC_VW";
+DROP VIEW ???."US_CONF_STATE_VAC_SMAVG_U";
+DROP VIEW ???."VARMAX_CASE_STATE";
+DROP VIEW ???."VARMAX_DEATH_STATE";
+DROP VIEW ???."ARIMA_COUNTY_CASE_PRED";
+DROP VIEW ???."ARIMA_COUNTY_DEATH_PRED";
+DROP VIEW ???."ECONOMIC_FACTORS_ARIMA_PRED";
+DROP VIEW ???."ECONOMIC_FACTORS_ARIMA_NH_PRED";
+DROP VIEW ???."TOT_STATE_DEATHS_V";
+DROP VIEW ???."TOT_STATE_CASES_V";
+DROP VIEW ???."TOT_COUNTY_DEATHS_V";
+DROP VIEW ???."TOT_COUNTY_CASES_V";

@@ -216,7 +216,7 @@ CREATE MULTISET TABLE ???.FACT_COVID19_DATAHUB ,FALLBACK ,
       KEY_STR VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       KEY_NUMERIC FLOAT,
       KEY_GOOGLE_MOBILITY VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      KEY_APPLE_MOBILITY FLOAT,
+      KEY_APPLE_MOBILITY VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       KEY_ALPHA_2 VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       REC_INS_TS TIMESTAMP(6))
 PRIMARY INDEX STG_COVID19_DATAHUB_PI ( DATE_KEY ,GEO_KEY )
@@ -284,9 +284,6 @@ CREATE MULTISET TABLE ???.FACT_Covid_Model_Data ,FALLBACK ,
       ICUbed_mean FLOAT,
       ICUbed_lower FLOAT,
       ICUbed_upper FLOAT,
-      InvVen_mean FLOAT,
-      InvVen_lower FLOAT,
-      InvVen_upper FLOAT,
       deaths_mean FLOAT,
       deaths_lower FLOAT,
       deaths_upper FLOAT,
@@ -299,12 +296,6 @@ CREATE MULTISET TABLE ???.FACT_Covid_Model_Data ,FALLBACK ,
       totdea_mean FLOAT,
       totdea_lower FLOAT,
       totdea_upper FLOAT,
-      bedover_mean FLOAT,
-      bedover_lower FLOAT,
-      bedover_upper FLOAT,
-      icuover_mean FLOAT,
-      icuover_lower FLOAT,
-      icuover_upper FLOAT,
       deaths_mean_smoothed FLOAT,
       deaths_lower_smoothed FLOAT,
       deaths_upper_smoothed FLOAT,
@@ -339,15 +330,6 @@ CREATE MULTISET TABLE ???.FACT_COVID_MODEL_DATA_SUM ,FALLBACK ,
       DATE_GRANULARITY VARCHAR(10) CHARACTER SET UNICODE NOT CASESPECIFIC NOT NULL,
       GEO_KEY INTEGER NOT NULL,
       GEO_GRANULARITY VARCHAR(10) CHARACTER SET UNICODE NOT CASESPECIFIC NOT NULL,
-      PEAK_BED_DAY_MEAN VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      PEAK_BED_DAY_LOWER VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      PEAK_BED_DAY_UPPER VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      PEAK_ICU_BED_DAY_MEAN VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      PEAK_ICU_BED_DAY_LOWER VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      PEAK_ICU_BED_DAY_UPPER VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      PEAK_VENT_DAY_MEAN VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      PEAK_VENT_DAY_LOWER VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      PEAK_VENT_DAY_UPPER VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       ALL_BED_CAPACITY FLOAT,
       ICU_BED_CAPACITY FLOAT,
       ALL_BED_USAGE FLOAT,
@@ -368,7 +350,7 @@ CREATE MULTISET TABLE ???.FACT_COVID_MODEL_DATA_SUM ,FALLBACK ,
       ALL_NON_ESS_BUSINESS_END_DATE VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       REC_INS_TS TIMESTAMP(0),
       REC_UPD_TS TIMESTAMP(0))
-PRIMARY INDEX ( DATE_KEY ,GEO_KEY );
+PRIMARY INDEX (DATE_KEY, GEO_KEY);
 
 
 CREATE MULTISET TABLE ???.FACT_Covid_Model_Data_UNPIVOT ,FALLBACK ,
@@ -547,7 +529,7 @@ CREATE SET TABLE ???.gm_step2 ,FALLBACK ,
       DATA_SOURCE_DESC VARCHAR(22) CHARACTER SET UNICODE NOT CASESPECIFIC,
       REC_INS_TS TIMESTAMP(0) WITH TIME ZONE,
       REC_UPD_TS TIMESTAMP(0) WITH TIME ZONE)
-PRIMARY INDEX ( date_key ,geo_granularity ,DOMAIN_NAME ,SUBDOMAIN_1_NAME ,
+PRIMARY INDEX (date_key, geo_granularity, DOMAIN_NAME, SUBDOMAIN_1_NAME,
 SUBDOMAIN_2_NAME ,SUBDOMAIN_3_NAME ,METRIC_NAME );
 
 
@@ -602,10 +584,12 @@ CREATE MULTISET TABLE ???.STG_Consumer_Sentiment_Index ,FALLBACK ,
      MAP = TD_MAP1
      (
       "Month" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      "Year" VARCHAR(10) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      "Year" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       Consumer_Sentiment_Index FLOAT,
-      current_dttm TIMESTAMP(6))
+      current_dttm TIMESTAMP(6)
+	 )
 NO PRIMARY INDEX ;
+					
 
 
 CREATE MULTISET TABLE ???.STG_COVID19_Datahub_LVL2 ,FALLBACK ,
@@ -617,45 +601,57 @@ CREATE MULTISET TABLE ???.STG_COVID19_Datahub_LVL2 ,FALLBACK ,
      (
       id VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       date_key TIMESTAMP(6),
-      tests BIGINT,
-      confirmed BIGINT,
-      recovered BIGINT,
-      deaths BIGINT,
-      hosp BIGINT,
-      vent BIGINT,
-      icu BIGINT,
-      population FLOAT,
-      school_closing BIGINT,
-      workplace_closing BIGINT,
-      cancel_events BIGINT,
-      gatherings_restrictions BIGINT,
-      transport_closing BIGINT,
-      stay_home_restrictions BIGINT,
-      internal_movement_restrictions BIGINT,
-      international_movement_restrictions BIGINT,
-      information_campaigns BIGINT,
-      testing_policy BIGINT,
-      contact_tracing BIGINT,
+      confirmed FLOAT,
+      deaths FLOAT,
+      recovered FLOAT,
+      tests FLOAT,
+      vaccines FLOAT,
+      people_vaccinated FLOAT,
+      people_fully_vaccinated FLOAT,
+      hosp FLOAT,
+      icu FLOAT,
+      vent FLOAT,
+      school_closing FLOAT,
+      workplace_closing FLOAT,
+      cancel_events FLOAT,
+      gatherings_restrictions FLOAT,
+      transport_closing FLOAT,
+      stay_home_restrictions FLOAT,
+      internal_movement_restrictions FLOAT,
+      international_movement_restrictions FLOAT,
+      information_campaigns FLOAT,
+      testing_policy FLOAT,
+      contact_tracing FLOAT,
+      facial_coverings FLOAT,
+      vaccination_policy FLOAT,
+      elderly_people_protection FLOAT,
+      government_response_index FLOAT,
       stringency_index FLOAT,
-      iso_alpha_3 VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      iso_alpha_2 VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      iso_numeric FLOAT,
-      currency VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      containment_health_index FLOAT,
+      economic_support_index FLOAT,
       administrative_area_level BIGINT,
       administrative_area_level_1 VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       administrative_area_level_2 VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       administrative_area_level_3 FLOAT,
       latitude FLOAT,
       longitude FLOAT,
-      "key" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      population BIGINT,
+      iso_alpha_3 VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      iso_alpha_2 VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      iso_numeric FLOAT,
+      iso_currency VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      key_local VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       key_google_mobility VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       key_apple_mobility VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      key_alpha_2 VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      key_numeric FLOAT,
-      current_dttm TIMESTAMP(6))
+      key_jhu_csse VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      key_nuts VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      key_gadm VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      current_dttm TIMESTAMP(6)
+      )
 PRIMARY INDEX ( date_key );
-
-
+	  
+																				
+					 
 CREATE MULTISET TABLE ???.STG_COVID19_Datahub_LVL3 ,FALLBACK ,
      NO BEFORE JOURNAL,
      NO AFTER JOURNAL,
@@ -665,46 +661,58 @@ CREATE MULTISET TABLE ???.STG_COVID19_Datahub_LVL3 ,FALLBACK ,
      (
       id VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       date_key TIMESTAMP(6),
-      tests BIGINT,
-      confirmed BIGINT,
-      recovered BIGINT,
-      deaths BIGINT,
-      hosp BIGINT,
-      vent BIGINT,
-      icu BIGINT,
-      population FLOAT,
-      school_closing BIGINT,
-      workplace_closing BIGINT,
-      cancel_events BIGINT,
-      gatherings_restrictions BIGINT,
-      transport_closing BIGINT,
-      stay_home_restrictions BIGINT,
-      internal_movement_restrictions BIGINT,
-      international_movement_restrictions BIGINT,
-      information_campaigns BIGINT,
-      testing_policy BIGINT,
-      contact_tracing BIGINT,
+      confirmed FLOAT,
+      deaths FLOAT,
+      recovered FLOAT,
+      tests FLOAT,
+      vaccines FLOAT,
+      people_vaccinated FLOAT,
+      people_fully_vaccinated FLOAT,
+      hosp FLOAT,
+      icu FLOAT,
+      vent FLOAT,
+      school_closing FLOAT,
+      workplace_closing FLOAT,
+      cancel_events FLOAT,
+      gatherings_restrictions FLOAT,
+      transport_closing FLOAT,
+      stay_home_restrictions FLOAT,
+      internal_movement_restrictions FLOAT,
+      international_movement_restrictions FLOAT,
+      information_campaigns FLOAT,
+      testing_policy FLOAT,
+      contact_tracing FLOAT,
+      facial_coverings FLOAT,
+      vaccination_policy FLOAT,
+      elderly_people_protection FLOAT,
+      government_response_index FLOAT,
       stringency_index FLOAT,
-      iso_alpha_3 VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      iso_alpha_2 VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      iso_numeric FLOAT,
-      currency VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      containment_health_index FLOAT,
+      economic_support_index FLOAT,
       administrative_area_level BIGINT,
       administrative_area_level_1 VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       administrative_area_level_2 VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       administrative_area_level_3 VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       latitude FLOAT,
       longitude FLOAT,
-      "key" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      key_numeric FLOAT,
+      population BIGINT,
+      iso_alpha_3 VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      iso_alpha_2 VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      iso_numeric FLOAT,
+      iso_currency VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      key_local VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       key_google_mobility VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      key_apple_mobility FLOAT,
-      key_alpha_2 VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      current_dttm TIMESTAMP(6))
+      key_apple_mobility VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      key_jhu_csse VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      key_nuts VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      key_gadm VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      current_dttm TIMESTAMP(6)
+      )
 PRIMARY INDEX ( date_key );
-
-
-CREATE MULTISET TABLE ???.STG_COVID19_NATIONAL_ESTIMATES ,FALLBACK ,
+				  
+ 
+	  
+CREATE MULTISET TABLE STG_COVID19_NATIONAL_ESTIMATES ,FALLBACK ,
      NO BEFORE JOURNAL,
      NO AFTER JOURNAL,
      CHECKSUM = DEFAULT,
@@ -718,9 +726,9 @@ CREATE MULTISET TABLE ???.STG_COVID19_NATIONAL_ESTIMATES ,FALLBACK ,
       InpatBeds_Occ_AnyPat_LoCI INTEGER,
       InpatBeds_Occ_AnyPat_UpCI INTEGER,
       InpatBeds_Occ_AnyPat_Est_Avail INTEGER,
-      InBedsOccAnyPat__Numbeds_Est DECIMAL(3,1),
-      InBedsOccAnyPat__Numbeds_LoCI DECIMAL(3,1),
-      InBedsOccAnyPat__Numbeds_UpCI DECIMAL(4,1),
+      InBedsOccAnyPat__Numbeds_Est FLOAT,
+      InBedsOccAnyPat__Numbeds_LoCI FLOAT,
+      InBedsOccAnyPat__Numbeds_UpCI FLOAT,
       InpatBeds_Occ_COVID_Est INTEGER,
       InpatBeds_Occ_COVID_LoCI INTEGER,
       InpatBeds_Occ_COVID_UpCI INTEGER,
@@ -731,15 +739,11 @@ CREATE MULTISET TABLE ???.STG_COVID19_NATIONAL_ESTIMATES ,FALLBACK ,
       ICUBeds_Occ_AnyPat_LoCI INTEGER,
       ICUBeds_Occ_AnyPat_UpCI INTEGER,
       ICUBeds_Occ_AnyPat_Est_Avail INTEGER,
-      ICUBedsOccAnyPat__N_ICUBeds_Est DECIMAL(4,1),
-      ICUBedsOccAnyPat__N_ICUBeds_LoCI DECIMAL(3,1),
-      ICUBedsOccAnyPat__N_ICUBeds_UpCI DECIMAL(4,1),
-      Notes VARCHAR(196) CHARACTER SET LATIN NOT CASESPECIFIC,
-      label1 VARCHAR(77) CHARACTER SET LATIN NOT CASESPECIFIC,
-      label2 VARCHAR(7) CHARACTER SET LATIN NOT CASESPECIFIC,
-      label3 VARCHAR(18) CHARACTER SET LATIN NOT CASESPECIFIC,
-      label4 VARCHAR(36) CHARACTER SET LATIN NOT CASESPECIFIC)
+      ICUBedsOccAnyPat__N_ICUBeds_Est FLOAT,
+      ICUBedsOccAnyPat__N_ICUBeds_LoCI FLOAT,
+      ICUBedsOccAnyPat__N_ICUBeds_UpCI FLOAT)
 NO PRIMARY INDEX ;
+
 
 
 CREATE MULTISET TABLE ???.STG_covid19_stats ,FALLBACK ,
@@ -749,16 +753,20 @@ CREATE MULTISET TABLE ???.STG_covid19_stats ,FALLBACK ,
      DEFAULT MERGEBLOCKRATIO,
      MAP = TD_MAP1
      (
-      date_key VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      date_key TIMESTAMP(6),
       county VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       state VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       fips FLOAT,
       cases BIGINT,
-      deaths BIGINT,
-      current_dttm TIMESTAMP(6))
+      deaths FLOAT,
+      current_dttm TIMESTAMP(6)
+      --,"year" BIGINT
+      --,"month" BIGINT
+      )
 PRIMARY INDEX ( date_key );
-
-
+					 
+	  
+																			  
 CREATE MULTISET TABLE ???.STG_CO_EST2019 ,FALLBACK ,
      NO BEFORE JOURNAL,
      NO AFTER JOURNAL,
@@ -948,8 +956,12 @@ CREATE MULTISET TABLE ???.STG_Fuel_Production ,FALLBACK ,
       "4-Week Avg U.S. Product Supplied of Residual Fuel Oil  (Thousand Barrels per Day)" FLOAT,
       "4-Week Avg U.S. Product Supplied of Propane and Propylene  (Thousand Barrels per Day)" FLOAT,
       "4-Week Avg U.S. Product Supplied of Other Oils  (Thousand Barrels per Day)" FLOAT,
-      current_dttm TIMESTAMP(6))
+      current_dttm TIMESTAMP(6)
+      --,"year" BIGINT
+      --,"month" BIGINT
+	 )
 NO PRIMARY INDEX ;
+					
 
 
 CREATE MULTISET TABLE ???.STG_Google_Mobility ,FALLBACK ,
@@ -963,8 +975,10 @@ CREATE MULTISET TABLE ???.STG_Google_Mobility ,FALLBACK ,
       country_region VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       sub_region_1 VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       sub_region_2 VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      metro_area VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       iso_3166_2_code VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       census_fips_code VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      place_id VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       date_key VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       retail_and_recreation_percent_change_from_baseline VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       grocery_and_pharmacy_percent_change_from_baseline VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
@@ -972,10 +986,14 @@ CREATE MULTISET TABLE ???.STG_Google_Mobility ,FALLBACK ,
       transit_stations_percent_change_from_baseline VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       workplaces_percent_change_from_baseline VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       residential_percent_change_from_baseline VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      current_dttm TIMESTAMP(6))
+      current_dttm TIMESTAMP(6)
+      --,"month" INTEGER
+      --,"day" INTEGER
+      )
 PRIMARY INDEX ( date_key );
+					 
 
-
+																			   					
 CREATE MULTISET TABLE ???.STG_Google_Search_IOT ,FALLBACK ,
      NO BEFORE JOURNAL,
      NO AFTER JOURNAL,
@@ -983,16 +1001,20 @@ CREATE MULTISET TABLE ???.STG_Google_Search_IOT ,FALLBACK ,
      DEFAULT MERGEBLOCKRATIO,
      MAP = TD_MAP1
      (
+      "date" TIMESTAMP(6),
       Metric_value INTEGER,
-      isPartial BYTEINT,
+      isPartial VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       Trend_Name VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       Metric_Name VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       current_dttm TIMESTAMP(6),
       Keyword_List VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       Cat_CD VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      "Type" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      "date" TIMESTAMP(6))
+      "Type" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC
+      --,TheYear BIGINT
+      --,TheMonth BIGINT
+      )
 NO PRIMARY INDEX ;
+					
 
 
 CREATE MULTISET TABLE ???.STG_Hospitalization_all_locs ,FALLBACK ,
@@ -1003,54 +1025,69 @@ CREATE MULTISET TABLE ???.STG_Hospitalization_all_locs ,FALLBACK ,
      MAP = TD_MAP1
      (
       V1 BIGINT,
-      location_name VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      "date" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       location_id BIGINT,
-      allbed_mean FLOAT,
-      allbed_lower FLOAT,
-      allbed_upper FLOAT,
-      ICUbed_mean FLOAT,
-      ICUbed_lower FLOAT,
-      ICUbed_upper FLOAT,
-      InvVen_mean FLOAT,
-      InvVen_lower FLOAT,
-      InvVen_upper FLOAT,
-      admis_mean FLOAT,
-      admis_lower FLOAT,
-      admis_upper FLOAT,
-      newICU_mean FLOAT,
-      newICU_lower FLOAT,
-      newICU_upper FLOAT,
-      bedover_mean FLOAT,
-      bedover_lower FLOAT,
-      bedover_upper FLOAT,
-      icuover_mean FLOAT,
-      icuover_lower FLOAT,
-      icuover_upper FLOAT,
+      "date" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      version_name VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      location_name VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      est_infections_mean FLOAT,
+      est_infections_upper FLOAT,
+      est_infections_lower FLOAT,
+      totdea_mean_smoothed FLOAT,
+      totdea_lower_smoothed FLOAT,
+      totdea_upper_smoothed FLOAT,
+      inf_cuml_mean FLOAT,
+      inf_cuml_lower FLOAT,
+      inf_cuml_upper FLOAT,
+      deaths_mean_smoothed FLOAT,
+      deaths_lower_smoothed FLOAT,
+      deaths_upper_smoothed FLOAT,
       deaths_mean FLOAT,
       deaths_lower FLOAT,
       deaths_upper FLOAT,
       totdea_mean FLOAT,
       totdea_lower FLOAT,
       totdea_upper FLOAT,
-      deaths_mean_smoothed FLOAT,
-      deaths_lower_smoothed FLOAT,
-      deaths_upper_smoothed FLOAT,
-      totdea_mean_smoothed FLOAT,
-      totdea_lower_smoothed FLOAT,
-      totdea_upper_smoothed FLOAT,
-      mobility_data_type VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      mobility_composite FLOAT,
-      total_tests_data_type VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      total_tests FLOAT,
+      reff_mean FLOAT,
+      reff_lower FLOAT,
+      reff_upper FLOAT,
+      cumulative_deaths FLOAT,
+      daily_deaths FLOAT,
+      cumulative_cases FLOAT,
+      cumulative_deaths_unscaled FLOAT,
+      cumulative_hospitalizations FLOAT,
+      daily_deaths_unscaled FLOAT,
       confirmed_infections FLOAT,
-      est_infections_mean FLOAT,
-      est_infections_lower FLOAT,
-      est_infections_upper FLOAT,
-      current_dttm TIMESTAMP(6),
-      Path_Update_Dt VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC)
+      total_pop FLOAT,
+      mobility_composite FLOAT,
+      mobility_data_type BIGINT,
+      total_tests FLOAT,
+      testing_lower FLOAT,
+      testing_upper FLOAT,
+      total_tests_data_type BIGINT,
+      pneumonia_mean FLOAT,
+      pneumonia_obs BIGINT,
+      mask_use_mean FLOAT,
+      mask_use_obs BIGINT,
+      cumulative_all_vaccinated FLOAT,
+      cumulative_all_fully_vaccinated FLOAT,
+      cumulative_all_effectively_vaccinated FLOAT,
+      allbed_mean FLOAT,
+      allbed_upper FLOAT,
+      allbed_lower FLOAT,
+      ICUbed_mean FLOAT,
+      ICUbed_upper FLOAT,
+      ICUbed_lower FLOAT,
+      admis_mean FLOAT,
+      admis_upper FLOAT,
+      admis_lower FLOAT,
+      infection_fatality FLOAT,
+      infection_detection FLOAT,
+      infection_hospitalization FLOAT,
+      Path_Update_Dt VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      current_dttm TIMESTAMP(6)
+      )
 NO PRIMARY INDEX ;
-
+					
 
 
 CREATE MULTISET TABLE ???.STG_Labor_Stats_CUSR0000SA0 ,FALLBACK ,
@@ -1067,7 +1104,8 @@ CREATE MULTISET TABLE ???.STG_Labor_Stats_CUSR0000SA0 ,FALLBACK ,
       Metric_Val VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       footnotes VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       series_id VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      current_dttm TIMESTAMP(6))
+      current_dttm TIMESTAMP(6)
+	 )
 NO PRIMARY INDEX ;
 
 
@@ -1085,7 +1123,8 @@ CREATE MULTISET TABLE ???.STG_Labor_Stats_LNS13000000 ,FALLBACK ,
       Metric_Val VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       footnotes VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       series_id VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      current_dttm TIMESTAMP(6))
+      current_dttm TIMESTAMP(6)
+	 )
 NO PRIMARY INDEX ;
 
 
@@ -1103,8 +1142,10 @@ CREATE MULTISET TABLE ???.STG_Labor_Stats_LNS14000000 ,FALLBACK ,
       Metric_Val VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       footnotes VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       series_id VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      current_dttm TIMESTAMP(6))
+      current_dttm TIMESTAMP(6)
+	 )
 NO PRIMARY INDEX ;
+					
 
 
 CREATE MULTISET TABLE ???.STG_Summary_stats_all_locs ,FALLBACK ,
@@ -1114,39 +1155,15 @@ CREATE MULTISET TABLE ???.STG_Summary_stats_all_locs ,FALLBACK ,
      DEFAULT MERGEBLOCKRATIO,
      MAP = TD_MAP1
      (
-      location_name VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       location_id BIGINT,
-      peak_bed_day_mean VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      peak_bed_day_lower VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      peak_bed_day_upper VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      peak_icu_bed_day_mean VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      peak_icu_bed_day_lower VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      peak_icu_bed_day_upper VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      peak_vent_day_mean VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      peak_vent_day_lower VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      peak_vent_day_upper VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      location_name VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       all_bed_capacity FLOAT,
       icu_bed_capacity FLOAT,
-      all_bed_usage FLOAT,
-      icu_bed_usage FLOAT,
-      available_all_nbr FLOAT,
-      available_icu_nbr FLOAT,
-      travel_limit_start_date VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      travel_limit_end_date VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      stay_home_start_date VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      stay_home_end_date VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      educational_fac_start_date VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      educational_fac_end_date VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      any_gathering_restrict_start_date VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      any_gathering_restrict_end_date VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      any_business_start_date VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      any_business_end_date VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      "all_non-ess_business_start_date" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      "all_non-ess_business_end_date" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      current_dttm TIMESTAMP(6),
-      Path_Update_Dt VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC)
+      Path_Update_Dt VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      current_dttm TIMESTAMP(6)
+      )
 NO PRIMARY INDEX ;
-
+					
 
 CREATE MULTISET TABLE ???.STG_TSA_TRAVEL ,FALLBACK ,
      NO BEFORE JOURNAL,
@@ -1155,10 +1172,15 @@ CREATE MULTISET TABLE ???.STG_TSA_TRAVEL ,FALLBACK ,
      DEFAULT MERGEBLOCKRATIO,
      MAP = TD_MAP1
      (
-      Travel_Date VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      Travel_Date TIMESTAMP(6),
       TravelThroughPut FLOAT,
-      TravelThroughPutLastYear FLOAT)
-NO PRIMARY INDEX ;
+      TravelThroughPutLastYear BIGINT,
+      TravelThroughPut2019 BIGINT,
+      current_dttm TIMESTAMP(6)
+      --,"year" BIGINT
+      --,"month" BIGINT
+	 )
+NO PRIMARY INDEX ;			
 
 
 CREATE MULTISET TABLE ???.STG_US_CENSUS_SURVEY ,FALLBACK ,
@@ -1172,10 +1194,14 @@ CREATE MULTISET TABLE ???.STG_US_CENSUS_SURVEY ,FALLBACK ,
       "Value" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       Metric_name VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       Data_source_desc VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      current_dttm TIMESTAMP(6))
+      current_dttm TIMESTAMP(6)
+      --,date_key TIMESTAMP(6)
+      --,"year" BIGINT
+	 )
 PRIMARY INDEX ( Period );
-
-
+				   
+ 
+	  
 CREATE MULTISET TABLE ???.STG_Estimated_Inpatient_All ,FALLBACK ,
      NO BEFORE JOURNAL,
      NO AFTER JOURNAL,
@@ -1194,9 +1220,9 @@ CREATE MULTISET TABLE ???.STG_Estimated_Inpatient_All ,FALLBACK ,
       "Total Inpatient Beds" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       "Total LL" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       "Total UL" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      current_dttm TIMESTAMP(6))
+      current_dttm TIMESTAMP(6)
+	 )
 NO PRIMARY INDEX ;
-
 
 
 CREATE MULTISET TABLE ???.STG_Estimated_Inpatient_Covid ,FALLBACK ,
@@ -1217,9 +1243,9 @@ CREATE MULTISET TABLE ???.STG_Estimated_Inpatient_Covid ,FALLBACK ,
       "Total Inpatient Beds" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       "Total LL" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       "Total UL" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      current_dttm TIMESTAMP(6))
+      current_dttm TIMESTAMP(6)
+	 )
 NO PRIMARY INDEX ;
-
 
 
 CREATE MULTISET TABLE ???.STG_Estimated_Icu ,FALLBACK ,
@@ -1231,17 +1257,19 @@ CREATE MULTISET TABLE ???.STG_Estimated_Icu ,FALLBACK ,
      (
       state VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       collection_date VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      "ICU Beds Occupied Estimated" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      "Staffed Adult ICU Beds Occupied Estimated" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       "Count LL" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       "Count UL" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      "Percentage of ICU Beds Occupied Estimated" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      "Percentage of Staffed Adult ICU Beds Occupied Estimated" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       "Percentage LL" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       "Percentage UL" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      "Total ICU Beds" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      "Total Staffed Adult ICU Beds" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       "Total LL" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
       "Total UL" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
-      current_dttm TIMESTAMP(6))
+      current_dttm TIMESTAMP(6)
+	 )
 NO PRIMARY INDEX ;
+					
 
 CREATE MULTISET TABLE ???.Transaltion_Table ,FALLBACK ,
      NO BEFORE JOURNAL,
@@ -1525,10 +1553,10 @@ REPLACE VIEW   ???.FACT_COVID19_DATAHUB_V AS
     LOCKING ROW FOR ACCESS
     SELECT  DATE_KEY,
         GEO_KEY,
-        TESTCNT tested_cnt,
+        TESTCNT AS tested_cnt,
         CONFIRMED_CNT,
         RECOVERED_CNT,
-        DEATHs_CNT DEATH_CNT,
+        DEATHS_CNT AS DEATH_CNT,
         HOSPITALIZED_CNT,
         ON_VENTILATOR_CNT,
         IN_ICU_CNT,
@@ -1612,7 +1640,7 @@ REPLACE VIEW ???.F_IND_DASH_COVID_NAT_ESTIMATES_V AS
         CAST(ICUBEDSOCCANYPAT__N_ICUBEDS_LOCI AS DECIMAL(6,3)) AS ICUBEDSOCCANYPAT__N_ICUBEDS_LOCI,
         CAST(ICUBEDSOCCANYPAT__N_ICUBEDS_UPCI AS DECIMAL(6,3)) AS ICUBEDSOCCANYPAT__N_ICUBEDS_UPCI
         FROM ???.STG_COVID19_NATIONAL_ESTIMATES
-        WHERE COLLECTIONDATE < '2020-07-12'
+        WHERE COLLECTIONDATE < '2021-07-01'
         
         UNION ALL
         
@@ -1659,7 +1687,7 @@ REPLACE VIEW ???.F_IND_DASH_COVID_NAT_ESTIMATES_V AS
                WHERE COUNTRY_CODE = 'US'
                GROUP BY 1,2) G ON
          IP.STATE_CD = G.STATE_CODE
-         WHERE IP.COLLECTION_DATE_KEY >= '2020-07-12';
+         WHERE IP.COLLECTION_DATE_KEY >= '2021-07-01';
 
 
 REPLACE VIEW ???.F_IND_DASH_Covid_Projections_Curr_V AS
@@ -1734,7 +1762,7 @@ SELECT * FROM ???.F_IND_DASH_GOOGLE_TRENDS;
 
 REPLACE VIEW ???.F_IND_DASH_GOOGLE_SEARCH_TRENDS_VIZ_V AS
     LOCKING ROW FOR ACCESS
-    WITH t1 AS (SELECT   MAX(date_key) max_dt FROM ???.F_IND_DASH_GOOGLE_TRENDS_V )   
+    WITH t1 AS (SELECT MAX(date_key) max_dt FROM ???.F_IND_DASH_GOOGLE_TRENDS_V)   
     SELECT
         SNAPSHOT_DATE,
         SNAPSHOT_WEEK,
@@ -3349,6 +3377,8 @@ REPLACE VIEW ???.F_IND_DASH_Timeline_to_safety_V AS
             END = 1
         ) final;
 
+
+        
 REPLACE VIEW ???.F_IND_DASH_NYT_COVID19_DATAHUB_TD_EMP_LOC_V AS 
     LOCKING ROW FOR ACCESS
     SELECT 
@@ -3390,13 +3420,6 @@ REPLACE VIEW ???.F_IND_DASH_NYT_COVID19_DATAHUB_TD_EMP_LOC_V AS
         THEN DM.EST_DATE_START 
         ELSE NULL
         END AS STATE_TTS_EST_START_DATE,
-            
-        CASE
-            WHEN RANK() OVER (PARTITION BY H.SNAPSHOT_DATE, H.STATE_CODE
-        ORDER BY H.GEO_KEY) = 1
-        THEN ICU.PEAK_ICU_BED_DAY_MEAN 
-        ELSE NULL
-        END AS STATE_PEAK_ICU_BEDS_MEAN_DATE,
             DH.TESTED_CNT,
             DH.CONFIRMED_CNT,
             DH.RECOVERED_CNT,
@@ -3523,7 +3546,6 @@ REPLACE VIEW ???.F_IND_DASH_NYT_COVID19_DATAHUB_TD_EMP_LOC_V AS
             H.SURGE_FLAG,
             DM.BUCKET,
             DM.EST_DATE_START,
-            ICU.PEAK_ICU_BED_DAY_MEAN,
             DH.TESTED_CNT,
             DH.CONFIRMED_CNT,
             DH.RECOVERED_CNT,
@@ -3667,7 +3689,8 @@ FROM (
 	UNION
 	SELECT 'Fuel Production','STG_Fuel_Production' as StagingTable,'https://www.eia.gov/dnav/pet/xls/PET_CONS_WPSUP_K_4.xls', MAX(date_key) FROM ???.STG_Fuel_Production
 	UNION
-	SELECT 'TSA Travel','STG_TSA_TRAVEL' as StagingTable,'https://www.tsa.gov/coronavirus/passenger-throughput', MAX(cast(TO_DATE((lpad(STRTOK(travel_date,'/',1),2,'0')||'/'||lpad(STRTOK(travel_date,'/',1),2,'0')|| '/'||STRTOK(travel_date,'/',3)),'MM/DD/YYYY') as date)) FROM ???.STG_TSA_TRAVEL WHERE Travel_Date is not null
+	SELECT 'TSA Travel','STG_TSA_TRAVEL' as StagingTable,'https://www.tsa.gov/coronavirus/passenger-throughput', MAX(cast(TO_DATE((lpad(STRTOK(cast(cast(travel_date as date format 'MM/DD/YYYY') as VARCHAR(1024)),'/',1),2,'0')||'/'||lpad(STRTOK(cast(cast(travel_date as date format 'MM/DD/YYYY') as VARCHAR(1024)),'/',1),2,'0')||'/'||STRTOK(cast(cast(travel_date as date format 'MM/DD/YYYY') as VARCHAR(1024)),'/',3)),'MM/DD/YYYY') as date)) 
+        FROM ???.STG_TSA_TRAVEL WHERE Travel_Date is not null
 	UNION
 	SELECT 'Census Data','STG_US_CENSUS_SURVEY' as StagingTable,'https://www.census.gov/econ/currentdata/export/csv', MAX(CAST("PERIOD" AS DATE FORMAT 'MMM-YYYY')) FROM ???.STG_US_CENSUS_SURVEY
 	UNION
@@ -3855,16 +3878,16 @@ SELECT
    trim( tmp.DOMAIN_NAME )  DOMAIN_NAME,
    trim( tmp.SUBDOMAIN_1_NAME) SUBDOMAIN_1_NAME,
    trim( tmp.SUBDOMAIN_2_NAME) SUBDOMAIN_2_NAME,
-    trim( tmp.SUBDOMAIN_3_NAME)  SUBDOMAIN_3_NAME,
-       trim( tmp.SUBDOMAIN_4_NAME)  SUBDOMAIN_4_NAME,
+   trim( tmp.SUBDOMAIN_3_NAME) SUBDOMAIN_3_NAME,
+   trim( tmp.SUBDOMAIN_4_NAME) SUBDOMAIN_4_NAME,
     oreplace(tmp.METRIC_NAME,' M$') METRIC_NAME,
-     cast(tmp.METRIC_VALUE as decimal(32,6))  *  cast(1000000 as decimal(32,0))  as   METRIC_VALUE , -- convert to real number
-     tmp.METRIC_index,
+    cast(tmp.METRIC_VALUE as decimal(32,6))  *  cast(1000000 as decimal(32,0))  as   METRIC_VALUE , -- convert to real number
+    tmp.METRIC_index,
     tmp.DATA_SOURCE_NAME,
     tmp.DATA_SOURCE_DESC 
  
-   FROM   ???.STG_BEA_PersonalConsumption_2_4_5  tmp
-   where subdomain_4_name = 'Total') a
+   FROM  ???.STG_BEA_PersonalConsumption_2_4_5  tmp
+   where SUBDOMAIN_4_NAME IN ('Total','Purchased meals and beverages (102)') ) a
            -- FROM ???.STG_BureauEconomicAnalysis             
 
         LEFT OUTER JOIN ???.FACT_INDICATOR_DASHBOARD_v b
@@ -3956,6 +3979,7 @@ SET v_RowCnt = v_RecordsAffected;
 INSERT INTO ???.ETL_Indicator_Proj_Audit VALUES (v_ProcName,'Core',v_CoreTable,v_RecordsAffected,current_timestamp(0));
 	
 END;
+
 
 
 REPLACE PROCEDURE ???.ETL_CENSUS_DATA_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
@@ -4113,22 +4137,17 @@ SELECT
     0   METRIC_index,
     'US Census' DATA_SOURCE_NAME, 
     DATA_SOURCE_DESC,
-    
     'New Residential Construction' DOMAIN_NAME,
-        'Annual Rate for Housing Units Authorized' SUBDOMAIN_1_NAME,
-        'Total' SUBDOMAIN_2_NAME,
-        'Total' SUBDOMAIN_3_NAME,
-        
+    'Annual Rate for Housing Units Authorized' SUBDOMAIN_1_NAME,
+    'Total' SUBDOMAIN_2_NAME,
+    'Total' SUBDOMAIN_3_NAME,   
     'Total units' METRIC_NAME,
-        CURRENT_TIMESTAMP(0) REC_INS_TS,
-        CURRENT_TIMESTAMP(0) REC_UPD_TS --select * 
-    
-    FROM  ???.STG_US_CENSUS_SURVEY 
-        
- where  METRIC_VALUE is not null
+    CURRENT_TIMESTAMP(0) REC_INS_TS,
+    CURRENT_TIMESTAMP(0) REC_UPD_TS --select * 
 
-        
-        ) aa     
+    FROM  ???.STG_US_CENSUS_SURVEY 
+    where  METRIC_VALUE is not null        
+    ) aa     
         LEFT OUTER JOIN ???.FACT_INDICATOR_DASHBOARD_v b
            ON  aa.METRIC_NAME = b.METRIC_NAME
            and aa.DATE_KEY = b.DATE_KEY
@@ -4162,10 +4181,10 @@ and source.date_key = target.date_key
 --WHEN MATCHED THEN UPDATE
 --SET product_status  = source.product_status
 WHEN NOT MATCHED THEN 
-insert  
+INSERT  
 (   	
-     INDICATOR_KEY,  	
-   	Date_key,
+    INDICATOR_KEY,  	
+    Date_key,
     DATE_GRANULARITY,
     GEO_KEY, 
     GEO_GRANULARITY,
@@ -4177,13 +4196,14 @@ insert
     METRIC_VALUE,
     METRIC_INDEX,
     DATA_SOURCE_NAME,
-     DATA_SOURCE_DESC,
-     REC_INS_TS,
-     REC_UPD_TS  ) 
-values ( 
-		
-     source.INDICATOR_KEY,  	
-   	source.Date_key,
+    DATA_SOURCE_DESC,
+    REC_INS_TS,
+    REC_UPD_TS  
+) 
+values 
+( 		
+    source.INDICATOR_KEY,  	
+    source.Date_key,
     source.DATE_GRANULARITY,
     source.GEO_KEY, 
     source.GEO_GRANULARITY,
@@ -4219,6 +4239,7 @@ SET v_RowCnt = v_RecordsAffected;
 INSERT INTO ???.ETL_Indicator_Proj_Audit VALUES (v_ProcName,'Core',v_CoreTable,v_RecordsAffected,current_timestamp(0));
 	
 END;
+
 
 
 REPLACE PROCEDURE ???.ETL_CONSUMER_SENTIMENT_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
@@ -4294,8 +4315,8 @@ USING
 	from ( SELECT PROCESS_TYPE,
 				-- a. contains the source data
 				-- b. contains the target data that matches the nkey of the source data
-				a.INDICATOR_KEY,  	
-			   	a.Date_key,
+			    a.INDICATOR_KEY,  	
+			    a.Date_key,
 			    a.DATE_GRANULARITY,
 			    a.GEO_KEY, 
 			    a.GEO_GRANULARITY,
@@ -4332,7 +4353,7 @@ USING
 						        WHEN b.INDICATOR_KEY is not null and (aa.METRIC_VALUE <> b.METRIC_VALUE or aa. METRIC_INDEX <> b.METRIC_INDEX) -- put weird logic here
 								THEN 'U'
 						        ELSE NULL END AS PROCESS_TYPE
-					from  ( SELECT  CASE "month"
+					FROM  (SELECT  CASE "month"
 						            WHEN 'January' THEN '01'
 						            WHEN 'February' THEN '02'
 						            WHEN 'March' THEN '03'
@@ -4350,12 +4371,12 @@ USING
 									'840' GEO_KEY  ,
 									'Country' GEO_GRANULARITY,  
 									'Consumer Sentiment Index'  DOMAIN_NAME ,  
-									' ' SUBDOMAIN_1_NAME	,
-									' ' SUBDOMAIN_2_NAME	,
-									' ' SUBDOMAIN_3_NAME	,
+									' ' SUBDOMAIN_1_NAME,
+									' ' SUBDOMAIN_2_NAME,
+									' ' SUBDOMAIN_3_NAME,
 									'Consumer Sentiment Index' METRIC_NAME,
 									0  METRIC_VALUE	 ,
-									CAST( Consumer_Sentiment_Index AS DECIMAL(15,2))   METRIC_index ,
+									CAST(Consumer_Sentiment_Index AS DECIMAL(15,2)) METRIC_index ,
 									'Consumer Sentiment Index' DATA_SOURCE_NAME ,
 									'Consumer Sentiment Index' DATA_SOURCE_DESC ,
 									 current_timestamp(0) REC_INS_TS, 	 
@@ -4390,10 +4411,10 @@ and source.date_key = target.date_key
 --WHEN MATCHED THEN UPDATE
 --SET product_status  = source.product_status
 WHEN NOT MATCHED THEN 
-insert  
+INSERT 
 (   	
-     INDICATOR_KEY,  	
-   	Date_key,
+    INDICATOR_KEY,  	
+    Date_key,
     DATE_GRANULARITY,
     GEO_KEY, 
     GEO_GRANULARITY,
@@ -4405,13 +4426,14 @@ insert
     METRIC_VALUE,
     METRIC_INDEX,
     DATA_SOURCE_NAME,
-     DATA_SOURCE_DESC,
-     REC_INS_TS,
-     REC_UPD_TS  ) 
-values ( 
-		
-     source.INDICATOR_KEY,  	
-   	source.Date_key,
+    DATA_SOURCE_DESC,
+    REC_INS_TS,
+    REC_UPD_TS  
+) 
+VALUES 
+( 		
+    source.INDICATOR_KEY,  	
+    source.Date_key,
     source.DATE_GRANULARITY,
     source.GEO_KEY, 
     source.GEO_GRANULARITY,
@@ -4442,6 +4464,7 @@ SET v_RowCnt = v_RecordsAffected;
 INSERT INTO ???.ETL_Indicator_Proj_Audit VALUES (v_ProcName,'Core',v_CoreTable,v_RecordsAffected,current_timestamp(0));
 	
 END;
+
 
 
 REPLACE PROCEDURE ???.ETL_COVID_CASES_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
@@ -4528,8 +4551,8 @@ USING
 		       ELSE 'P'
 		  END AS INS_UPD_FLAG
 	FROM
-                    ( SELECT 
-		                  T1.DATE_KEY,
+                    (SELECT 
+		          T1.DATE_KEY,
                           'Day'  AS DATE_GRANULARITY,
                           GK.UID AS GEO_KEY,
                           T1.GEO_GRANULARITY,
@@ -4538,9 +4561,9 @@ USING
                           ' ' SUBDOMAIN_2_NAME,
                           ' ' SUBDOMAIN_3_NAME,
                           T1.CASES,
-						  T1.DAILY_NEW_CASES,
-		                  T1.DEATHS,
-						  T1.DAILY_NEW_DEATHS,
+			  T1.DAILY_NEW_CASES,
+		          T1.DEATHS,
+			  T1.DAILY_NEW_DEATHS,
                           'New York Times Covid cases/deaths reporting' AS DATA_SOURCE_NAME,
                           'New York Times Covid cases/deaths reporting' AS DATA_SOURCE_DESC  
                       FROM
@@ -4619,7 +4642,7 @@ USING
                  T2.SUBDOMAIN_1_NAME = F.SUBDOMAIN_1_NAME     AND
                  T2.SUBDOMAIN_2_NAME = F.SUBDOMAIN_2_NAME     AND
                  T2.SUBDOMAIN_3_NAME = F.SUBDOMAIN_3_NAME     AND
-		         T2.METRIC_NAME      = F.METRIC_NAME
+		 T2.METRIC_NAME      = F.METRIC_NAME
 		 LEFT OUTER JOIN (SELECT ZEROIFNULL(MAX(INDICATOR_KEY)) AS MAX_ID
 		                  FROM ???.FACT_INDICATOR_DASHBOARD_V) MAXKEY ON 
 		          1=1
@@ -4647,7 +4670,8 @@ INSERT
     DATA_SOURCE_DESC,
     REC_INS_TS,
     REC_UPD_TS  
-   )  VALUES 
+   )  
+VALUES 
    (    
     STG.INDICATOR_KEY,      
     STG.DATE_KEY,
@@ -4749,9 +4773,9 @@ USING
                           ' ' SUBDOMAIN_2_NAME,
                           ' ' SUBDOMAIN_3_NAME,
                           T1.CASES,
-						  T1.DAILY_NEW_CASES,
-		                  T1.DEATHS,
-						  T1.DAILY_NEW_DEATHS,
+			  T1.DAILY_NEW_CASES,
+		          T1.DEATHS,
+			  T1.DAILY_NEW_DEATHS,
                           'New York Times Covid cases/deaths reporting' AS DATA_SOURCE_NAME,
                           'New York Times Covid cases/deaths reporting' AS DATA_SOURCE_DESC  
                       FROM
@@ -4830,12 +4854,12 @@ USING
                  T2.SUBDOMAIN_1_NAME = F.SUBDOMAIN_1_NAME     AND
                  T2.SUBDOMAIN_2_NAME = F.SUBDOMAIN_2_NAME     AND
                  T2.SUBDOMAIN_3_NAME = F.SUBDOMAIN_3_NAME     AND
-		         T2.METRIC_NAME      = F.METRIC_NAME
+		 T2.METRIC_NAME      = F.METRIC_NAME
 		 LEFT OUTER JOIN (SELECT ZEROIFNULL(MAX(INDICATOR_KEY)) AS MAX_ID
 		                  FROM ???.FACT_INDICATOR_DASHBOARD_V) MAXKEY ON 
 		          1=1
  	     WHERE
-            INS_UPD_FLAG IN ('I','U')	
+             INS_UPD_FLAG IN ('I','U')	
   )  STG ON  
 STG.INDICATOR_KEY = TGT.INDICATOR_KEY AND
 STG.DATE_KEY      = TGT.DATE_KEY
@@ -5112,27 +5136,18 @@ IF v_Date_Key_Val <> '9999-12-31'(DATE) THEN
 	    x.ICUbed_mean,
 	    x.ICUbed_lower,
 	    x.ICUbed_upper,
-	    x.InvVen_mean,
-	    x.InvVen_lower,
-	    x.InvVen_upper,
 	    x.deaths_mean,
 	    x.deaths_lower,
 	    x.deaths_upper,
 	    x.admis_mean,
 	    x.admis_lower,
 	    x.admis_upper,
-	    x.newICU_mean,
-	    x.newICU_lower,
-	    x.newICU_upper,
+	    --x.newICU_mean,
+	    --x.newICU_lower,
+	    --x.newICU_upper,
 	    x.totdea_mean,
 	    x.totdea_lower,
 	    x.totdea_upper,
-	    x.bedover_mean,
-	    x.bedover_lower,
-	    x.bedover_upper,
-	    x.icuover_mean,
-	    x.icuover_lower,
-	    x.icuover_upper,
 	    x.deaths_mean_smoothed,
 	    x.deaths_lower_smoothed,
 	    x.deaths_upper_smoothed,
@@ -5166,27 +5181,18 @@ IF v_Date_Key_Val <> '9999-12-31'(DATE) THEN
 	    a.ICUbed_mean,
 	    a.ICUbed_lower,
 	    a.ICUbed_upper,
-	    a.InvVen_mean,
-	    a.InvVen_lower,
-	    a.InvVen_upper,
 	    a.deaths_mean,
 	    a.deaths_lower,
 	    a.deaths_upper,
 	    a.admis_mean,
 	    a.admis_lower,
 	    a.admis_upper,
-	    a.newICU_mean,
-	    a.newICU_lower,
-	    a.newICU_upper,
+	    --a.newICU_mean,
+	    --a.newICU_lower,
+	    --a.newICU_upper,
 	    a.totdea_mean,
 	    a.totdea_lower,
 	    a.totdea_upper,
-	    a.bedover_mean,
-	    a.bedover_lower,
-	    a.bedover_upper,
-	    a.icuover_mean,
-	    a.icuover_lower,
-	    a.icuover_upper,
 	    a.deaths_mean_smoothed,
 	    a.deaths_lower_smoothed,
 	    a.deaths_upper_smoothed,
@@ -5219,27 +5225,18 @@ IF v_Date_Key_Val <> '9999-12-31'(DATE) THEN
 			    a.ICUbed_mean,
 			    a.ICUbed_lower,
 			    a.ICUbed_upper,
-			    a.InvVen_mean,
-			    a.InvVen_lower,
-			    a.InvVen_upper,
 			    a.deaths_mean,
 			    a.deaths_lower,
 			    a.deaths_upper,
 			    a.admis_mean,
 			    a.admis_lower,
 			    a.admis_upper,
-			    a.newICU_mean,
-			    a.newICU_lower,
-			    a.newICU_upper,
+			    --a.newICU_mean,
+			    --a.newICU_lower,
+			    --a.newICU_upper,
 			    a.totdea_mean,
 			    a.totdea_lower,
 			    a.totdea_upper,
-			    a.bedover_mean,
-			    a.bedover_lower,
-			    a.bedover_upper,
-			    a.icuover_mean,
-			    a.icuover_lower,
-			    a.icuover_upper,
 			    a.deaths_mean_smoothed,
 			    a.deaths_lower_smoothed,
 			    a.deaths_upper_smoothed,
@@ -5304,27 +5301,18 @@ IF v_Date_Key_Val <> '9999-12-31'(DATE) THEN
 	    ICUbed_mean,
 	    ICUbed_lower,
 	    ICUbed_upper,
-	    InvVen_mean,
-	    InvVen_lower,
-	    InvVen_upper,
 	    deaths_mean,
 	    deaths_lower,
 	    deaths_upper,
 	    admis_mean,
 	    admis_lower,
 	    admis_upper,
-	    newICU_mean,
-	    newICU_lower,
-	    newICU_upper,
+	    --newICU_mean,
+	    --newICU_lower,
+	    --newICU_upper,
 	    totdea_mean,
 	    totdea_lower,
 	    totdea_upper,
-	    bedover_mean,
-	    bedover_lower,
-	    bedover_upper,
-	    icuover_mean,
-	    icuover_lower,
-	    icuover_upper,
 	    deaths_mean_smoothed,
 	    deaths_lower_smoothed,
 	    deaths_upper_smoothed,
@@ -5357,27 +5345,18 @@ IF v_Date_Key_Val <> '9999-12-31'(DATE) THEN
 	    source.ICUbed_mean,
 	    source.ICUbed_lower,
 	    source.ICUbed_upper,
-	    source.InvVen_mean,
-	    source.InvVen_lower,
-	    source.InvVen_upper,
-	   	source.deaths_mean,
+	    source.deaths_mean,
 	    source.deaths_lower,
 	    source.deaths_upper,
 	    source.admis_mean,
 	    source.admis_lower,
 	    source.admis_upper,
-	    source.newICU_mean,
-	    source.newICU_lower,
-	    source.newICU_upper,
+	    --source.newICU_mean,
+	    --source.newICU_lower,
+	    --source.newICU_upper,
 	    source.totdea_mean,
 	    source.totdea_lower,
 	    source.totdea_upper,
-	    source.bedover_mean,
-	   	source.bedover_lower,
-	    source.bedover_upper,
-	    source.icuover_mean,
-	    source.icuover_lower,
-	    source.icuover_upper,
 	    source.deaths_mean_smoothed,
 	    source.deaths_lower_smoothed,
 	    source.deaths_upper_smoothed,
@@ -5426,27 +5405,18 @@ IF v_Date_Key_Val <> '9999-12-31'(DATE) THEN
 			(ICUbed_mean) as'ICUbed_mean',
 			(ICUbed_lower) as'ICUbed_lower',
 			(ICUbed_upper) as'ICUbed_upper',
-			(InvVen_mean) as'InvVen_mean',
-			(InvVen_lower) as'InvVen_lower',
-			(InvVen_upper) as'InvVen_upper',
 			(deaths_mean) as'deaths_mean',
 			(deaths_lower) as'deaths_lower',
 			(deaths_upper) as'deaths_upper',
 			(admis_mean) as'admis_mean',
 			(admis_lower) as'admis_lower',
 			(admis_upper) as'admis_upper',
-			(newICU_mean) as'newICU_mean',
-			(newICU_lower) as'newICU_lower',
-			(newICU_upper) as'newICU_upper',
+			--(newICU_mean) as'newICU_mean',
+			--(newICU_lower) as'newICU_lower',
+			--(newICU_upper) as'newICU_upper',
 			(totdea_mean) as'totdea_mean',
 			(totdea_lower) as'totdea_lower',
 			(totdea_upper) as'totdea_upper',
-			(bedover_mean) as'bedover_mean',
-			(bedover_lower) as'bedover_lower',
-			(bedover_upper) as'bedover_upper',
-			(icuover_mean) as'icuover_mean',
-			(icuover_lower) as'icuover_lower',
-			(icuover_upper) as'icuover_upper',
 			(deaths_mean_smoothed) as'deaths_mean_smoothed',
 			(deaths_lower_smoothed) as'deaths_lower_smoothed',
 			(deaths_upper_smoothed) as'deaths_upper_smoothed',
@@ -5478,33 +5448,24 @@ IF v_Date_Key_Val <> '9999-12-31'(DATE) THEN
 	    x.DATE_GRANULARITY,
 	    x.GEO_KEY,
 	    x.GEO_GRANULARITY,
-	    x.peak_bed_day_mean,
-	    x.peak_bed_day_lower,
-	    x.peak_bed_day_upper,
-	    x.peak_icu_bed_day_mean,
-	    x.peak_icu_bed_day_lower,
-	    x.peak_icu_bed_day_upper,
-	    x.peak_vent_day_mean,
-	    x.peak_vent_day_lower,
-	    x.peak_vent_day_upper,
 	    x.all_bed_capacity,
 	    x.icu_bed_capacity,
-	    x.all_bed_usage,
-	    x.icu_bed_usage,
-	    x.available_all_nbr,
-	    x.available_icu_nbr,
-	    x.travel_limit_start_date,
-	    x.travel_limit_end_date,
-	    x.stay_home_start_date,
-	    x.stay_home_end_date,
-	    x.educational_fac_start_date,
-	    x.educational_fac_end_date,
-	    x.any_gathering_restrict_start_date,
-	    x.any_gathering_restrict_end_date,
-	    x.any_business_start_date,
-	    x.any_business_end_date,
-	    x.all_non_ess_business_start_date,
-	    x.all_non_ess_business_end_date,
+	    --x.all_bed_usage,
+	    --x.icu_bed_usage,
+	    --x.available_all_nbr,
+	    --x.available_icu_nbr,
+	    --x.travel_limit_start_date,
+	    --x.travel_limit_end_date,
+	    --x.stay_home_start_date,
+	    --x.stay_home_end_date,
+	    --x.educational_fac_start_date,
+	    --x.educational_fac_end_date,
+	    --x.any_gathering_restrict_start_date,
+	    --x.any_gathering_restrict_end_date,
+	    --x.any_business_start_date,
+	    --x.any_business_end_date,
+	    --x.all_non_ess_business_start_date,
+	    --x.all_non_ess_business_end_date,
 	    x.REC_INS_TS,
 	    x.REC_UPD_TS
 		-- 
@@ -5514,33 +5475,24 @@ IF v_Date_Key_Val <> '9999-12-31'(DATE) THEN
 	    a.DATE_GRANULARITY,
 	    a.GEO_KEY,
 	    a.GEO_GRANULARITY,
-	    a.peak_bed_day_mean,
-	    a.peak_bed_day_lower,
-	    a.peak_bed_day_upper,
-	    a.peak_icu_bed_day_mean,
-	    a.peak_icu_bed_day_lower,
-	    a.peak_icu_bed_day_upper,
-	    a.peak_vent_day_mean,
-	    a.peak_vent_day_lower,
-	    a.peak_vent_day_upper,
 	    a.all_bed_capacity,
 	    a.icu_bed_capacity,
-	    a.all_bed_usage,
-	    a.icu_bed_usage,
-	    a.available_all_nbr,
-	    a.available_icu_nbr,
-	    a.travel_limit_start_date,
-	    a.travel_limit_end_date,
-	    a.stay_home_start_date,
-	    a.stay_home_end_date,
-	    a.educational_fac_start_date,
-	    a.educational_fac_end_date,
-	    a.any_gathering_restrict_start_date,
-	    a.any_gathering_restrict_end_date,
-	    a.any_business_start_date,
-	    a.any_business_end_date,
-	    a.all_non_ess_business_start_date,
-	    a.all_non_ess_business_end_date,
+	    --a.all_bed_usage,
+	    --a.icu_bed_usage,
+	    --a.available_all_nbr,
+	    --a.available_icu_nbr,
+	    --a.travel_limit_start_date,
+	    --a.travel_limit_end_date,
+	    --a.stay_home_start_date,
+	    --a.stay_home_end_date,
+	    --a.educational_fac_start_date,
+	    --a.educational_fac_end_date,
+	    --a.any_gathering_restrict_start_date,
+	    --a.any_gathering_restrict_end_date,
+	    --a.any_business_start_date,
+	    --a.any_business_end_date,
+	    --a.all_non_ess_business_start_date,
+	    --a.all_non_ess_business_end_date,
 	    coalesce(b.REC_INS_TS,current_timestamp(0)) REC_INS_TS,
 	    current_timestamp REC_UPD_TS,
 	    CASE WHEN b.date_KEY IS NULL THEN 'I'
@@ -5552,33 +5504,24 @@ IF v_Date_Key_Val <> '9999-12-31'(DATE) THEN
 		'Daily' date_granularity, 
 	 	coalesce(l.uid,-1) geo_key,
 	 	coalesce(l.geo_granularity, (select geo_granularity from ???.DIM_GEO_LOCATION_V where uid = -1) ) geo_granularity,
-	    a.peak_bed_day_mean,
-	    a.peak_bed_day_lower,
-	    a.peak_bed_day_upper,
-	    a.peak_icu_bed_day_mean,
-	    a.peak_icu_bed_day_lower,
-	    a.peak_icu_bed_day_upper,
-	    a.peak_vent_day_mean,
-	    a.peak_vent_day_lower,
-	    a.peak_vent_day_upper,
 	    a.all_bed_capacity,
-	    a.icu_bed_capacity,
-	    a.all_bed_usage,
-	    a.icu_bed_usage,
-	    a.available_all_nbr,
-	    a.available_icu_nbr,
-	    a.travel_limit_start_date,
-	    a.travel_limit_end_date,
-	    a.stay_home_start_date,
-	    a.stay_home_end_date,
-	    a.educational_fac_start_date,
-	    a.educational_fac_end_date,
-	    a.any_gathering_restrict_start_date,
-	    a.any_gathering_restrict_end_date,
-	    a.any_business_start_date,
-	    a.any_business_end_date,
-	    a."ALL_NON-ESS_BUSINESS_START_DATE" ALL_NON_ESS_BUSINESS_START_DATE,
-	    a."ALL_NON-ESS_BUSINESS_END_DATE" ALL_NON_ESS_BUSINESS_END_DATE 
+	    a.icu_bed_capacity
+	    --a.all_bed_usage,
+	    --a.icu_bed_usage,
+	    --a.available_all_nbr,
+	    --a.available_icu_nbr,
+	    --a.travel_limit_start_date,
+	    --a.travel_limit_end_date,
+	    --a.stay_home_start_date,
+	    --a.stay_home_end_date,
+	    --a.educational_fac_start_date,
+	    --a.educational_fac_end_date,
+	    --a.any_gathering_restrict_start_date,
+	    --a.any_gathering_restrict_end_date,
+	    --a.any_business_start_date,
+	    --a.any_business_end_date,
+	    --a."ALL_NON-ESS_BUSINESS_START_DATE" ALL_NON_ESS_BUSINESS_START_DATE,
+	    --a."ALL_NON-ESS_BUSINESS_END_DATE" ALL_NON_ESS_BUSINESS_END_DATE 
 		--
 	    from ???.STG_Summary_stats_all_locs a
 	    left outer join ???.DIM_GEO_LOCATION_V l 
@@ -5608,33 +5551,24 @@ IF v_Date_Key_Val <> '9999-12-31'(DATE) THEN
 	    DATE_GRANULARITY,
 	    GEO_KEY,
 	    GEO_GRANULARITY,
-	    peak_bed_day_mean,
-	    peak_bed_day_lower,
-	    peak_bed_day_upper,
-	    peak_icu_bed_day_mean,
-	    peak_icu_bed_day_lower,
-	    peak_icu_bed_day_upper,
-	    peak_vent_day_mean,
-	    peak_vent_day_lower,
-	    peak_vent_day_upper,
 	    all_bed_capacity,
 	    icu_bed_capacity,
-	    all_bed_usage,
-	    icu_bed_usage,
-	    available_all_nbr,
-	    available_icu_nbr,
-	    travel_limit_start_date,
-	    travel_limit_end_date,
-	    stay_home_start_date,
-	    stay_home_end_date,
-	    educational_fac_start_date,
-	    educational_fac_end_date,
-	    any_gathering_restrict_start_date,
-	    any_gathering_restrict_end_date,
-	    any_business_start_date,
-	    any_business_end_date,
-	    all_non_ess_business_start_date,
-	    all_non_ess_business_end_date,
+	    --all_bed_usage,
+	    --icu_bed_usage,
+	    --available_all_nbr,
+	    --available_icu_nbr,
+	    --travel_limit_start_date,
+	    --travel_limit_end_date,
+	    --stay_home_start_date,
+	    --stay_home_end_date,
+	    --educational_fac_start_date,
+	    --educational_fac_end_date,
+	    --any_gathering_restrict_start_date,
+	    --any_gathering_restrict_end_date,
+	    --any_business_start_date,
+	    --any_business_end_date,
+	    --all_non_ess_business_start_date,
+	    --all_non_ess_business_end_date,
 	    REC_INS_TS,
 	    REC_UPD_TS  ) 
 	values ( 
@@ -5642,33 +5576,24 @@ IF v_Date_Key_Val <> '9999-12-31'(DATE) THEN
 	    source.DATE_GRANULARITY,
 	    source.GEO_KEY,
 	    source.GEO_GRANULARITY,
-	    source.peak_bed_day_mean,
-	    source.peak_bed_day_lower,
-	    source.peak_bed_day_upper,
-	    source.peak_icu_bed_day_mean,
-	    source.peak_icu_bed_day_lower,
-	    source.peak_icu_bed_day_upper,
-	    source.peak_vent_day_mean,
-	    source.peak_vent_day_lower,
-	    source.peak_vent_day_upper,
 	    source.all_bed_capacity,
 	    source.icu_bed_capacity,
-	    source.all_bed_usage,
-	    source.icu_bed_usage,
-	    source.available_all_nbr,
-	    source.available_icu_nbr,
-	    source.travel_limit_start_date,
-	    source.travel_limit_end_date,
-	    source.stay_home_start_date,
-	    source.stay_home_end_date,
-	    source.educational_fac_start_date,
-	    source.educational_fac_end_date,
-	    source.any_gathering_restrict_start_date,
-	    source.any_gathering_restrict_end_date,
-	    source.any_business_start_date,
-	    source.any_business_end_date,
-	    source.all_non_ess_business_start_date,
-	    source.all_non_ess_business_end_date,
+	    --source.all_bed_usage,
+	    --source.icu_bed_usage,
+	    --source.available_all_nbr,
+	    --source.available_icu_nbr,
+	    --source.travel_limit_start_date,
+	    --source.travel_limit_end_date,
+	    --source.stay_home_start_date,
+	    --source.stay_home_end_date,
+	    --source.educational_fac_start_date,
+	    --source.educational_fac_end_date,
+	    --source.any_gathering_restrict_start_date,
+	    --source.any_gathering_restrict_end_date,
+	    --source.any_business_start_date,
+	    --source.any_business_end_date,
+	    --source.all_non_ess_business_start_date,
+	    --source.all_non_ess_business_end_date,
 	    source.REC_INS_TS,
 	    null  );
 		--
@@ -5802,7 +5727,7 @@ END;
 MERGE INTO ???.FACT_COVID19_DATAHUB as target
 USING    
  ( select x.PROCESS_TYPE,      	
-   	x.date_key,
+    x.date_key,
     x.GEO_KEY,
     x.TEST_CNT,
     x.confirmed_CNT,
@@ -5825,11 +5750,11 @@ USING
     x.testing_policy  ,
     x.contact_tracing  ,
     x.stringency_index  ,
-    x.key_STR,
+    --x.key_STR,
     x.key_numeric,
     x.key_google_mobility,
     x.key_apple_mobility,
-    x.key_alpha_2, 
+    --x.key_alpha_2, 
     x.REC_INS_TS 
    --select *  
 from  
@@ -5859,11 +5784,11 @@ from
     a.testing_policy  ,
     a.contact_tracing  ,
     a.stringency_index  ,
-    a.key_STR,
+    --a.key_STR,
     a.key_numeric,
     a.key_google_mobility,
     a.key_apple_mobility,
-    a.key_alpha_2, 
+    --a.key_alpha_2, 
     a.REC_INS_TS ,
  
     CASE
@@ -5888,7 +5813,7 @@ from
 
 
 SELECT 
-   cast ( date_key as date) date_key,
+    cast (date_key as date) date_key,
     UID GEO_KEY,
     tests TEST_CNT,
     confirmed confirmed_CNT,
@@ -5913,16 +5838,16 @@ SELECT
     testing_policy  ,
     contact_tracing  ,
     stringency_index  ,
-    "key" key_STR,
-    key_numeric,
+    --"key" key_STR,
+    key_local as key_numeric,
     key_google_mobility,
     key_apple_mobility,
-    key_alpha_2 ,
+    --key_alpha_2 ,
  	current_timestamp(0) REC_INS_TS
  	--select min(date_key)
 from ???.STG_COVID19_Datahub_LVL3 l3
 left outer join ???.DIM_GEO_LOCATION_V g
-on l3.key_numeric  =  g.fips 
+on l3.key_local  =  g.fips 
 where g.uid is not null ) a
  
         LEFT OUTER JOIN ???.FACT_COVID19_DATAHUB_v b
@@ -5944,37 +5869,38 @@ ON  source.date_key = target.date_key
 WHEN NOT MATCHED THEN 
 insert  
 (   	      	
-   	 date_key,
+   	date_key,
     GEO_KEY,
-     TESTCNT,
+    TESTCNT,
     confirmed_CNT,
     recovered_CNT,
-     deaths_CNT,
-     HOSPITALIZED_CNT,
-     ON_VENTILATOR_CNT,
-     IN_ICU_CNT,
-     SEVERE_CASE_CNT,
-     population  ,
-      school_closing  ,
-     workplace_closing  ,
-     cancel_events  ,
-      gatherings_restrictions  ,
-     transport_closing  ,
-     stay_home_restrictions  ,
-     internal_movement_restrictions  ,
-     international_movement_restrictions  ,
-     information_campaigns  ,
-     testing_policy  ,
-     contact_tracing  ,
-     stringency_index  ,
-     key_STR,
-     key_numeric,
-     key_google_mobility,
-     key_apple_mobility,
-     key_alpha_2, 
-     REC_INS_TS   ) 
-values ( 
-		   	
+    deaths_CNT,
+    HOSPITALIZED_CNT,
+    ON_VENTILATOR_CNT,
+    IN_ICU_CNT,
+    SEVERE_CASE_CNT,
+	population  ,
+    school_closing  ,
+    workplace_closing  ,
+    cancel_events  ,
+    gatherings_restrictions  ,
+    transport_closing  ,
+    stay_home_restrictions  ,
+    internal_movement_restrictions  ,
+    international_movement_restrictions  ,
+    information_campaigns  ,
+    testing_policy  ,
+    contact_tracing  ,
+    stringency_index  ,
+    --key_STR,
+    key_numeric,
+    key_google_mobility,
+    key_apple_mobility,
+    --key_alpha_2, 
+    REC_INS_TS   
+) 
+values 
+( 		   	
    	source.date_key,
     source.GEO_KEY,
     source.TEST_CNT,
@@ -5998,13 +5924,14 @@ values (
     source.testing_policy  ,
     source.contact_tracing  ,
     source.stringency_index  ,
-    source.key_STR,
+    --source.key_STR,
     source.key_numeric,
     source.key_google_mobility,
     source.key_apple_mobility,
-    source.key_alpha_2, 
-    source.REC_INS_TS )
-     when matched then
+    --source.key_alpha_2, 
+    source.REC_INS_TS 
+)
+ when matched then
  update 
  set   	TESTCNT = source.TEST_CNT
        	,confirmed_CNT = source.confirmed_CNT
@@ -6047,13 +5974,13 @@ USING
     x.testing_policy  ,
     x.contact_tracing  ,
     x.stringency_index  ,
-    x.key_STR,
+    --x.key_STR,
     x.key_numeric,
     x.key_google_mobility,
     x.key_apple_mobility,
-    x.key_alpha_2, 
+    --x.key_alpha_2, 
     x.REC_INS_TS 
-   --select *  
+    --select *  
 from  
   
   (
@@ -6081,11 +6008,11 @@ from
     a.testing_policy  ,
     a.contact_tracing  ,
     a.stringency_index  ,
-    a.key_STR,
+    --a.key_STR,
     a.key_numeric,
     a.key_google_mobility,
     a.key_apple_mobility,
-    a.key_alpha_2, 
+    --a.key_alpha_2, 
     a.REC_INS_TS ,
  
     CASE
@@ -6110,7 +6037,7 @@ from
 
 
 SELECT 
-   cast ( date_key as date) date_key,
+    cast ( date_key as date) date_key,
     UID GEO_KEY,
     tests TESTED_CNT,
     confirmed confirmed_CNT,
@@ -6135,11 +6062,11 @@ SELECT
     testing_policy  ,
     contact_tracing  ,
     stringency_index  ,
-    "key" key_STR,
-    key_numeric,
+    --"key" key_STR,
+    key_local as key_numeric,
     key_google_mobility,
     key_apple_mobility,
-    key_alpha_2 ,
+    --key_alpha_2 ,
  	current_timestamp(0) REC_INS_TS
  	--select min(date_key)
 from ???.STG_COVID19_Datahub_LVL2 l2 
@@ -6190,14 +6117,15 @@ insert
      testing_policy  ,
      contact_tracing  ,
      stringency_index  ,
-     key_STR,
+     --key_STR,
      key_numeric,
      key_google_mobility,
      key_apple_mobility,
-     key_alpha_2, 
-     REC_INS_TS   ) 
-values ( 
-		   	
+     --key_alpha_2, 
+     REC_INS_TS   
+) 
+values 
+( 		   	
    	source.date_key,
     source.GEO_KEY,
     source.TESTED_CNT,
@@ -6221,13 +6149,14 @@ values (
     source.testing_policy  ,
     source.contact_tracing  ,
     source.stringency_index  ,
-    source.key_STR,
+    --source.key_STR,
     source.key_numeric,
     source.key_google_mobility,
     source.key_apple_mobility,
-    source.key_alpha_2, 
-    source.REC_INS_TS )
-     when matched then
+    --source.key_alpha_2, 
+    source.REC_INS_TS 
+)
+ when matched then
  update 
  set   	TESTED_CNT = source.TESTED_CNT
        	,confirmed_CNT = source.confirmed_CNT
@@ -6363,9 +6292,9 @@ MERGE INTO ???.FACT_INDICATOR_DASHBOARD_T2_p as target
 USING  
   ( 
  
-  select          x.PROCESS_TYPE,     
+  select x.PROCESS_TYPE,     
     CASE
-             WHEN x.PROCESS_TYPE = 'I'
+         WHEN x.PROCESS_TYPE = 'I'
          THEN y.MAX_ID + ROW_NUMBER() OVER(
          ORDER BY x.METRIC_NAME,
            x.DATE_KEY ,
@@ -6376,10 +6305,9 @@ USING
            x.SUBDOMAIN_2_NAME,
            x.SUBDOMAIN_3_NAME 
              )
-
          ELSE x.INDICATOR_KEY
          END AS INDICATOR_KEY,  	
-   	x.Date_key,
+    x.Date_key,
     x.DATE_GRANULARITY,
     x.GEO_KEY, 
     x.GEO_GRANULARITY,
@@ -6425,11 +6353,11 @@ SELECT   CASE
     a.DATA_SOURCE_DESC,
     coalesce(b.REC_INS_TS,CURRENT_TIMESTAMP(0)) REC_INS_TS ,
     CURRENT_TIMESTAMP(0) REC_UPD_TS 
-   -- SELECT min(date_key)   from ???.FACT_INDICATOR_DASHBOARD_v where   data_source_name like '%eia%' and date_key = '2003-11-07'
-  
-FROM (
-    SELECT  cast(tmp.date_key as date) AS DATE_KEY,
-     'WEEKLY' AS DATE_GRANULARITY,
+   -- SELECT min(date_key) from ???.FACT_INDICATOR_DASHBOARD_v where data_source_name like '%eia%' and date_key = '2003-11-07'  
+FROM 
+   (
+   SELECT cast(tmp.date_key as date) AS DATE_KEY,
+   'WEEKLY' AS DATE_GRANULARITY,
    840 AS GEO_KEY,
    'COUNTRY' AS GEO_GRANULARITY,
    'Fuel Supply' AS DOMAIN_NAME,
@@ -6492,10 +6420,10 @@ and source.date_key = target.date_key
 --WHEN MATCHED THEN UPDATE
 --SET product_status  = source.product_status
 WHEN NOT MATCHED THEN 
-insert  
+INSERT  
 (   	
-     INDICATOR_KEY,  	
-   	Date_key,
+    INDICATOR_KEY,  	
+    Date_key,
     DATE_GRANULARITY,
     GEO_KEY, 
     GEO_GRANULARITY,
@@ -6507,13 +6435,14 @@ insert
     METRIC_VALUE,
     METRIC_INDEX,
     DATA_SOURCE_NAME,
-     DATA_SOURCE_DESC,
-     REC_INS_TS,
-     REC_UPD_TS  ) 
-values ( 
-		
-     source.INDICATOR_KEY,  	
-   	source.Date_key,
+    DATA_SOURCE_DESC,
+    REC_INS_TS,
+    REC_UPD_TS 
+) 
+VALUES 
+(
+    source.INDICATOR_KEY,  	
+    source.Date_key,
     source.DATE_GRANULARITY,
     source.GEO_KEY, 
     source.GEO_GRANULARITY,
@@ -6527,9 +6456,10 @@ values (
     source.DATA_SOURCE_NAME,
     source.DATA_SOURCE_DESC,
     source.REC_INS_TS,
-    source.REC_UPD_TS   )
-     when matched then
- update 
+    source.REC_UPD_TS   
+)   
+when matched then
+update 
  set  METRIC_VALUE = source.METRIC_VALUE
  , METRIC_INDEX = source.METRIC_INDEX
  , REC_UPD_TS = source.REC_UPD_TS;
@@ -6549,7 +6479,6 @@ SET v_RowCnt = v_RecordsAffected;
 INSERT INTO ???.ETL_Indicator_Proj_Audit VALUES (v_ProcName,'Core',v_CoreTable,v_RecordsAffected,current_timestamp(0));
 	
 END;
-
 
 
 
@@ -6875,7 +6804,7 @@ and source.date_key = target.date_key
 --WHEN MATCHED THEN UPDATE
 --SET product_status  = source.product_status
 WHEN NOT MATCHED THEN 
-insert  
+INSERT  
 (   	
      INDICATOR_KEY,  	
    	Date_key,
@@ -6890,13 +6819,14 @@ insert
     METRIC_VALUE,
     METRIC_INDEX,
     DATA_SOURCE_NAME,
-     DATA_SOURCE_DESC,
-     REC_INS_TS,
-     REC_UPD_TS  ) 
-values ( 
-		
-     source.INDICATOR_KEY,  	
-   	source.Date_key,
+    DATA_SOURCE_DESC,
+    REC_INS_TS,
+    REC_UPD_TS  
+) 
+VALUES 
+( 		
+    source.INDICATOR_KEY,  	
+    source.Date_key,
     source.DATE_GRANULARITY,
     source.GEO_KEY, 
     source.GEO_GRANULARITY,
@@ -7028,6 +6958,7 @@ SET v_RowCnt = v_RecordsAffected;
 INSERT INTO ???.ETL_Indicator_Proj_Audit VALUES (v_ProcName,'Core',v_CoreTable,v_RecordsAffected,current_timestamp(0));
 	
 END;
+
 
 
 REPLACE PROCEDURE ???.ETL_LABOR_STATS_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
@@ -7197,11 +7128,7 @@ SELECT
 		union all
 		select * from ???.STG_Labor_Stats_LNS13000000
 		union all
-		select * from ???.STG_Labor_Stats_LNS14000000 ) all_bls
-        
-
-        
-        
+		select * from ???.STG_Labor_Stats_LNS14000000) all_bls
         ) aa     
         LEFT OUTER JOIN ???.FACT_INDICATOR_DASHBOARD_v b
            ON  aa.METRIC_NAME = b.METRIC_NAME
@@ -7236,10 +7163,10 @@ and source.date_key = target.date_key
 --WHEN MATCHED THEN UPDATE
 --SET product_status  = source.product_status
 WHEN NOT MATCHED THEN 
-insert  
+INSERT 
 (   	
-     INDICATOR_KEY,  	
-   	Date_key,
+    INDICATOR_KEY,  	
+    Date_key,
     DATE_GRANULARITY,
     GEO_KEY, 
     GEO_GRANULARITY,
@@ -7251,13 +7178,14 @@ insert
     METRIC_VALUE,
     METRIC_INDEX,
     DATA_SOURCE_NAME,
-     DATA_SOURCE_DESC,
-     REC_INS_TS,
-     REC_UPD_TS  ) 
-values ( 
-		
-     source.INDICATOR_KEY,  	
-   	source.Date_key,
+    DATA_SOURCE_DESC,
+    REC_INS_TS,
+    REC_UPD_TS  
+) 
+VALUES 
+( 
+    source.INDICATOR_KEY,  	
+    source.Date_key,
     source.DATE_GRANULARITY,
     source.GEO_KEY, 
     source.GEO_GRANULARITY,
@@ -7294,6 +7222,7 @@ SET v_RowCnt = v_RecordsAffected;
 INSERT INTO ???.ETL_Indicator_Proj_Audit VALUES (v_ProcName,'Core',v_CoreTable,v_RecordsAffected,current_timestamp(0));
 	
 END;
+
 
 
 REPLACE PROCEDURE ???.ETL_LOOKUP_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
@@ -7421,6 +7350,7 @@ INSERT INTO ???.ETL_Indicator_Proj_Audit VALUES (v_ProcName,'Core',v_CoreTable,v
 END;
 
 
+
 REPLACE PROCEDURE ???.ETL_POST_LOAD_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
 /*********************************************************************************************************/
 /* 
@@ -7481,7 +7411,7 @@ COLLECT STATISTICS ON ???.F_IND_DASH_NYT_COVID19_GEO_7MAVG_WEEKLY_SNPSHT COLUMN 
 COLLECT STATISTICS ON ???.FACT_INDICATOR_DASHBOARD_T2_P COLUMN (DATA_SOURCE_NAME,DATE_KEY);
 COLLECT STATISTICS ON ???.DIM_Site_addresses COLUMN (Zipcode);
 COLLECT STATISTICS ON ???.DIM_ZIPCODE_COUNTY_MSA_LKUP COLUMN (ZIPCODE);
-COLLECT STATISTICS ON ???.STG_covid19_stats COLUMN (date_key);
+-- COLLECT STATISTICS ON ???.STG_covid19_stats COLUMN (date_key);
 COLLECT STATISTICS ON ???.DIM_GEO_LOCATION_T COLUMN (Country_code,GEO_GRANULARITY);
 COLLECT STATISTICS ON ???.F_IND_DASH_NYT_COVID19_COUNTY_7MAVG COLUMN (DATE_KEY,GEO_KEY);
 COLLECT STATISTICS ON ???.F_IND_DASH_NYT_COVID19_GEO_7MAVG_WEEKLY_SNPSHT COLUMN (COUNTRY_NAME);
@@ -7518,6 +7448,8 @@ COLLECT STATISTICS COLUMN (STATE_CD, COLLECTION_DATE_KEY) ON ???.F_IND_DASH_EST_
 COLLECT STATISTICS COLUMN (STATE_CD, COLLECTION_DATE_KEY) ON ???.F_IND_DASH_EST_HOSP_COVID_INPATIENT;
 COLLECT STATISTICS COLUMN (DATE_KEY) ON ???.FACT_Covid_Model_Data;
 COLLECT STATISTICS COLUMN (GEO_KEY) ON ???.FACT_Covid_Model_Data;
+-- Extra collect stats statements that are required
+COLLECT STATISTICS COLUMN (DATE_KEY, GEO_KEY) ON ???.FACT_COVID_MODEL_DATA_SUM;
 
 /******************************************************************/
 --End of Transformation Logic
@@ -7533,6 +7465,7 @@ INSERT INTO ???.ETL_Indicator_Proj_Audit VALUES (v_ProcName,'Core',v_CoreTable,v
 
 	
 END;
+
 
 
 REPLACE PROCEDURE ???.ETL_TSA_TRAVEL_CORE (OUT v_MsgTxt VARCHAR(100), OUT v_RowCnt INT,OUT v_ResultSet INT)
@@ -7581,9 +7514,9 @@ END;
 --travel tsa
 MERGE INTO ???.FACT_INDICATOR_DASHBOARD_T2_P as target
 USING  
-  ( select          x.PROCESS_TYPE,     
-    CASE
-             WHEN x.PROCESS_TYPE = 'I'
+  ( select x.PROCESS_TYPE,     
+        CASE
+         WHEN x.PROCESS_TYPE = 'I'
          THEN y.MAX_ID + ROW_NUMBER() OVER(
          ORDER BY x.METRIC_NAME,
            x.DATE_KEY ,
@@ -7594,7 +7527,6 @@ USING
            x.SUBDOMAIN_2_NAME,
            x.SUBDOMAIN_3_NAME 
              )
-
          ELSE x.INDICATOR_KEY
          END AS INDICATOR_KEY,  	
    	x.Date_key,
@@ -7671,30 +7603,33 @@ SELECT
         
         
       select
-	  	-- 07/22/20 Change
-	    cast(TO_DATE((lpad(STRTOK(travel_date,'/',1),2,'0')||'/'||lpad(STRTOK(travel_date,'/',1),2,'0')|| '/'||STRTOK(travel_date,'/',3)),'MM/DD/YYYY') as date) DATE_KEY,
- 		'Daily' DATE_GRANULARITY , 
+	  -- 10/08/21 Change
+	 cast(TO_DATE((lpad(STRTOK(cast(cast(travel_date as date format 'MM/DD/YYYY') as VARCHAR(1024)),'/',1),2,'0')||'/'||
+         lpad(STRTOK(cast(cast(travel_date as date format 'MM/DD/YYYY') as VARCHAR(1024)),'/',1),2,'0')|| '/'||
+              STRTOK(cast(cast(travel_date as date format 'MM/DD/YYYY') as VARCHAR(1024)),'/',3)),'MM/DD/YYYY') as date) DATE_KEY,
+ 	'Daily' DATE_GRANULARITY , 
     	'840' GEO_KEY  ,
     	 'Country' GEO_GRANULARITY,  
     	 'TSA Travel'  DOMAIN_NAME ,  
     	 ' ' SUBDOMAIN_1_NAME	,
-	 	' ' SUBDOMAIN_2_NAME	,
-	 	' ' SUBDOMAIN_3_NAME	,
-	    'Traffic Volume' METRIC_NAME,
-	   	TravelThroughPut   METRIC_VALUE	 ,
-	     0  METRIC_index ,
-	  	'TSA Travel' DATA_SOURCE_NAME ,
-	 	'TSA Travel' DATA_SOURCE_DESC ,
-	 	current_timestamp(0) REC_INS_TS, 	 
-	 	current_timestamp(0) REC_UPD_TS
+	 ' ' SUBDOMAIN_2_NAME	,
+	 ' ' SUBDOMAIN_3_NAME	,
+	 'Traffic Volume' METRIC_NAME,
+	 TravelThroughPut   METRIC_VALUE	 ,
+	 0  METRIC_index ,
+	 'TSA Travel' DATA_SOURCE_NAME ,
+	 'TSA Travel' DATA_SOURCE_DESC ,
+	 current_timestamp(0) REC_INS_TS, 	 
+	 current_timestamp(0) REC_UPD_TS
         FROM  ???.STG_TSA_TRAVEL
         where travel_date is not null 
         --
         union all 
         select
-		-- 07/22/20 Change
-   		cast(TO_DATE((lpad(STRTOK(travel_date,'/',1),2,'0')||'/'||lpad(STRTOK(travel_date,'/',1),2,'0')|| '/'||STRTOK(travel_date,'/',3)),'MM/DD/YYYY') as date) -365 DATE_KEY,
- 		'Daily' DATE_GRANULARITY , 
+	cast(TO_DATE((lpad(STRTOK(cast(cast(travel_date as date format 'MM/DD/YYYY') as VARCHAR(1024)),'/',1),2,'0')||'/'||
+        lpad(STRTOK(cast(cast(travel_date as date format 'MM/DD/YYYY') as VARCHAR(1024)),'/',1),2,'0')|| '/'||
+             STRTOK(cast(cast(travel_date as date format 'MM/DD/YYYY') as VARCHAR(1024)),'/',3)),'MM/DD/YYYY') as date) -365 DATE_KEY,
+ 	'Daily' DATE_GRANULARITY , 
     	'840' GEO_KEY  ,
      	'Country' GEO_GRANULARITY,  
       	'TSA Travel'  DOMAIN_NAME ,  
@@ -7744,10 +7679,10 @@ and source.date_key = target.date_key
 --WHEN MATCHED THEN UPDATE
 --SET product_status  = source.product_status
 WHEN NOT MATCHED THEN 
-insert  
+INSERT  
 (   	
-     INDICATOR_KEY,  	
-   	Date_key,
+    INDICATOR_KEY,  	
+    Date_key,
     DATE_GRANULARITY,
     GEO_KEY, 
     GEO_GRANULARITY,
@@ -7759,13 +7694,14 @@ insert
     METRIC_VALUE,
     METRIC_INDEX,
     DATA_SOURCE_NAME,
-     DATA_SOURCE_DESC,
-     REC_INS_TS,
-     REC_UPD_TS  ) 
-values ( 
-		
-     source.INDICATOR_KEY,  	
-   	source.Date_key,
+    DATA_SOURCE_DESC,
+    REC_INS_TS,
+    REC_UPD_TS  
+) 
+VALUES 
+( 		
+    source.INDICATOR_KEY,  	
+    source.Date_key,
     source.DATE_GRANULARITY,
     source.GEO_KEY, 
     source.GEO_GRANULARITY,
@@ -7779,7 +7715,8 @@ values (
     source.DATA_SOURCE_NAME,
     source.DATA_SOURCE_DESC,
     source.REC_INS_TS,
-    source.REC_UPD_TS   );
+    source.REC_UPD_TS   
+);
  
 /******************************************************************/
 --End of Transformation Logic
@@ -7795,3 +7732,521 @@ SET v_RowCnt = v_RecordsAffected;
 INSERT INTO ???.ETL_Indicator_Proj_Audit VALUES (v_ProcName,'Core',v_CoreTable,v_RecordsAffected,current_timestamp(0));
 	
 END;
+
+
+
+CREATE MULTISET TABLE ???.US_STATE_VAC ,FALLBACK ,
+     NO BEFORE JOURNAL,
+     NO AFTER JOURNAL,
+     CHECKSUM = DEFAULT,
+     DEFAULT MERGEBLOCKRATIO,
+     MAP = TD_MAP1
+     (
+      "date" VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      location VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      total_vaccinations FLOAT,
+      total_distributed FLOAT,
+      people_vaccinated FLOAT,
+      people_fully_vaccinated_per_hundred FLOAT,
+      total_vaccinations_per_hundred FLOAT,
+      people_fully_vaccinated FLOAT,
+      people_vaccinated_per_hundred FLOAT,
+      distributed_per_hundred FLOAT,
+      daily_vaccinations_raw FLOAT,
+      daily_vaccinations FLOAT,
+      daily_vaccinations_per_million FLOAT,
+      share_doses_used FLOAT
+	 )
+NO PRIMARY INDEX ;
+
+
+REPLACE VIEW ???.US_STATE_VAC_PREV AS
+ ( 
+ SELECT LOCATION, 
+ CAST("DATE" AS DATE ) + INTERVAL '1' DAY  AS PREV_DT, 
+ TOTAL_VACCINATIONS 
+ FROM ???.US_STATE_VAC
+);
+
+
+REPLACE VIEW  ???.US_CONF AS
+ (
+ SELECT CAST(METRIC_VALUE AS INT) AS TOT_CONF, 
+     STATE_NAME AS PROVINCE_STATE, 
+     COUNTY, 
+     DATE_KEY AS "DATE"
+  FROM ???.FACT_INDICATOR_DASHBOARD_V F 
+     JOIN ???.DIM_GEO_LOCATION_V G ON
+     F.GEO_KEY = G.UID
+	 WHERE METRIC_NAME = 'CASES TO-DATE'
+	  AND DATE_KEY > '2020-10-01'
+	  AND STATE_NAME NOT IN ('AMERICAN SAMOA','DIAMOND PRINCESS'
+   ,'GRAND PRINCESS', 'GUAM' , 'NORTHERN MARIANA ISLANDS', 'PUERTO RICO', 
+    'VIRGIN ISLANDS')
+  );
+
+
+REPLACE VIEW ???.US_CONF_STATE AS 
+  (
+    SELECT PROVINCE_STATE, "DATE", SUM(TOT_CONF) AS TOTAL_CONF 
+    FROM ???.US_CONF
+    GROUP BY 1,2
+	);
+
+
+REPLACE VIEW ???.US_CONF_STATE_VAC AS 
+    (
+	SELECT A.* ,COALESCE(B.TOTAL_VACCINATIONS, C.TOTAL_VACCINATIONS, 0) AS TOTAL_VAC
+	FROM ???.US_CONF_STATE A 
+	LEFT OUTER JOIN ???.US_STATE_VAC B
+	ON A.PROVINCE_STATE = B.LOCATION
+	AND A."DATE" =  B."DATE"
+	LEFT OUTER JOIN ???.US_STATE_VAC_PREV C
+	ON B.LOCATION = C.LOCATION	
+	AND B."DATE" =  C.PREV_DT
+	);
+
+
+REPLACE VIEW ???.US_CONF_STATE_VAC_SMAVG AS
+(
+SELECT * FROM MOVINGAVERAGE (
+  ON ???.US_CONF_STATE_VAC PARTITION BY PROVINCE_STATE ORDER BY "DATE"
+  USING
+  MAVGTYPE ('S')
+  TARGETCOLUMNS ('TOTAL_CONF')
+  WINDOWSIZE (7)
+  INCLUDEFIRST ('TRUE')
+) AS DT 
+WHERE "DATE" > '2021-01-07'
+);
+
+
+REPLACE VIEW  ???.US_DEATH AS
+ (
+ SEL CAST(METRIC_VALUE AS INT) AS TOT_DEATHS ,STATE_NAME AS PROVINCE_STATE,
+     COUNTY, DATE_KEY AS "DATE"
+  FROM ???.FACT_INDICATOR_DASHBOARD_V F 
+     JOIN ???.DIM_GEO_LOCATION_V G ON
+     F.GEO_KEY = G.UID
+	 WHERE METRIC_NAME = 'DEATHS TO-DATE'
+	  AND DATE_KEY > '2020-10-01'
+	  AND STATE_NAME NOT IN ('AMERICAN SAMOA','DIAMOND PRINCESS'
+   ,'GRAND PRINCESS', 'GUAM' , 'NORTHERN MARIANA ISLANDS', 'PUERTO RICO', 
+    'VIRGIN ISLANDS')
+  );
+
+
+REPLACE VIEW ???.US_DEATH_STATE AS 
+  (
+    SELECT PROVINCE_STATE, "DATE", SUM(TOT_DEATHS) AS TOTAL_DEATHS 
+    FROM ???.US_DEATH
+	GROUP BY 1,2
+	);
+
+
+REPLACE VIEW ???.US_DEATH_STATE_VAC AS 
+    (
+	SEL A.* , COALESCE(B.TOTAL_VACCINATIONS, 0) AS TOTAL_VAC
+	FROM ???.US_DEATH_STATE A 
+	LEFT OUTER JOIN ???.US_STATE_VAC B
+	ON A.PROVINCE_STATE = B.LOCATION
+	AND A."DATE" =  B."DATE"
+	);
+
+
+REPLACE VIEW ???.US_DEATH_STATE_VAC_SMAVG AS
+(
+SELECT * FROM MOVINGAVERAGE (
+  ON ???.US_DEATH_STATE_VAC PARTITION BY PROVINCE_STATE ORDER BY "DATE"
+  USING
+  MAVGTYPE ('S')
+  TARGETCOLUMNS ('TOTAL_DEATHS')
+  WINDOWSIZE (7)
+  INCLUDEFIRST ('TRUE')
+) AS DT 
+WHERE "DATE" > '2021-01-07'
+);
+
+
+REPLACE VIEW ???.US_CONF_COUNTY_TOP AS
+(
+	SEL TOP 800 * FROM ???.US_CONF
+	WHERE "DATE" IN (SEL MAX("DATE") FROM ???.US_CONF)
+	ORDER BY TOT_CONF DESC
+	);
+
+
+REPLACE VIEW ???.US_CONF_COUNTY AS
+(
+SEL TOT_CONF,PROVINCE_STATE,COUNTY, CAST("date" AS DATE)  AS "date" FROM ???.US_CONF
+WHERE (COUNTY,PROVINCE_STATE) IN (SEL COUNTY, PROVINCE_STATE FROM ???.US_CONF_COUNTY_TOP)
+AND COUNTY NOT IN (
+'Washington' ,'Jefferson' ,'Madison' ,'Montgomery' ,'Jackson' ,'Cumberland' ,'Franklin' ,'Monroe' ,'Orange' ,'Wayne' ,'Boone' ,'Marion' ,'Clark' 
+,'Douglas' ,'Lake' ,'Johnson' ,'Rockingham' ,'Suffolk' ,'Fayette' ,'DeKalb' ,'Lancaster' ,'Kent' ,'Clay' ,'Lee' ,'Greene' ,'Hamilton' ,'Wood' 
+,'Delaware' ,'York' ,'Middlesex' ,'Erie' ,'Butler' ,'St. Clair' ,'Walker' ,'Williamson' ,'Warren' ,'Adams' ,'Nassau' ,'Scott' ,'Hancock'
+ ,'Crawford' ,'Benton' ,'Sussex' ,'Cass' ,'Walton' ,'Bay' ,'Hillsborough' ,'Richmond' ,'Lauderdale' ,'Essex' ,'Norfolk' ,'Fairfield' ,'Grant' 
+ ,'Shelby' ,'Davidson' ,'Wilson' ,'Dallas' ,'Santa Cruz' ,'Anderson' ,'Rutherford' ,'Lowndes' ,'Calhoun' ,'Livingston' ,'Richland' ,'Floyd' 
+ ,'Union' ,'Houston' ,'Columbia' ,'Howard' ,'Allen' ,'Hall' ,'Kings' ,'Forsyth' ,'St. Louis' ,'Frederick' ,'Somerset' ,'Carroll' ,'Portage'
+ ,'Sumter' ,'Blount' ,'Lincoln' ,'Christian' ,'Winnebago' ,'Morgan' ,'Berkeley' ,'Midland' ,'Mercer' ,'Cleveland' ,'Polk' ,'Putnam' ,'Bedford' ,'El Paso' )
+);
+
+
+REPLACE VIEW ???.US_CONF_COUNTY_SMAVG AS
+(
+SELECT * FROM MOVINGAVERAGE (
+  ON ???.US_CONF_COUNTY PARTITION BY COUNTY ORDER BY "date"
+  USING
+  MAVGTYPE ('S')
+  TARGETCOLUMNS ('TOT_CONF')
+  WINDOWSIZE (7)
+  INCLUDEFIRST ('TRUE')
+) AS DT 
+WHERE "date" > '2021-01-07'
+);
+
+
+REPLACE VIEW ???.US_DEATH_COUNTY_TOP AS
+(
+	SEL TOP 800 * FROM ???.US_DEATH
+	WHERE "DATE" IN (SEL MAX("DATE") FROM ???.US_DEATH)
+	ORDER BY TOT_DEATHS DESC
+	);
+
+
+REPLACE VIEW ???.US_DEATH_COUNTY AS
+(
+SEL TOT_DEATHS,PROVINCE_STATE,COUNTY, CAST("date" AS DATE)  AS "date" FROM ???.US_DEATH
+WHERE (COUNTY,PROVINCE_STATE) IN (SEL COUNTY,PROVINCE_STATE FROM ???.US_DEATH_COUNTY_TOP)
+AND COUNTY NOT IN (
+'Washington' ,'Jefferson' ,'Madison' ,'Montgomery' ,'Jackson' ,'Cumberland' ,'Franklin' ,'Monroe' ,'Orange' ,'Wayne' ,'Boone' ,'Marion' ,'Clark' 
+,'Douglas' ,'Lake' ,'Johnson' ,'Rockingham' ,'Suffolk' ,'Fayette' ,'DeKalb' ,'Lancaster' ,'Kent' ,'Clay' ,'Lee' ,'Greene' ,'Hamilton' ,'Wood' 
+,'Delaware' ,'York' ,'Middlesex' ,'Erie' ,'Butler' ,'St. Clair' ,'Walker' ,'Williamson' ,'Warren' ,'Adams' ,'Nassau' ,'Scott' ,'Hancock'
+ ,'Crawford' ,'Benton' ,'Sussex' ,'Cass' ,'Walton' ,'Bay' ,'Hillsborough' ,'Richmond' ,'Lauderdale' ,'Essex' ,'Norfolk' ,'Fairfield' ,'Grant' 
+ ,'Shelby' ,'Davidson' ,'Wilson' ,'Dallas' ,'Santa Cruz' ,'Anderson' ,'Rutherford' ,'Lowndes' ,'Calhoun' ,'Livingston' ,'Richland' ,'Floyd' 
+ ,'Union' ,'Houston' ,'Columbia' ,'Howard' ,'Allen' ,'Hall' ,'Kings' ,'Forsyth' ,'St. Louis' ,'Frederick' ,'Somerset' ,'Carroll' ,'Portage'
+ ,'Sumter' ,'Blount' ,'Lincoln' ,'Christian' ,'Winnebago' ,'Morgan' ,'Berkeley' ,'Midland' ,'Mercer' ,'Cleveland' ,'Polk' ,'Putnam' ,'Bedford' ,'El Paso' )
+);
+
+
+REPLACE VIEW ???.US_DEATH_COUNTY_SMAVG AS
+(
+SELECT * FROM MOVINGAVERAGE (
+  ON ???.US_DEATH_COUNTY PARTITION BY COUNTY ORDER BY "date"
+  USING
+  MAVGTYPE ('S')
+  TARGETCOLUMNS ('TOT_DEATHS')
+  WINDOWSIZE (7)
+  INCLUDEFIRST ('TRUE')
+) AS DT 
+WHERE "date" > '2021-01-07'
+);
+
+
+REPLACE VIEW ???.ECONOMIC_FACTORS AS
+(
+SELECT a.SUBDOMAIN_1_NAME, a.DATE_KEY, a.METRIC_VALUE 
+FROM ???.FACT_INDICATOR_DASHBOARD_V  a
+WHERE YEAR(DATE_KEY) >= '2018'
+AND SUBDOMAIN_1_NAME IN ('Motor Gasoline','Jet Fuel')
+);
+
+
+REPLACE VIEW ???.ECONOMIC_FACTORS_TRN AS
+(
+SELECT * FROM ???.ECONOMIC_FACTORS 
+WHERE CAST(DATE_KEY AS DATE) < '2021-01-01'
+);
+
+
+REPLACE VIEW ???.ECONOMIC_FACTORS_NH AS
+(
+SELECT a.SUBDOMAIN_1_NAME, a.DATE_KEY, a.METRIC_VALUE 
+FROM ???.FACT_INDICATOR_DASHBOARD_V  a
+WHERE SUBDOMAIN_1_NAME IN ('Nondurable goods','Household consumption expenditures (for services)')
+AND SUBDOMAIN_2_NAME IN ('Clothing and footwear','Food services and accommodations')
+AND SUBDOMAIN_3_NAME IN ('Total','Food services')
+AND YEAR(DATE_KEY) >= '2018'
+AND METRIC_NAME = 'Personal Consumption Expenditure (Product Details)'
+);
+
+
+REPLACE VIEW ???.ECONOMIC_FACTORS_NH_TRN AS
+(
+SELECT * FROM ???.ECONOMIC_FACTORS_NH
+WHERE CAST(DATE_KEY AS DATE) < '2021-01-01'
+);
+
+
+CREATE MULTISET TABLE ???.STATE_POP ,FALLBACK ,
+     NO BEFORE JOURNAL,
+     NO AFTER JOURNAL,
+     CHECKSUM = DEFAULT,
+     DEFAULT MERGEBLOCKRATIO,
+     MAP = TD_MAP1
+     (
+      State VARCHAR(1024) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      Population BIGINT)
+NO PRIMARY INDEX ;
+
+
+CREATE MULTISET TABLE ???.varmax_case_vac ,FALLBACK ,
+     NO BEFORE JOURNAL,
+     NO AFTER JOURNAL,
+     CHECKSUM = DEFAULT,
+     DEFAULT MERGEBLOCKRATIO,
+     MAP = TD_MAP1
+     (
+      province_state VARCHAR(128) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      coef VARCHAR(100) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      coef_value VARCHAR(8192) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      stepahead VARCHAR(10) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      predict_total_conf_smavg FLOAT)
+NO PRIMARY INDEX;
+
+
+CREATE MULTISET TABLE ???.varmax_death_vac ,FALLBACK ,
+     NO BEFORE JOURNAL,
+     NO AFTER JOURNAL,
+     CHECKSUM = DEFAULT,
+     DEFAULT MERGEBLOCKRATIO,
+     MAP = TD_MAP1
+     (
+      province_state VARCHAR(128) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      coef VARCHAR(100) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      coef_value VARCHAR(8192) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      stepahead VARCHAR(10) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      predict_total_deaths_smavg FLOAT)
+NO PRIMARY INDEX ;
+
+
+CREATE MULTISET TABLE ???.arima_county_case ,FALLBACK ,
+     NO BEFORE JOURNAL,
+     NO AFTER JOURNAL,
+     CHECKSUM = DEFAULT,
+     DEFAULT MERGEBLOCKRATIO,
+     MAP = TD_MAP1
+     (
+      county VARCHAR(128) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      stepahead INTEGER,
+      predict FLOAT)
+NO PRIMARY INDEX ;
+
+
+CREATE MULTISET TABLE ???.arima_county_death ,FALLBACK ,
+     NO BEFORE JOURNAL,
+     NO AFTER JOURNAL,
+     CHECKSUM = DEFAULT,
+     DEFAULT MERGEBLOCKRATIO,
+     MAP = TD_MAP1
+     (
+      county VARCHAR(128) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      stepahead INTEGER,
+      predict FLOAT)
+NO PRIMARY INDEX ;
+
+
+CREATE MULTISET TABLE ???.EF_ARIMA_PRED ,FALLBACK ,
+     NO BEFORE JOURNAL,
+     NO AFTER JOURNAL,
+     CHECKSUM = DEFAULT,
+     DEFAULT MERGEBLOCKRATIO,
+     MAP = TD_MAP1
+     (
+      SUBDOMAIN_1_name VARCHAR(255) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      stepahead INTEGER,
+      predict FLOAT)
+NO PRIMARY INDEX ;
+
+
+CREATE MULTISET TABLE ???.EF_ARIMA_PRED_NH ,FALLBACK ,
+     NO BEFORE JOURNAL,
+     NO AFTER JOURNAL,
+     CHECKSUM = DEFAULT,
+     DEFAULT MERGEBLOCKRATIO,
+     MAP = TD_MAP1
+     (
+      SUBDOMAIN_1_name VARCHAR(255) CHARACTER SET UNICODE NOT CASESPECIFIC,
+      stepahead INTEGER,
+      predict FLOAT)
+NO PRIMARY INDEX;
+
+
+REPLACE VIEW  ???.US_STATE_VAC_VW AS
+(
+SELECT "date",
+location,
+people_vaccinated as pv,
+people_fully_vaccinated as pfv,
+b.Population as pop,
+pv/pop as per_people_vac,
+pfv/pop as per_people_fully_vac
+FROM ???.US_STATE_VAC a
+INNER JOIN ???.STATE_POP b
+ON location = State
+WHERE "date" in (sel max("date") FROM ???.US_STATE_VAC)
+);
+
+
+REPLACE VIEW ???.US_CONF_STATE_VAC_SMAVG_U AS
+(
+SELECT * FROM MOVINGAVERAGE (
+  ON ???.US_CONF_STATE_VAC_SMAVG PARTITION BY PROVINCE_STATE ORDER BY "DATE"
+  USING
+  MAVGTYPE ('S')
+  TARGETCOLUMNS ('TOTAL_VAC')
+  WINDOWSIZE (7)
+  INCLUDEFIRST ('TRUE')
+) AS DT 
+WHERE "DATE" > '2020-10-07'
+);
+
+
+REPLACE VIEW ???.VARMAX_CASE_STATE AS
+(
+SELECT (SEL MAX("DATE") FROM ???.US_CONF_STATE_VAC_SMAVG) + CAST(STEPAHEAD AS INT) AS "DATE", PREDICT_TOTAL_CONF_SMAVG AS TOTAL_CONF, PROVINCE_STATE
+FROM ???.VARMAX_CASE_VAC
+WHERE COEF IS NULL
+AND TOTAL_CONF > 0
+);
+
+
+REPLACE VIEW ???.VARMAX_DEATH_STATE AS
+(
+SELECT (SEL MAX("DATE") FROM ???.US_DEATH_STATE_VAC_SMAVG) + CAST(STEPAHEAD AS INT) AS "DATE", PREDICT_TOTAL_DEATHS_SMAVG AS TOTAL_DEATHS, PROVINCE_STATE 
+FROM ???.VARMAX_DEATH_VAC
+WHERE COEF IS NULL
+AND TOTAL_DEATHS > 0
+);
+
+
+REPLACE VIEW ???.ARIMA_COUNTY_CASE_PRED AS
+(
+SELECT (SEL MAX("DATE") FROM ???.US_CONF_COUNTY_SMAVG)  + CAST(STEPAHEAD AS INT) AS "DATE", PREDICT AS TOTAL_CONF, A.COUNTY, B.PROVINCE_STATE
+FROM ???.ARIMA_COUNTY_CASE A
+LEFT OUTER JOIN ???.US_CONF_COUNTY_SMAVG B
+ON A.COUNTY = B.COUNTY
+WHERE TOTAL_CONF > 0
+GROUP BY 1,2,3,4
+);
+
+
+REPLACE VIEW ???.ARIMA_COUNTY_DEATH_PRED AS 
+(
+SELECT (SEL MAX("DATE") FROM ???.US_CONF_COUNTY_SMAVG) + CAST(STEPAHEAD AS INT) AS "DATE", PREDICT AS TOTAL_DEATHS, A.COUNTY, B.PROVINCE_STATE
+FROM ???.ARIMA_COUNTY_DEATH A
+LEFT OUTER JOIN ???.US_DEATH_COUNTY_SMAVG B
+ON A.COUNTY = B.COUNTY
+WHERE TOTAL_DEATHS > 0
+GROUP BY 1,2,3,4
+);
+
+
+REPLACE VIEW ???.ECONOMIC_FACTORS_ARIMA_PRED AS
+(
+SELECT CAST('2020-12-25' AS DATE) + (STEPAHEAD*7) AS "DATE_KEY", PREDICT AS METRIC_VALUE, SUBDOMAIN_1_NAME FROM ???.EF_ARIMA_PRED
+);
+
+
+REPLACE VIEW ???.ECONOMIC_FACTORS_ARIMA_NH_PRED AS
+(
+SELECT CAST('2020-12-01' AS DATE) + (STEPAHEAD*31) AS "DATE_KEY", PREDICT AS METRIC_VALUE, SUBDOMAIN_1_NAME FROM ???.EF_ARIMA_PRED_NH
+);
+
+
+REPLACE VIEW ???.TOT_STATE_DEATHS_V AS
+    SELECT t0.*
+        FROM (
+        (
+        SELECT US_DEATH_STATE_VAC_SMAVG.Province_State AS province_state,
+            US_DEATH_STATE_VAC_SMAVG."date" AS "date",
+            CAST('US_DEATH_STATE_VAC_SMAVG' AS VARCHAR(32)) AS "table name",
+            US_DEATH_STATE_VAC_SMAVG.total_deaths_smavg AS total_deaths
+            FROM ???.US_DEATH_STATE_VAC_SMAVG
+        )
+          
+        UNION  ALL 
+          
+        (
+        SELECT VARMAX_DEATH_STATE.Province_State AS province_state,
+            VARMAX_DEATH_STATE."date" AS "date",
+            CAST('VARMAX_DEATH_STATE' AS VARCHAR(32)) AS "table name",
+            VARMAX_DEATH_STATE.total_deaths AS total_deaths
+            FROM ???.VARMAX_DEATH_STATE
+        )
+          
+        ) t0;
+
+
+REPLACE VIEW ???.TOT_STATE_CASES_V AS
+    SELECT t0.*
+        FROM (
+        (
+        SELECT US_CONF_STATE_VAC_SMAVG.Province_State AS province_state,
+            US_CONF_STATE_VAC_SMAVG."date" AS "date",
+            CAST('US_CONF_STATE_VAC_SMAVG' AS VARCHAR(32)) AS "table name",
+            US_CONF_STATE_VAC_SMAVG.total_conf_smavg AS tot_conf
+            FROM ???.US_CONF_STATE_VAC_SMAVG
+        )
+          
+        UNION  ALL 
+        (
+        SELECT VARMAX_CASE_STATE.Province_State AS province_state,
+            VARMAX_CASE_STATE."date" AS "date",
+            CAST('VARMAX_CASE_STATE' AS VARCHAR(32)) AS "table name",
+            VARMAX_CASE_STATE.total_conf AS tot_conf
+            FROM ???.VARMAX_CASE_STATE
+        )
+          
+        ) t0;
+
+
+REPLACE VIEW ???.TOT_COUNTY_DEATHS_V AS
+    SELECT t0.*
+        FROM (
+        (
+        SELECT US_DEATH_COUNTY_SMAVG.Province_State AS province_state,
+            US_DEATH_COUNTY_SMAVG.county AS county,
+            US_DEATH_COUNTY_SMAVG."date" AS "date",
+            CAST('US_DEATH_COUNTY_SMAVG' AS VARCHAR(32)) AS "table name",
+            US_DEATH_COUNTY_SMAVG.tot_deaths_smavg AS tot_deaths
+            FROM ???.US_DEATH_COUNTY_SMAVG 
+        )
+            
+        UNION  ALL 
+          
+        (
+        SELECT ARIMA_COUNTY_DEATH_PRED.Province_State AS province_state,
+            ARIMA_COUNTY_DEATH_PRED.county AS county,
+            ARIMA_COUNTY_DEATH_PRED."date" AS "date",
+            CAST('ARIMA_COUNTY_DEATH_PRED' AS VARCHAR(32)) AS "table name",
+            ARIMA_COUNTY_DEATH_PRED.total_deaths AS tot_deaths
+            FROM ???.ARIMA_COUNTY_DEATH_PRED
+        )
+          
+        ) t0;
+
+
+REPLACE VIEW ???.TOT_COUNTY_CASES_V AS
+    SELECT t0.*
+        FROM (
+        (
+        SELECT US_CONF_COUNTY_SMAVG.Province_State AS province_state,
+            US_CONF_COUNTY_SMAVG.county AS county,
+            US_CONF_COUNTY_SMAVG."date" AS "date",
+            CAST('US_CONF_COUNTY_SMAVG' AS VARCHAR(32)) AS "table name",
+            US_CONF_COUNTY_SMAVG.tot_conf_smavg AS tot_conf
+            FROM ???.US_CONF_COUNTY_SMAVG 
+        ) 
+            
+        UNION  ALL
+        
+        (
+        SELECT ARIMA_COUNTY_CASE_PRED.Province_State AS province_state,
+            ARIMA_COUNTY_CASE_PRED.county AS county,
+            ARIMA_COUNTY_CASE_PRED."date" AS "date",
+            CAST('ARIMA_COUNTY_CASE_PRED' AS VARCHAR(32)) AS "table name",
+            ARIMA_COUNTY_CASE_PRED.total_conf AS tot_conf
+            FROM ???.ARIMA_COUNTY_CASE_PRED
+        ) 
+          
+        ) t0;

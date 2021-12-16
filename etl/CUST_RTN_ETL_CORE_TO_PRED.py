@@ -40,26 +40,24 @@ import params
 
 # Connection 
 
-vantage  = create_context(host=params.MyHost, username=params.MyUser, password=params.Password,temp_database_name=params.SchemaName,logmech=params.LogMech)
+vantage = create_context(host=params.MyHost, username=params.MyUser, password=params.Password, temp_database_name=params.SchemaName, logmech=params.LogMech)
 
 
 #############################################################
 #Fetching Training Data for Cases in State
 #############################################################
 
-
 vac1_u = "SELECT * from " +params.SchemaName +".US_CONF_STATE_VAC_SMAVG"
-print (vac1_u)
+
 #############################################################
 #Converting to Dataframe
 #############################################################
 
-
 vac1_u_df = DataFrame.from_query(vac1_u)
 
-#############################################################
-#Building Varmax Model for Prediction of Confirmed Cases in US States.
-#############################################################
+#######################################################################
+#Building Varmax Model for Prediction of Confirmed Cases in US States
+#######################################################################
 
 varmax_out3 = VarMax(data = vac1_u_df,
                         data_partition_column = ["PROVINCE_STATE"],
@@ -77,34 +75,30 @@ varmax_out3 = VarMax(data = vac1_u_df,
                         )
 
 
-
 #############################################################
 # Loading results to database
 #############################################################
 
 copy_to_sql(varmax_out3.result, table_name="varmax_case_vac", schema_name = params.SchemaName ,if_exists="replace")
 
+print("Prediction of confirmed cases in US States!")
 
 
 #############################################################
 #Fetching Training Data for Deaths in State
 #############################################################
 
-
-
 vac2_u = "SELECT * from " +params.SchemaName +".US_DEATH_STATE_VAC_SMAVG"
-
 
 #############################################################
 #Converting to Dataframe
 #############################################################
 
-
 vac2_u_df = DataFrame.from_query(vac2_u)
 
-#############################################################
-#Building Varmax Model for Prediction of Death Cases in US States.
-#############################################################
+####################################################################
+#Building Varmax Model for Prediction of Death Cases in US States
+####################################################################
 
 varmax_out4 = VarMax(data = vac2_u_df,
                      data_partition_column = ["PROVINCE_STATE"],
@@ -121,48 +115,43 @@ varmax_out4 = VarMax(data = vac2_u_df,
                      step_ahead = 90
                      )
 
+
 #############################################################
 # Loading results to database
 #############################################################
 
 copy_to_sql(varmax_out4.result, table_name="varmax_death_vac", schema_name = params.SchemaName ,if_exists="replace")
 
+print("Prediction of death cases in US States!")
+
 
 #############################################################
 #Fetching Training Data for Cases in County
 #############################################################
 
-
 tct_u ="SELECT * from "  +params.SchemaName +".US_CONF_COUNTY_SMAVG"
 
-
 #############################################################
-#Fetching Training Data for Death in County
+#Fetching Training Data for Deaths in County
 #############################################################
-
-
 
 tdt_u ="SELECT * from " +params.SchemaName +".US_DEATH_COUNTY_SMAVG"
 
-
 #############################################################
 #Converting to Dataframe
 #############################################################
-
 
 tct_df_u = DataFrame.from_query(tct_u)
 
-
 #############################################################
 #Converting to Dataframe
 #############################################################
 
-
 tdt_df_u = DataFrame.from_query(tdt_u)
 
-#############################################################
-#Building Arima Model for Prediction of Confirmed Cases in US Counties.
-#############################################################
+##########################################################################
+#Building Arima Model for Prediction of Confirmed Cases in US Counties
+##########################################################################
 
 arima_out5 = Arima(data = tct_df_u,
                      timestamp_columns = ["date"],
@@ -173,7 +162,6 @@ arima_out5 = Arima(data = tct_df_u,
                      seasonal_order_d = 1,
                      seasonal_order_q = 2, 
                      period = 1)
-
 
 
 arima_predict_out5 = ArimaPredict(object = arima_out5,
@@ -191,11 +179,12 @@ arima_predict_out5 = ArimaPredict(object = arima_out5,
 
 copy_to_sql(arima_predict_out5.result, table_name="arima_county_case", schema_name = params.SchemaName ,if_exists="replace")
 
+print("Prediction of confirmed cases in US Counties!")
 
-#############################################################
-#Building Arima Model for Prediction of Death Cases in US Counties.
-#############################################################
 
+#####################################################################
+#Building Arima Model for Prediction of Death Cases in US Counties
+#####################################################################
 
 arima_out6 = Arima(data = tdt_df_u,
                      timestamp_columns = ["date"],
@@ -206,7 +195,6 @@ arima_out6 = Arima(data = tdt_df_u,
                      seasonal_order_d = 1,
                      seasonal_order_q = 2, 
                      period = 1)
-
 
 
 arima_predict_out6 = ArimaPredict(object = arima_out6,
@@ -222,19 +210,18 @@ arima_predict_out6 = ArimaPredict(object = arima_out6,
 # Loading results to database
 #############################################################
 
-
 copy_to_sql(arima_predict_out6.result, table_name="arima_county_death", schema_name = params.SchemaName ,if_exists="replace")
 
+print("Prediction of death cases in US Counties!")
 
 
+###################
 # ECONOMIC FACTORS
-
+###################
 
 #############################################################
 #Fetching Economic Factors with Weekly data
 #############################################################
-
-
 
 ef_trn = "sel * from " +params.SchemaName + ".ECONOMIC_FACTORS_TRN"
 
@@ -242,21 +229,15 @@ ef_trn = "sel * from " +params.SchemaName + ".ECONOMIC_FACTORS_TRN"
 #Fetching Economic Factors with Monthly data
 #############################################################
 
-
 ef_nh_trn = "sel * from " +params.SchemaName + ".ECONOMIC_FACTORS_NH_TRN"
-print(ef_nh_trn)
 
 #############################################################
 #Converting to Dataframe
 #############################################################
 
-
-
 ef_nh_trn = DataFrame.from_query(ef_nh_trn)
 
-
 ef_trn = DataFrame.from_query(ef_trn)
-print (ef_trn)
 
 #############################################################
 #Predicting Economic Factors with Weekly data
@@ -273,7 +254,6 @@ arima_out5 = Arima(data = ef_trn,
                      period = 12)
 
 
-
 arima_predict_out5 = ArimaPredict(object = arima_out5,
                                         object_partition_column='subdomain_1_name',
                                         residual_table=arima_out5.residual_table,
@@ -281,6 +261,7 @@ arima_predict_out5 = ArimaPredict(object = arima_out5,
                                         residual_table_order_column='date_key',
                                         partition_columns='subdomain_1_name',
                                         n_ahead= 30)
+
 
 #############################################################
 #Predicting Economic Factors with Monthly Data 
@@ -297,7 +278,6 @@ arima_out7 = Arima(data = ef_nh_trn,
                      period = 3)
 
 
-
 arima_predict_out7 = ArimaPredict(object = arima_out7,
                                         object_partition_column='subdomain_1_name',
                                         residual_table=arima_out7.residual_table,
@@ -311,9 +291,8 @@ arima_predict_out7 = ArimaPredict(object = arima_out7,
 # Loading results to database
 #############################################################
 
-
 copy_to_sql(arima_predict_out5.result, table_name="EF_ARIMA_PRED", schema_name = params.SchemaName ,if_exists="replace")
+print("Prediction of economic factors with weekly data!")
 
-
-copy_to_sql(arima_predict_out7.result, table_name="EF_ARIMA_PRED_NH1", schema_name = params.SchemaName ,if_exists="replace")
-
+copy_to_sql(arima_predict_out7.result, table_name="EF_ARIMA_PRED_NH", schema_name = params.SchemaName ,if_exists="replace")
+print("Prediction of economic factors with monthly data!")

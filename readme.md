@@ -9,7 +9,7 @@ This application consists of the following components:
   * ETL Python Scripts - (etl folder)
   * Initial Manual Data Inserts (data folder)
   * Tableau Application Visualization (tableau folder)
-  
+  
 # Prerequisites:
   * Python Version 3.7 or Greater
   * Teradata Connection through Python (teradataml)
@@ -31,7 +31,7 @@ This application consists of the following components:
       * Do a complete replacement of '???' to target database name
       
 # Installation Steps:
-  * Create a seperate database instance (15-20 Gigs of Perm Space) 
+  * Create a separate database instance (15-20 Gigs of Perm Space) 
   * Initiate a Teradata session through SQL Assistant, Teradata Studio or BTEQ
   * If using Teradata Studio, under "JDBC Connection Properties", click on "Add" and Set TMODE='TERA'
   * Run CUST_RTN_Install.ddl Install through successful completion
@@ -40,8 +40,11 @@ This application consists of the following components:
   * Check the logs and database for record counts
   * Run Python Script CUST_RTN_ETL_SRC_TO_STG.py for Source to Staging load
   * Check the logs and database for record counts
-  * Run Python Script CUST_RTN_ETL_STG_TO_CORE.py for Source to Staging load
+  * Run Python Script CUST_RTN_ETL_STG_TO_CORE.py for Staging to Core load
   * Check the logs and database for record counts
+  * Run Python Script CUST_RTN_ETL_CORE_TO_PRED.py for Core to Predictions load (only if Machine Learning Engine is present)
+  * Check the logs and database for record counts
+
   * Schedule the Python Scripts to be run Daily or manually run for updates
   
 # Tableau Dashboard Refresh:
@@ -53,15 +56,15 @@ This application consists of the following components:
   * Right click and select "Unpackage"
   * On the created Resiliency Dashboard vx.xx.twb file, right click and open with WordPad to see the XML definition
   * Modify by "Select" and "Replace" the following Connection Information:
-	- 'tdprd2.td.teradata.com' to your Host/Sever Name
+	- 'tdprd.td.teradata.com' to your Host/Sever Name
 	- 'auth-ldap' to 'auth-teradata' if other than LDAP
 	- 'ADLDEMO_COVID19' to your schema name
-	- 'AS186097' to your User Name
+	- 'pb250043' to your User Name
   * Save and Open the Dashboard
   * Refresh all data sources and check all tabs
 
 # Audit Process/Validation:
-  * Post every run, an email is generated with all the daily load statitics and tables/processes requiring attention
+  * Post every run, an email is generated with all the daily load statistics and tables/processes requiring attention
   * Audit Table ETL_Indicator_Proj_Audit captures all the audit records counts and timestamp from Source systems into Teradata staging tables
   * Audit Table ETL_Indicator_Proj_Audit captures all the audit records counts and timestamp from Teradata Staging to Core
   * Error Table ETL_Proc_Error_Logs, captures all stage to core stored procedure errors

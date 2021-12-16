@@ -44,13 +44,24 @@ import ssl
 import teradatasql
 ssl._create_default_https_context = ssl._create_unverified_context
 import params
-con = teradatasql.connect(host=params.MyHost, user=params.MyUser, password=params.Password,logmech=params.LogMech,tmode='TERA')
+con = teradatasql.connect(host=params.MyHost, user=params.MyUser, password=params.Password, logmech=params.LogMech, tmode='TERA')
 
 #############################################################
 # Stage to Core Loads
 #############################################################
 
 with con.cursor () as cur:
+    # Collecting STATS on STG tables
+    cur.execute("COLLECT STATISTICS COLUMN (DATE_KEY) ON "+params.SchemaName+".STG_Google_Mobility;")
+    cur.execute("COLLECT STATISTICS COLUMN (DATE_KEY) ON "+params.SchemaName+".STG_COVID19_Datahub_LVL3;")
+    cur.execute("COLLECT STATISTICS COLUMN (DATE_KEY) ON "+params.SchemaName+".STG_covid19_stats;")
+    cur.execute("COLLECT STATISTICS COLUMN (Period) ON "+params.SchemaName+".STG_US_CENSUS_SURVEY;")
+    from datetime import datetime
+    datetime.utcnow()
+    dateTimeObj = pytz.utc.localize(datetime.utcnow()).astimezone(pytz.timezone('US/Pacific'))
+    timestampStr = dateTimeObj.strftime("%d-%b-%Y (%H:%M:%S.%f)")
+    print("Collected Stats on STG tables!  " + timestampStr)    
+
     # Core Load Calls to Teradata
     cur.execute ("CALL "+params.SchemaName+".ETL_CUST_DATA_CORE (v_MsgTxt,v_RowCnt,v_ResultSet);")
     from datetime import datetime
@@ -167,4 +178,3 @@ QUALIFY 1=ROW_NUMBER() OVER (PARTITION BY Process_Name ORDER BY Process_Dttm DES
 #Fetch the data from Teradata using Pandas Dataframe
 pda = pd.read_sql(query,con)
 print(pda)
-
