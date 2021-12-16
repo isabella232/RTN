@@ -20,7 +20,7 @@ This application consists of the following components:
   * Stored Procedure Creation Granted to the user
   * SELECT WITH GRANT OPTION access to Sys_Calendar.CALENDAR.calendar_date to the user
   
-# Configuation Steps:
+# Configuration Steps:
   * Set Database Credential Information in the file params.py
       * MyHost ='???'
       * MyUser ='???''
